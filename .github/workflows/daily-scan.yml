@@ -1,0 +1,38 @@
+name: Daily MMS scan
+
+on:
+  schedule:
+    - cron: "30 22 * * 1-5"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: daily-scan
+  cancel-in-progress: false
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Run agents
+        env:
+          MASSIVE_API_KEY: ${{ secrets.MASSIVE_API_KEY }}
+          DATA_PROVIDER: ${{ vars.DATA_PROVIDER }}
+        run: |
+          node test/engine.test.js
+          node src/run.js
+          node src/build.js
+      - name: Commit results
+        run: |
+          git config user.name  "mms-screener-bot"
+          git config user.email "mms-screener-bot@users.noreply.github.com"
+          git add docs data || true
+          git diff --cached --quiet || git commit -m "Daily scan $(date -u +%F)"
+          git push
