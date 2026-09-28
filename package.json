@@ -1,0 +1,8 @@
+{
+  "name": "mms-stock-screener",
+  "version": "1.0.0",
+  "description": "Multi-agent S&P 500 screener built on the Market Maker Strategy (MMS) course rules",
+  "type": "module",
+  "scripts": { "scan": "node src/run.js", "test": "node test/engine.test.js" },
+  "engines": { "node": ">=18" }
+}
