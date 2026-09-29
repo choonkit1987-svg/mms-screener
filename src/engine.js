@@ -224,7 +224,7 @@ function validCandle(b) {
   const wicks = (b.h - Math.max(b.c, b.o)) + (Math.min(b.c, b.o) - b.l);
   return body > wicks; // L8: body larger than both wicks together
 }
-export function volumeAgent(bars, ind, fromIdx, side = 'long') {
+export function volumeAgent(bars, ind, fromIdx, side = 'long', cfg = CONFIG) {
   const n = bars.length;
   let up = 0, down = 0;
   for (let i = Math.max(fromIdx, 50); i < n; i++) {
@@ -235,8 +235,9 @@ export function volumeAgent(bars, ind, fromIdx, side = 'long') {
   const favour = side === 'long' ? up : down;
   const against = side === 'long' ? down : up;
   const ratio = favour + against ? favour / (favour + against) : 0.5;
-  const dollarVol = (ind.vol50[n - 1] || 0) * bars[n - 1].c;
-  return { upBig: up, downBig: down, ratio, dollarVol, liquid: dollarVol >= CONFIG.minDollarVolume };
+  // stocks report volume in shares; crypto feeds report it already in USD
+  const dollarVol = (ind.vol50[n - 1] || 0) * (cfg.volumeInQuote ? 1 : bars[n - 1].c);
+  return { upBig: up, downBig: down, ratio, dollarVol, liquid: dollarVol >= cfg.minDollarVolume };
 }
 
 // ---------- Agent 4: Risk agent (L14-L22) ----------
@@ -277,8 +278,24 @@ function triggerScore(st, dist) {
 }
 
 // ---------- Orchestrator for one ticker ----------
+// Data-quality agent: rejects price series that are clearly broken
+// (long runs of days with no price movement at all, or single-day jumps no real market makes).
+export function dataQuality(bars) {
+  let flat = 0, maxJump = 1;
+  for (let i = 1; i < bars.length; i++) {
+    if (bars[i].c === bars[i - 1].c && bars[i].h === bars[i].l) flat++; // no trading at all that day (tiny prices can repeat a close legitimately)
+    const r = bars[i].c / bars[i - 1].c;
+    maxJump = Math.max(maxJump, r, 1 / r);
+  }
+  if (flat / bars.length > 0.1) return `no price movement on ${flat} days — data too coarse or broken`;
+  if (maxJump > 4) return `a ${(maxJump * 100 - 100).toFixed(0)}% one-day move — broken or re-based data`;
+  return '';
+}
+
 export function analyzeTicker(meta, bars, cfg = CONFIG) {
   if (!bars || bars.length < 220) return { ticker: meta.ticker, skip: 'less than 220 daily bars' };
+  const dq = dataQuality(bars.slice(-260));
+  if (dq) return { ticker: meta.ticker, skip: dq };
   const ind = computeIndicators(bars);
   const n = bars.length;
   const stage = stageAgent(bars, ind, cfg);
@@ -293,7 +310,7 @@ export function analyzeTicker(meta, bars, cfg = CONFIG) {
   if (stage.stage === 2) {
     const cross = ind.sma150[n - 1] > ind.sma200[n - 1] ? lastCross(ind.sma150, ind.sma200, true) : n - 60;
     const setup = contractionAgent(bars, ind, cross, cfg);
-    const vol = volumeAgent(bars, ind, setup.contractions?.[0]?.hiI ?? n - 130, 'long');
+    const vol = volumeAgent(bars, ind, setup.contractions?.[0]?.hiI ?? n - 130, 'long', cfg);
     out.long = { setup, vol, risk: setup.entry ? riskAgent('long', setup, cfg) : null, ma150above200: ind.sma150[n - 1] > ind.sma200[n - 1] };
   }
   if (stage.stage === 4) {
@@ -303,7 +320,7 @@ export function analyzeTicker(meta, bars, cfg = CONFIG) {
     const setup = contractionAgent(inv, indInv, cross, cfg);
     // express contractions back in real prices (rallies inside the downtrend)
     setup.contractions = (setup.contractions || []).map(c => ({ ...c, lo: 1 / c.hi, hi: 1 / c.lo, loT: c.hiT, hiT: c.loT, loI: c.hiI, hiI: c.loI }));
-    const vol = volumeAgent(bars, ind, setup.contractions?.[0]?.loI ?? n - 130, 'short');
+    const vol = volumeAgent(bars, ind, setup.contractions?.[0]?.loI ?? n - 130, 'short', cfg);
     out.short = { setup, vol, risk: setup.entry ? riskAgent('short', setup, cfg) : null, ma150below200: ind.sma150[n - 1] < ind.sma200[n - 1] };
   }
   out.chart = chartData(bars, ind, 180);
@@ -312,7 +329,7 @@ export function analyzeTicker(meta, bars, cfg = CONFIG) {
 
 export function chartData(bars, ind, k) {
   const s = Math.max(0, bars.length - k);
-  const r = x => (x == null ? null : +x.toFixed(4));
+  const r = x => (x == null ? null : +x.toPrecision(6)); // keeps sub-cent coin prices intact
   return {
     t: bars.slice(s).map(b => b.t),
     o: bars.slice(s).map(b => r(b.o)), h: bars.slice(s).map(b => r(b.h)),
@@ -363,7 +380,8 @@ export function rankAll(analyses, topN = 5) {
     const passed = arr.filter(x => x.gate && !['EXTENDED', 'BROKEN'].includes(x.a.long?.setup.status ?? x.a.short?.setup.status));
     const top = passed.slice(0, topN).map(x => ({ ...x, tier: 'setup' }));
     if (top.length < topN) {
-      const rest = arr.filter(x => !top.some(t => t.a.ticker === x.a.ticker)).slice(0, topN - top.length);
+      // watch-list fill: best remaining names, but never illiquid ones (L13 liquidity rule still applies)
+      const rest = arr.filter(x => (x.a.long || x.a.short).vol.liquid && (x.a.long || x.a.short).setup.status !== 'BROKEN' && !top.some(t => t.a.ticker === x.a.ticker)).slice(0, topN - top.length);
       top.push(...rest.map(x => ({ ...x, tier: 'watch' })));
     }
     return { top, passedCount: passed.length, total: arr.length };
@@ -374,6 +392,7 @@ export function rankAll(analyses, topN = 5) {
 }
 
 // Human-readable reasoning for a pick (what each agent concluded)
+export const fmtPrice = x => (x >= 100 ? x.toFixed(2) : x >= 1 ? x.toFixed(3) : x.toPrecision(4));
 export function explain(a, side) {
   const S = side === 'long' ? a.long : a.short;
   const st = S.setup, pct = x => (x * 100).toFixed(1) + '%';
@@ -383,6 +402,6 @@ export function explain(a, side) {
     notes.push(`Contraction agent: ${st.count} ${side === 'long' ? 'pullbacks' : 'rallies'} (${st.contractions.map((c, i) => 'C' + (i + 1) + ' ' + pct(c.depth)).join(' → ')}); ${st.valid ? 'valid buy-point structure' : 'not valid yet: ' + st.reason}. Breakout zone: ${st.zone}.`);
   } else notes.push(`Contraction agent: ${st.reason}.`);
   notes.push(`Volume agent: ${S.vol.upBig} big up-days vs ${S.vol.downBig} big down-days above the 50-day volume average; $${(S.vol.dollarVol / 1e6).toFixed(0)}M/day traded.`);
-  if (S.risk) notes.push(`Risk agent: ${side === 'long' ? 'buy-stop' : 'sell-stop'} ${S.risk.entry.toFixed(2)}, stop ${S.risk.stop.toFixed(2)} (${pct(S.risk.riskPct)} risk), target ${S.risk.target.toFixed(2)} (1:2), move stop to entry at ${S.risk.breakeven.toFixed(2)}.`);
+  if (S.risk) notes.push(`Risk agent: ${side === 'long' ? 'buy-stop' : 'sell-stop'} ${fmtPrice(S.risk.entry)}, stop ${fmtPrice(S.risk.stop)} (${pct(S.risk.riskPct)} risk), target ${fmtPrice(S.risk.target)} (1:2), move stop to entry at ${fmtPrice(S.risk.breakeven)}.`);
   return notes;
 }

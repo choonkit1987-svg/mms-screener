@@ -13,14 +13,14 @@ import { loadUniverse, yahooHistory, massiveHistory } from './data.js';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const log = (...a) => console.log(new Date().toISOString().slice(11, 19), ...a);
 
-export function buildReport(universe, history, provider) {
-  const analyses = universe.map(u => analyzeTicker(u, history[u.ticker]));
+export function buildReport(universe, history, provider, { cfg = CONFIG, regimeTicker = 'SPY', market = 'stocks' } = {}) {
+  const analyses = universe.map(u => analyzeTicker(u, history[u.ticker], cfg));
   const ranked = rankAll(analyses, 5);
-  const spy = history.SPY;
+  const spy = history[regimeTicker];
   let regime = null;
   if (spy && spy.length > 220) {
-    const s = stageAgent(spy, computeIndicators(spy));
-    regime = { ticker: 'SPY', stage: s.stage, slope150: s.slope, dist150: s.dist, close: spy[spy.length - 1].c };
+    const s = stageAgent(spy, computeIndicators(spy), cfg);
+    regime = { ticker: regimeTicker, stage: s.stage, slope150: s.slope, dist150: s.dist, close: spy[spy.length - 1].c };
   }
   const pack = (x, side) => {
     const a = x.a, S = side === 'long' ? a.long : a.short;
@@ -34,13 +34,13 @@ export function buildReport(universe, history, provider) {
   };
   const asOf = analyses.filter(a => !a.skip).map(a => a.asOf).sort().pop();
   return {
-    generatedAt: new Date().toISOString(), asOf, provider,
-    universe: 'S&P 500', universeSize: universe.length, scanned: ranked.scanned,
+    generatedAt: new Date().toISOString(), asOf, provider, market,
+    universe: market === 'crypto' ? 'Top 100 coins' : 'S&P 500', universeSize: universe.length, scanned: ranked.scanned,
     skipped: analyses.filter(a => a.skip).map(a => a.ticker),
     stageCounts: ranked.stageCounts, regime,
     up: ranked.up.top.map(x => pack(x, 'long')), upPassed: ranked.up.passedCount, upCandidates: ranked.up.total,
     down: ranked.down.top.map(x => pack(x, 'short')), downPassed: ranked.down.passedCount, downCandidates: ranked.down.total,
-    config: CONFIG,
+    config: cfg,
   };
 }
 

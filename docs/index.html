@@ -22,6 +22,7 @@
   --accent:#4FC2B8;--accent-soft:#16332F;--up:#4CC47E;--up-soft:#143020;--down:#F0766C;--down-soft:#3A1917;--warn:#E0B458;--warn-soft:#352A12;
   --ma50:#7E8A85;--ma150:#3CCB97;--ma200:#EE6A61;--box:rgba(79,194,184,.10);--box-line:rgba(79,194,184,.55);}
 *{box-sizing:border-box}
+[hidden]{display:none!important}
 body{background:var(--bg);color:var(--ink);font:15px/1.5 var(--body);margin:0}
 .wrap{max-width:1320px;margin:0 auto;padding-inline:20px;padding-block:24px 48px;display:flex;flex-direction:column;gap:22px}
 h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance;letter-spacing:.005em}
@@ -32,6 +33,9 @@ a{color:var(--accent)}
 .top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px 24px;border-bottom:2px solid var(--ink);padding-bottom:14px}
 .top h1{font-size:34px;font-weight:700;line-height:1}
 .top h1 span{color:var(--accent)}
+.nav{display:flex;gap:4px;margin-bottom:10px}
+.nav a{font-size:13px;font-weight:600;text-decoration:none;padding:4px 12px;border-radius:999px;border:1px solid var(--rule);color:var(--muted)}
+.nav a[aria-current=page]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
 .top p{margin:6px 0 0;color:var(--muted);max-width:62ch}
 .asof{display:flex;gap:16px;flex-wrap:wrap;align-items:center}
 .asof .date{font-family:var(--mono);font-size:22px}
@@ -99,12 +103,13 @@ details ul{margin:8px 0 0;padding-left:18px;font-size:13.5px;display:flex;flex-d
 <div class="wrap">
   <header class="top">
     <div>
+      <nav class="nav" id="nav"><a id="nav-stocks" href="#">US stocks</a><a id="nav-crypto" href="#">Crypto</a></nav>
       <div class="label">Market Maker Strategy · multi-agent scan</div>
-      <h1>MMS Daily <span>Screener</span></h1>
-      <p>Every trading day the agents scan the S&amp;P 500 on the daily chart and pick the 5 strongest Stage 2 buy setups and the 5 strongest Stage 4 short setups, using the course rules for stage, contraction, volume and buy/sell triggers.</p>
+      <h1>MMS Daily <span id="h1b">Screener</span></h1>
+      <p id="intro">Every trading day the agents scan the S&amp;P 500 on the daily chart and pick the 5 strongest Stage 2 buy setups and the 5 strongest Stage 4 short setups, using the course rules for stage, contraction, volume and buy/sell triggers.</p>
     </div>
     <div class="asof">
-      <div><div class="label">Market close</div><div class="date" id="asof">—</div></div>
+      <div><div class="label" id="asoflabel">Market close</div><div class="date" id="asof">—</div></div>
       <div id="histwrap" hidden><label class="label" for="hist">History</label><br><select id="hist"></select></div>
     </div>
   </header>
@@ -137,7 +142,7 @@ details ul{margin:8px 0 0;padding-left:18px;font-size:13.5px;display:flex;flex-d
     <div><h3>3 · Volume agent</h3><ul>
       <li>Counts valid candles (body bigger than both wicks) whose volume beats the 50-day volume average.</li>
       <li>More big up-days than big down-days favours a long; the reverse favours a short.</li>
-      <li>50-day average volume × price must exceed US$1M a day.</li></ul><div class="src">Course ch.3 · Volume</div></div>
+      <li id="liqrule">50-day average volume × price must exceed US$1M a day.</li></ul><div class="src">Course ch.3 · Volume</div></div>
     <div><h3>4 · Risk agent</h3><ul>
       <li>Entry: contraction high + 1% buffer (short: low − 1%).</li>
       <li>Stop: contraction low − 1% (short: high + 1%).</li>
@@ -156,7 +161,7 @@ details ul{margin:8px 0 0;padding-left:18px;font-size:13.5px;display:flex;flex-d
 (function(){
 const $=s=>document.querySelector(s);
 const pct=(x,d=1)=>(x*100).toFixed(d)+'%';
-const px=x=>x==null?'—':(x>=1000?x.toFixed(0):x>=100?x.toFixed(2):x.toFixed(2));
+const px=x=>x==null?'—':(x>=10000?x.toFixed(0):x>=100?x.toFixed(2):x>=1?x.toFixed(3):x.toPrecision(4));
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const STATUS={SETUP:'Near trigger',TRIGGERED:'Triggered',FORMING:'Forming',EXTENDED:'Extended',BROKEN:'Broken'};
 
@@ -243,16 +248,35 @@ function card(p,i,side){
   return el;
 }
 
+
+const NAV_BASE=document.getElementById('embedded-data')?null:(location.pathname.includes('/crypto/')?'../':'./');
+function site(d){
+  const c=d.market==='crypto';
+  document.title=c?'MMS Crypto Screener':'MMS Daily Screener';
+  $('#h1b').textContent=c?'Crypto Screener':'Screener';
+  $('#intro').textContent=c
+    ?'Every day after the 00:00 UTC candle close the agents scan the top 100 coins by market cap (stablecoins and wrapped tokens removed) on the daily chart and pick the 5 strongest Stage 2 buy setups and the 5 strongest Stage 4 short setups, using the course rules for stage, contraction, volume and buy/sell triggers.'
+    :'Every trading day the agents scan the S&P 500 on the daily chart and pick the 5 strongest Stage 2 buy setups and the 5 strongest Stage 4 short setups, using the course rules for stage, contraction, volume and buy/sell triggers.';
+  $('#asoflabel').textContent=c?'Daily close (UTC)':'Market close';
+  $('#liqrule').textContent=c?'50-day average USD volume must exceed US$1M a day.':'50-day average volume × price must exceed US$1M a day.';
+  const nav=$('#nav');
+  if(!NAV_BASE){nav.hidden=true;}else{
+    $('#nav-stocks').href=NAV_BASE;$('#nav-crypto').href=NAV_BASE+'crypto/';
+    $('#nav-stocks').toggleAttribute('aria-current',!c);$('#nav-crypto').toggleAttribute('aria-current',c);
+    if(!c)$('#nav-stocks').setAttribute('aria-current','page');else $('#nav-crypto').setAttribute('aria-current','page');
+  }
+}
 let CUR=null;
 function render(d){
   CUR=d;
+  site(d);
   $('#asof').textContent=d.asOf;
   const sc=d.stageCounts,tot=[1,2,3,4].reduce((a,k)=>a+(sc[k]||0),0)||1;
   const cols={1:'var(--ma50)',2:'var(--up)',3:'var(--warn)',4:'var(--down)'};
   const rg=d.regime;
   $('#regime').innerHTML=`
-    <div><span class="label">S&amp;P 500 (SPY) stage</span><span class="v">${rg?'Stage '+rg.stage:'—'}</span><span class="legend">${rg?`150 MA ${rg.slope150>=0?'rising':'falling'} ${pct(Math.abs(rg.slope150))} · price ${pct(Math.abs(rg.dist150))} ${rg.dist150>=0?'above':'below'}`:''}</span></div>
-    <div><span class="label">Stocks by stage (${d.scanned} scanned)</span>
+    <div><span class="label">${d.market==='crypto'?'Bitcoin (BTC) stage':'S&amp;P 500 (SPY) stage'}</span><span class="v">${rg?'Stage '+rg.stage:'—'}</span><span class="legend">${rg?`150 MA ${rg.slope150>=0?'rising':'falling'} ${pct(Math.abs(rg.slope150))} · price ${pct(Math.abs(rg.dist150))} ${rg.dist150>=0?'above':'below'}`:''}</span></div>
+    <div><span class="label">${d.market==='crypto'?'Coins':'Stocks'} by stage (${d.scanned} scanned)</span>
       <div class="stagebar">${[1,2,3,4].map(k=>`<i style="width:${(sc[k]||0)/tot*100}%;background:${cols[k]}" title="Stage ${k}: ${sc[k]||0}"></i>`).join('')}</div>
       <span class="legend">${[1,2,3,4].map(k=>`<span><b style="background:${cols[k]}"></b>S${k} ${sc[k]||0}</span>`).join('')}</span></div>
     <div><span class="label">Valid long setups</span><span class="v">${d.upPassed} <small class="legend">of ${d.upCandidates} Stage 2</small></span></div>
@@ -265,7 +289,7 @@ function render(d){
     const w=arr.filter(p=>p.tier==='watch').length;
     $(meta).textContent=w?`${arr.length-w} valid · ${w} on watch`:`${arr.length} valid setups`;
   }
-  $('#prov').textContent=`Data: ${d.provider==='massive'?'Massive (Polygon.io)':'Yahoo Finance'} daily bars · generated ${d.generatedAt.slice(0,16).replace('T',' ')} UTC.`;
+  $('#prov').textContent=`Data: ${d.provider==='massive'?'Massive (Polygon.io)':d.provider==='yahoo+coingecko'?'Yahoo Finance daily candles (UTC close), coin list from CoinGecko':'Yahoo Finance'} daily bars · generated ${d.generatedAt.slice(0,16).replace('T',' ')} UTC.`;
 }
 
 const rerender=()=>{if(CUR)render(CUR)};

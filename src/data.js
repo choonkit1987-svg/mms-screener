@@ -42,13 +42,14 @@ async function getJSON(url, tries = 4) {
 }
 
 // ---------- Yahoo (no key) ----------
-export async function yahooHistory(universe, { range = '2y', concurrency = 4, log = console.log } = {}) {
+export async function yahooHistory(universe, { range = '2y', concurrency = 4, log = console.log, dropToday = false } = {}) {
+  const todayUTC = new Date().toISOString().slice(0, 10);
   const out = {};
   let idx = 0, done = 0;
   async function worker() {
     while (idx < universe.length) {
       const u = universe[idx++];
-      const sym = u.ticker.replace('.', '-');
+      const sym = u.yahoo || u.ticker.replace('.', '-');
       try {
         const j = await getJSON(`https://query1.finance.yahoo.com/v8/finance/chart/${sym}?range=${range}&interval=1d&events=split`);
         const r = j.chart.result[0], q = r.indicators.quote[0];
@@ -59,7 +60,8 @@ export async function yahooHistory(universe, { range = '2y', concurrency = 4, lo
           const f = adj && adj[i] ? adj[i] / q.close[i] : 1; // split/dividend-adjust OHLC
           bars.push({ t: new Date(ts * 1000).toISOString().slice(0, 10), o: q.open[i] * f, h: q.high[i] * f, l: q.low[i] * f, c: q.close[i] * f, v: q.volume[i] || 0 });
         });
-        out[u.ticker] = bars;
+        // crypto trades 24/7: today's candle is still open, so only use completed days
+        out[u.ticker] = dropToday ? bars.filter(b => b.t < todayUTC) : bars;
       } catch (e) { log(`  ${u.ticker}: ${e.message}`); }
       if (++done % 50 === 0) log(`  yahoo: ${done}/${universe.length}`);
       await sleep(250);
