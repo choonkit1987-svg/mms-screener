@@ -1,0 +1,36 @@
+name: Daily MMS crypto scan
+
+on:
+  schedule:
+    - cron: "30 2 * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: daily-scan
+  cancel-in-progress: false
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Run crypto agents
+        run: |
+          node test/engine.test.js
+          node src/run-crypto.js
+          node src/build.js
+      - name: Commit results
+        run: |
+          git config user.name  "mms-screener-bot"
+          git config user.email "mms-screener-bot@users.noreply.github.com"
+          git add docs
+          git diff --cached --quiet || git commit -m "Daily crypto scan $(date -u +%F)"
+          git pull --rebase
+          git push
