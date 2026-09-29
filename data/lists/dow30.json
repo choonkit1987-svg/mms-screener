@@ -1,0 +1,152 @@
+[
+ {
+  "ticker": "MMM",
+  "name": "3M",
+  "sector": "Industrials"
+ },
+ {
+  "ticker": "GOOGL",
+  "name": "Alphabet (Class A)",
+  "sector": "Communication Services"
+ },
+ {
+  "ticker": "AXP",
+  "name": "American Express",
+  "sector": "Financials"
+ },
+ {
+  "ticker": "AMGN",
+  "name": "Amgen",
+  "sector": "Health Care"
+ },
+ {
+  "ticker": "AMZN",
+  "name": "Amazon",
+  "sector": "Consumer Discretionary"
+ },
+ {
+  "ticker": "AAPL",
+  "name": "Apple",
+  "sector": "Information Technology"
+ },
+ {
+  "ticker": "BA",
+  "name": "Boeing",
+  "sector": "Industrials"
+ },
+ {
+  "ticker": "CAT",
+  "name": "Caterpillar",
+  "sector": "Industrials"
+ },
+ {
+  "ticker": "CVX",
+  "name": "Chevron",
+  "sector": "Energy"
+ },
+ {
+  "ticker": "CSCO",
+  "name": "Cisco",
+  "sector": "Information Technology"
+ },
+ {
+  "ticker": "KO",
+  "name": "Coca-Cola",
+  "sector": "Consumer Staples"
+ },
+ {
+  "ticker": "DIS",
+  "name": "Disney",
+  "sector": "Communication Services"
+ },
+ {
+  "ticker": "GS",
+  "name": "Goldman Sachs",
+  "sector": "Financials"
+ },
+ {
+  "ticker": "HD",
+  "name": "Home Depot",
+  "sector": "Consumer Discretionary"
+ },
+ {
+  "ticker": "HON",
+  "name": "Honeywell Technologies",
+  "sector": "Industrials"
+ },
+ {
+  "ticker": "IBM",
+  "name": "IBM",
+  "sector": "Information Technology"
+ },
+ {
+  "ticker": "JNJ",
+  "name": "Johnson & Johnson",
+  "sector": "Health Care"
+ },
+ {
+  "ticker": "JPM",
+  "name": "JPMorgan Chase",
+  "sector": "Financials"
+ },
+ {
+  "ticker": "MCD",
+  "name": "McDonald's",
+  "sector": "Consumer Discretionary"
+ },
+ {
+  "ticker": "MRK",
+  "name": "Merck",
+  "sector": "Health Care"
+ },
+ {
+  "ticker": "MSFT",
+  "name": "Microsoft",
+  "sector": "Information Technology"
+ },
+ {
+  "ticker": "NKE",
+  "name": "Nike",
+  "sector": "Consumer Discretionary"
+ },
+ {
+  "ticker": "NVDA",
+  "name": "Nvidia",
+  "sector": "Information Technology"
+ },
+ {
+  "ticker": "PG",
+  "name": "Procter & Gamble",
+  "sector": "Consumer Staples"
+ },
+ {
+  "ticker": "CRM",
+  "name": "Salesforce",
+  "sector": "Information Technology"
+ },
+ {
+  "ticker": "SHW",
+  "name": "Sherwin-Williams",
+  "sector": "Materials"
+ },
+ {
+  "ticker": "TRV",
+  "name": "Travelers",
+  "sector": "Financials"
+ },
+ {
+  "ticker": "UNH",
+  "name": "UnitedHealth Group",
+  "sector": "Health Care"
+ },
+ {
+  "ticker": "V",
+  "name": "Visa",
+  "sector": "Financials"
+ },
+ {
+  "ticker": "WMT",
+  "name": "Walmart",
+  "sector": "Consumer Staples"
+ }
+]

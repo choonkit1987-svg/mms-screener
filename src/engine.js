@@ -13,7 +13,7 @@ export const CONFIG = {
   rewardRisk: 2,             // minimum 1:2 target (L14, L20)
   breakevenAt: 1.5,          // move stop to entry at 1:1.5 when target is 1:2 (L19)
   firstPositionPct: 6.25,    // first order = 6.25% of capital (L22)
-  minDollarVolume: 1e6,      // 50-day avg volume x price > US$1M (L13)
+  minDollarVolume: 1e6,      // 50-day avg volume x price > US$1M (L13); Bursa uses RM1M (cfg.currency = 'RM')
   triggerFreshBars: 5,       // a close above entry within this many bars = "triggered"
   extendedPct: 0.05,         // more than 5% past entry = extended (do not chase)
 };
@@ -237,7 +237,7 @@ export function volumeAgent(bars, ind, fromIdx, side = 'long', cfg = CONFIG) {
   const ratio = favour + against ? favour / (favour + against) : 0.5;
   // stocks report volume in shares; crypto feeds report it already in USD
   const dollarVol = (ind.vol50[n - 1] || 0) * (cfg.volumeInQuote ? 1 : bars[n - 1].c);
-  return { upBig: up, downBig: down, ratio, dollarVol, liquid: dollarVol >= cfg.minDollarVolume };
+  return { upBig: up, downBig: down, ratio, dollarVol, liquid: dollarVol >= cfg.minDollarVolume, ...(cfg.currency ? { ccy: cfg.currency } : {}) };
 }
 
 // ---------- Agent 4: Risk agent (L14-L22) ----------
@@ -410,7 +410,7 @@ export function explain(a, side, S0) {
   if (st.contractions?.length) {
     notes.push(`Contraction agent: ${st.count} ${side === 'long' ? 'pullbacks' : 'rallies'} (${st.contractions.map((c, i) => 'C' + (i + 1) + ' ' + pct(c.depth)).join(' → ')}); ${st.valid ? 'valid buy-point structure' : 'not valid yet: ' + st.reason}. Breakout zone: ${st.zone}.`);
   } else notes.push(`Contraction agent: ${st.reason}.`);
-  notes.push(`Volume agent: ${S.vol.upBig} big up-days vs ${S.vol.downBig} big down-days above the 50-day volume average; $${(S.vol.dollarVol / 1e6).toFixed(0)}M/day traded.`);
+  notes.push(`Volume agent: ${S.vol.upBig} big up-days vs ${S.vol.downBig} big down-days above the 50-day volume average; ${S.vol.ccy || '$'}${(S.vol.dollarVol / 1e6).toFixed(0)}M/day traded.`);
   if (S.risk) notes.push(`Risk agent: ${side === 'long' ? 'buy-stop' : 'sell-stop'} ${fmtPrice(S.risk.entry)}, stop ${fmtPrice(S.risk.stop)} (${pct(S.risk.riskPct)} risk), target ${fmtPrice(S.risk.target)} (1:2), move stop to entry at ${fmtPrice(S.risk.breakeven)}.`);
   return notes;
 }

@@ -81,4 +81,19 @@ assert.equal(rs.skip, 'less than 220 daily bars');
 assert.equal(ru.ch.c.length, 120); assert.equal(ru.ch.d[0], 0);
 assert.ok(JSON.stringify(ru).length < 4500, 'lookup record stays compact: ' + JSON.stringify(ru).length);
 console.log('lookup:', ru.t, ru.head, ru.lv, '|', rd.t, rd.head, rd.lv, '|', rf.t, rf.head, rf.action);
+// 7) index member lists (Wikipedia table parser) and Bursa renaming
+import { parseWikiTable } from '../src/data.js';
+import { renameBursa } from '../src/run-bursa.js';
+const html = '<table class="wikitable"><tr><th>Year</th><th>Close</th></tr><tr><td>2025</td><td>1</td></tr></table>'
+  + '<table class="wikitable sortable" id="constituents"><tr><th>Company</th><th>Symbol<sup>[1]</sup></th><th>Sector</th></tr>'
+  + '<tr><th><a href="/x">Alphabet</a><br />(Class A)</th><td><a>GOOGL</a>\n</td><td>Communication Services</td></tr>'
+  + '<tr><th>Johnson &amp; Johnson</th><td>JNJ</td><td>Health Care</td></tr></table>';
+const wt = parseWikiTable(html, /symbol/i);
+assert.equal(wt.length, 2); assert.equal(wt[0].symbol, 'GOOGL'); assert.equal(wt[0].company, 'Alphabet (Class A)'); assert.equal(wt[1].company, 'Johnson & Johnson');
+assert.throws(() => parseWikiTable(html, /stock code/i));
+const rn = renameBursa([{ ticker: '1155', code: '1155', name: 'Malayan Banking Berhad' }, { ticker: '9999', code: '9999', name: 'No Meta Bhd' }],
+  { 1155: [1], 9999: [2], KLCI: [3] }, { 1155: { shortName: 'MAYBANK', longName: 'Malayan Banking Berhad' } });
+assert.deepEqual(rn.universe.map(u => u.ticker), ['MAYBANK', '9999']);
+assert.equal(rn.universe[0].name, 'Malayan Banking Berhad (1155)');
+assert.deepEqual(Object.keys(rn.history).sort(), ['9999', 'KLCI', 'MAYBANK']);
 console.log('ALL TESTS PASSED');

@@ -1,6 +1,16 @@
 # MMS Daily Screener
 
-A multi-agent screener that applies the **Market Maker Strategy (MMS) 2026** course rules to the **S&P 500** every trading day and to the **top 100 crypto coins** every day. For each market it picks:
+A multi-agent screener that applies the **Market Maker Strategy (MMS) 2026** course rules every day to five markets, each with its own page (tabs at the top of every page):
+
+| Page | Universe | Market regime | Runs |
+|---|---|---|---|
+| `/` | S&P 500 | SPY | 22:30 UTC Mon–Fri (6:30 am MYT) |
+| `/nasdaq/` | Nasdaq-100 | QQQ | same US run |
+| `/dow/` | Dow Jones 30 | DIA | same US run |
+| `/bursa/` | FBM KLCI 30 (Bursa Malaysia) | KLCI index | 10:15 UTC Mon–Fri (6:15 pm MYT) |
+| `/crypto/` | Top 100 coins | Bitcoin | 02:30 UTC daily (10:30 am MYT) |
+
+For each market it picks:
 
 - **Top 5 uptrend stocks**: Stage 2 names with a valid contraction (VCP) buy setup near its trigger
 - **Top 5 downtrend stocks**: Stage 4 names with the same structure mirrored for shorting
@@ -11,7 +21,7 @@ Results are published as a web dashboard (GitHub Pages) with candlestick charts,
 
 | Agent | Course chapter | Job |
 |---|---|---|
-| Universe agent | – | Downloads the current S&P 500 list |
+| Universe agent | – | Downloads the current index members (S&P 500 from GitHub datasets; Nasdaq-100, Dow 30 and FBM KLCI from Wikipedia) |
 | Market-data agent | – | Daily OHLCV, 2 years (Massive/Polygon grouped-daily with a free key, or Yahoo) |
 | Stage agent | Ch.1 Stage 1–4 | 150-day MA slope + price position → Stage 1/2/3/4 and strength |
 | Contraction agent | Ch.2 Contraction, Base | Finds C1…C6 from the highest high since the 150/200 cross; checks tightening, rising lows, last contraction < 10%, breakout zone |
@@ -37,14 +47,20 @@ From then on it runs automatically at 22:30 UTC Monday–Friday (6:30 am Malaysi
 
 ## Analyse a stock (or coin)
 
-Below the market summary there is a search box. Type any S&P 500 ticker or company name (on the crypto page: any top-100 coin) and the page shows the agents' verdict for that one name:
+Below the market summary there is a search box. Type any ticker or company name from that page's index (on the crypto page: any top-100 coin; on the Bursa page: short name, company name or stock code) and the page shows the agents' verdict for that one name:
 
 - **Direction:** Uptrend (Stage 2), Downtrend (Stage 4), Topping (Stage 3, leaning down) or Basing (Stage 1, no trend yet)
 - **Levels:** buy-stop (uptrend) or sell-stop (downtrend), stop loss, 1:2 target, risk to stop, breakeven point
 - **Whether it's a trade:** a valid setup near its trigger, already triggered, too extended to chase, or no valid setup yet (with the rule it fails)
 - a chart with the 50/150/200-day MAs and the contractions the agents counted, plus each agent's notes
 
-Every daily run analyses every name and saves the results in `docs/data/all.json` (and `docs/crypto/data/all.json`), so the answer appears instantly and needs no API key. Only the latest day is kept for lookups. Link straight to a name with `#TICKER`, e.g. `https://<you>.github.io/mms-screener/#AAPL`.
+Every daily run analyses every name and saves the results in each page's `data/all.json`, so the answer appears instantly and needs no API key. Only the latest day is kept for lookups. Link straight to a name with `#TICKER`, e.g. `https://<you>.github.io/mms-screener/#AAPL`.
+
+## Nasdaq-100, Dow Jones and Bursa Malaysia pages
+
+- **Member lists** come from Wikipedia's "List of NASDAQ-100 companies", "List of Dow Jones Industrial Average companies" and "FTSE Bursa Malaysia KLCI" tables. Each run saves the list to `data/lists/`; if Wikipedia is down or the table changes, the run uses the saved copy instead of failing.
+- **Nasdaq-100 and Dow** are scanned in the same run as the S&P 500 (one download covers all three). Their market regime is QQQ and DIA.
+- **Bursa Malaysia** has its own workflow, `.github/workflows/bursa-scan.yml`, which runs at 6:15 pm Malaysia time after Bursa closes. Data is Yahoo's `<stock code>.KL` daily bars; if it is run while Bursa is still trading, today's unfinished bar is ignored. Stocks are shown by their Bursa short name (MAYBANK, TENAGA…); the lookup box also accepts the 4-digit stock code. Prices are in RM and the liquidity rule is RM1M a day.
 
 ## Crypto page
 
@@ -67,6 +83,7 @@ Needs Node.js 18 or newer, no packages to install.
 node test/engine.test.js                     # unit tests
 DATA_PROVIDER=yahoo node src/run.js          # stocks (or: MASSIVE_API_KEY=xxx node src/run.js)
 node src/run-crypto.js                       # crypto
+node src/run-bursa.js                        # Bursa Malaysia (FBM KLCI)
 node src/build.js                            # rebuild docs/index.html
 npx serve docs                               # open http://localhost:3000
 ```

@@ -8,10 +8,12 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { analyzeTicker, rankAll, explain, stageAgent, computeIndicators, lookupTable, CONFIG } from './engine.js';
-import { loadUniverse, yahooHistory, massiveHistory } from './data.js';
+import { loadUniverse, loadNasdaq100, loadDow30, cachedList, yahooHistory, massiveHistory } from './data.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const log = (...a) => console.log(new Date().toISOString().slice(11, 19), ...a);
+
+export const MARKET_LABELS = { stocks: 'S&P 500', nasdaq: 'Nasdaq-100', dow: 'Dow Jones 30', bursa: 'FBM KLCI 30', crypto: 'Top 100 coins' };
 
 export function buildReport(universe, history, provider, { cfg = CONFIG, regimeTicker = 'SPY', market = 'stocks' } = {}) {
   const analyses = universe.map(u => analyzeTicker(u, history[u.ticker], cfg));
@@ -36,7 +38,7 @@ export function buildReport(universe, history, provider, { cfg = CONFIG, regimeT
   const lookup = { asOf, market, generatedAt: new Date().toISOString(), rows: lookupTable(analyses) };
   return { lookup, report: {
     generatedAt: new Date().toISOString(), asOf, provider, market,
-    universe: market === 'crypto' ? 'Top 100 coins' : 'S&P 500', universeSize: universe.length, scanned: ranked.scanned,
+    universe: MARKET_LABELS[market] || market, universeSize: universe.length, scanned: ranked.scanned,
     skipped: analyses.filter(a => a.skip).map(a => a.ticker),
     stageCounts: ranked.stageCounts, regime,
     up: ranked.up.top.map(x => pack(x, 'long')), upPassed: ranked.up.passedCount, upCandidates: ranked.up.total,
@@ -50,34 +52,50 @@ async function main() {
   log('Universe agent: loading S&P 500 constituents');
   const universe = await loadUniverse();
   log(`  ${universe.length} tickers`);
+  // Nasdaq-100 and Dow 30 member lists come from Wikipedia; the last good copy is kept in data/lists/
+  const lists = {};
+  for (const [key, file, loader] of [['nasdaq', 'nasdaq100', loadNasdaq100], ['dow', 'dow30', loadDow30]]) {
+    try { lists[key] = await cachedList(path.join(root, `data/lists/${file}.json`), loader, log); log(`  ${MARKET_LABELS[key]}: ${lists[key].length} tickers`); }
+    catch (e) { lists[key] = []; log(`  ${MARKET_LABELS[key]} list unavailable (${e.message}) — skipping that page today`); }
+  }
+  // one download for every index (most Nasdaq-100 and all Dow names are also in the S&P 500)
+  const all = [...new Map([...universe, ...lists.nasdaq, ...lists.dow].map(u => [u.ticker, u])).values()];
+  const extra = [{ ticker: 'SPY' }, { ticker: 'QQQ' }, { ticker: 'DIA' }];
   log(`Market-data agent: provider = ${provider}`);
   let history;
   if (provider === 'massive') {
     try {
-      history = await massiveHistory(universe, { apiKey: process.env.MASSIVE_API_KEY, cacheFile: path.join(root, 'data/history.json.gz'), log });
+      history = await massiveHistory(all, { apiKey: process.env.MASSIVE_API_KEY, cacheFile: path.join(root, 'data/history.json.gz'), log });
     } catch (e) {
       log('  massive failed (' + e.message + ') — falling back to yahoo');
-      history = await yahooHistory([...universe, { ticker: 'SPY' }], { log });
+      history = await yahooHistory([...all, ...extra], { log });
     }
-  } else history = await yahooHistory([...universe, { ticker: 'SPY' }], { log });
+  } else history = await yahooHistory([...all, ...extra], { log });
   log(`  history for ${Object.keys(history).length} tickers`);
 
   log('Stage / Contraction / Volume / Risk agents: analysing');
-  const { report, lookup } = buildReport(universe, history, provider);
-  log(`Ranking agent: ${report.upPassed} valid long setups, ${report.downPassed} valid short setups (as of ${report.asOf})`);
+  const pages = [['S&P 500', universe, 'docs/data', { regimeTicker: 'SPY', market: 'stocks' }]];
+  if (lists.nasdaq.length) pages.push(['Nasdaq-100', lists.nasdaq, 'docs/nasdaq/data', { regimeTicker: 'QQQ', market: 'nasdaq' }]);
+  if (lists.dow.length) pages.push(['Dow Jones 30', lists.dow, 'docs/dow/data', { regimeTicker: 'DIA', market: 'dow' }]);
+  for (const [label, uni, dir, opts] of pages) {
+    const { report, lookup } = buildReport(uni, history, provider, opts);
+    log(`${label} — ranking agent: ${report.upPassed} valid long setups, ${report.downPassed} valid short setups (as of ${report.asOf})`);
+    writeOutputs(path.join(root, dir), report, lookup);
+    for (const [side, arr] of [['UP', report.up], ['DOWN', report.down]]) {
+      log(`  Top ${side}: ` + arr.map(p => `${p.ticker}(${p.score.total}${p.tier === 'watch' ? ',watch' : ''})`).join(' '));
+    }
+  }
+}
 
-  const dataDir = path.join(root, 'docs/data');
+export function writeOutputs(dataDir, report, lookup) {
   fs.mkdirSync(path.join(dataDir, 'archive'), { recursive: true });
   fs.writeFileSync(path.join(dataDir, 'latest.json'), JSON.stringify(report));
-  fs.writeFileSync(path.join(dataDir, 'all.json'), JSON.stringify(lookup)); // every stock, for the lookup box (latest only, not archived)
+  fs.writeFileSync(path.join(dataDir, 'all.json'), JSON.stringify(lookup)); // every name, for the lookup box (latest only, not archived)
   fs.writeFileSync(path.join(dataDir, 'archive', `${report.asOf}.json`), JSON.stringify(report));
   const idxFile = path.join(dataDir, 'index.json');
   const idx = fs.existsSync(idxFile) ? JSON.parse(fs.readFileSync(idxFile, 'utf8')) : [];
   if (!idx.includes(report.asOf)) idx.push(report.asOf);
   fs.writeFileSync(idxFile, JSON.stringify(idx.sort().reverse()));
-  for (const [label, arr] of [['UP', report.up], ['DOWN', report.down]]) {
-    log(`Top ${label}: ` + arr.map(p => `${p.ticker}(${p.score.total}${p.tier === 'watch' ? ',watch' : ''})`).join(' '));
-  }
 }
 
 if (process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.argv[1])) {

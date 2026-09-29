@@ -11,19 +11,21 @@ const head = '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta n
 const [title, rest] = [body.slice(0, body.indexOf('</title>') + 8), body.slice(body.indexOf('</title>') + 8)];
 const styleEnd = rest.indexOf('</style>') + 8;
 const page = `${head}${title}${rest.slice(0, styleEnd)}</head><body>${rest.slice(styleEnd)}</body></html>\n`;
-fs.writeFileSync(path.join(root, 'docs/index.html'), page);
-fs.mkdirSync(path.join(root, 'docs/crypto'), { recursive: true });
-fs.writeFileSync(path.join(root, 'docs/crypto/index.html'), page.replace('<title>MMS Daily Screener</title>', '<title>MMS Crypto Screener</title>'));
-
-const snaps = [['docs/data/latest.json', 'dist/dashboard-snapshot.html'], ['docs/crypto/data/latest.json', 'dist/crypto-snapshot.html']];
-for (const [src, dst] of snaps) {
-  const latest = path.join(root, src);
+// [folder, page title, snapshot file]
+const MARKETS = [['', 'MMS Daily Screener', 'dashboard'], ['nasdaq', 'MMS Nasdaq Screener', 'nasdaq'], ['dow', 'MMS Dow Jones Screener', 'dow'],
+  ['bursa', 'MMS Bursa Screener', 'bursa'], ['crypto', 'MMS Crypto Screener', 'crypto']];
+const retitle = (html, t) => html.replace('<title>MMS Daily Screener</title>', `<title>${t}</title>`);
+for (const [dir, t, snap] of MARKETS) {
+  const out = path.join(root, 'docs', dir);
+  fs.mkdirSync(out, { recursive: true });
+  fs.writeFileSync(path.join(out, 'index.html'), retitle(page, t));
+  // single-file snapshot with the latest data embedded (for sharing / offline)
+  const latest = path.join(out, 'data/latest.json');
   if (!fs.existsSync(latest)) continue;
   fs.mkdirSync(path.join(root, 'dist'), { recursive: true });
-  const data = fs.readFileSync(latest, 'utf8').replace(/</g, '\\u003c');
-  const b = src.includes('crypto') ? body.replace('<title>MMS Daily Screener</title>', '<title>MMS Crypto Screener</title>') : body;
-  const allFile = path.join(path.dirname(latest), 'all.json');
-  const all = fs.existsSync(allFile) ? `<script type="application/json" id="embedded-all">${fs.readFileSync(allFile, 'utf8').replace(/</g, '\\u003c')}</script>\n` : '';
-  fs.writeFileSync(path.join(root, dst), b.slice(0, b.indexOf('<script>')) + `<script type="application/json" id="embedded-data">${data}</script>\n` + all + b.slice(b.indexOf('<script>')));
+  const b = retitle(body, t), esc = f => fs.readFileSync(f, 'utf8').replace(/</g, '\\u003c');
+  const allFile = path.join(out, 'data/all.json');
+  const all = fs.existsSync(allFile) ? `<script type="application/json" id="embedded-all">${esc(allFile)}</script>\n` : '';
+  fs.writeFileSync(path.join(root, `dist/${snap}-snapshot.html`), b.slice(0, b.indexOf('<script>')) + `<script type="application/json" id="embedded-data">${esc(latest)}</script>\n` + all + b.slice(b.indexOf('<script>')));
 }
-console.log('built docs/index.html, docs/crypto/index.html and snapshots');
+console.log('built docs/{,nasdaq/,dow/,bursa/,crypto/}index.html and snapshots');

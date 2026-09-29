@@ -1,0 +1,212 @@
+[
+ {
+  "ticker": "5326",
+  "code": "5326",
+  "yahoo": "5326.KL",
+  "name": "99 Speed Mart Retail Holdings Berhad",
+  "sector": "Retailers"
+ },
+ {
+  "ticker": "6888",
+  "code": "6888",
+  "yahoo": "6888.KL",
+  "name": "Axiata Group Berhad",
+  "sector": "Mobile network, network infrastructure & digital internet"
+ },
+ {
+  "ticker": "6947",
+  "code": "6947",
+  "yahoo": "6947.KL",
+  "name": "Celcomdigi Berhad",
+  "sector": "Telecommunications service & Internet services"
+ },
+ {
+  "ticker": "1023",
+  "code": "1023",
+  "yahoo": "1023.KL",
+  "name": "Cimb Group Holdings Berhad",
+  "sector": "Financial services"
+ },
+ {
+  "ticker": "5398",
+  "code": "5398",
+  "yahoo": "5398.KL",
+  "name": "Gamuda Berhad",
+  "sector": "Construction"
+ },
+ {
+  "ticker": "5819",
+  "code": "5819",
+  "yahoo": "5819.KL",
+  "name": "Hong Leong Bank Bhd",
+  "sector": "Financial services"
+ },
+ {
+  "ticker": "1082",
+  "code": "1082",
+  "yahoo": "1082.KL",
+  "name": "Hong Leong Financial Group Bhd",
+  "sector": "Financial services"
+ },
+ {
+  "ticker": "5225",
+  "code": "5225",
+  "yahoo": "5225.KL",
+  "name": "Ihh Healthcare Berhad",
+  "sector": "Healthcare"
+ },
+ {
+  "ticker": "1961",
+  "code": "1961",
+  "yahoo": "1961.KL",
+  "name": "Ioi Corporation Bhd",
+  "sector": "Plantations"
+ },
+ {
+  "ticker": "2445",
+  "code": "2445",
+  "yahoo": "2445.KL",
+  "name": "Kuala Lumpur Kepong Bhd",
+  "sector": "Plantation"
+ },
+ {
+  "ticker": "1155",
+  "code": "1155",
+  "yahoo": "1155.KL",
+  "name": "Malayan Banking Berhad",
+  "sector": "Financial services"
+ },
+ {
+  "ticker": "6012",
+  "code": "6012",
+  "yahoo": "6012.KL",
+  "name": "Maxis Berhad",
+  "sector": "Telecommunications service & Internet services"
+ },
+ {
+  "ticker": "3816",
+  "code": "3816",
+  "yahoo": "3816.KL",
+  "name": "Misc Bhd",
+  "sector": "Energy shipping, Maritime services"
+ },
+ {
+  "ticker": "5296",
+  "code": "5296",
+  "yahoo": "5296.KL",
+  "name": "Mr D.I.Y. Group (M) Berhad",
+  "sector": "Retail"
+ },
+ {
+  "ticker": "4707",
+  "code": "4707",
+  "yahoo": "4707.KL",
+  "name": "Nestle (M) Bhd",
+  "sector": "Food & Beverages"
+ },
+ {
+  "ticker": "5183",
+  "code": "5183",
+  "yahoo": "5183.KL",
+  "name": "Petronas Chemicals Group Bhd",
+  "sector": "Chemicals"
+ },
+ {
+  "ticker": "5681",
+  "code": "5681",
+  "yahoo": "5681.KL",
+  "name": "Petronas Dagangan Bhd",
+  "sector": "Oil and gas"
+ },
+ {
+  "ticker": "6033",
+  "code": "6033",
+  "yahoo": "6033.KL",
+  "name": "Petronas Gas Bhd",
+  "sector": "Oil and gas"
+ },
+ {
+  "ticker": "4065",
+  "code": "4065",
+  "yahoo": "4065.KL",
+  "name": "Ppb Group Bhd",
+  "sector": "Plantation & Properties"
+ },
+ {
+  "ticker": "8869",
+  "code": "8869",
+  "yahoo": "8869.KL",
+  "name": "Press Metal Aluminium Holdings Berhad",
+  "sector": "Metals"
+ },
+ {
+  "ticker": "1295",
+  "code": "1295",
+  "yahoo": "1295.KL",
+  "name": "Public Bank Bhd",
+  "sector": "Financial services"
+ },
+ {
+  "ticker": "7084",
+  "code": "7084",
+  "yahoo": "7084.KL",
+  "name": "Ql Resources Bhd",
+  "sector": "Agriculture"
+ },
+ {
+  "ticker": "1066",
+  "code": "1066",
+  "yahoo": "1066.KL",
+  "name": "Rhb Bank Berhad",
+  "sector": "Financial services"
+ },
+ {
+  "ticker": "4197",
+  "code": "4197",
+  "yahoo": "4197.KL",
+  "name": "Sime Darby Bhd",
+  "sector": "Conglomerate"
+ },
+ {
+  "ticker": "5285",
+  "code": "5285",
+  "yahoo": "5285.KL",
+  "name": "Sd Guthrie Berhad",
+  "sector": "Plantation"
+ },
+ {
+  "ticker": "5211",
+  "code": "5211",
+  "yahoo": "5211.KL",
+  "name": "Sunway Berhad",
+  "sector": "Industrial"
+ },
+ {
+  "ticker": "4863",
+  "code": "4863",
+  "yahoo": "4863.KL",
+  "name": "Telekom Malaysia Bhd",
+  "sector": "Telecommunications"
+ },
+ {
+  "ticker": "5347",
+  "code": "5347",
+  "yahoo": "5347.KL",
+  "name": "Tenaga Nasional",
+  "sector": "Electric power industry"
+ },
+ {
+  "ticker": "4677",
+  "code": "4677",
+  "yahoo": "4677.KL",
+  "name": "Ytl Corporation Bhd",
+  "sector": "Conglomerate"
+ },
+ {
+  "ticker": "6742",
+  "code": "6742",
+  "yahoo": "6742.KL",
+  "name": "Ytl Power International Bhd",
+  "sector": "Electric power industry"
+ }
+]
