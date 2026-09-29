@@ -307,13 +307,13 @@ export function analyzeTicker(meta, bars, cfg = CONFIG) {
 
   const out = { ...base, long: null, short: null };
 
-  if (stage.stage === 2) {
-    const cross = ind.sma150[n - 1] > ind.sma200[n - 1] ? lastCross(ind.sma150, ind.sma200, true) : n - 60;
-    const setup = contractionAgent(bars, ind, cross, cfg);
-    const vol = volumeAgent(bars, ind, setup.contractions?.[0]?.hiI ?? n - 130, 'long', cfg);
-    out.long = { setup, vol, risk: setup.entry ? riskAgent('long', setup, cfg) : null, ma150above200: ind.sma150[n - 1] > ind.sma200[n - 1] };
-  }
-  if (stage.stage === 4) {
+  const sideAnalysis = (side) => {
+    if (side === 'long') {
+      const cross = ind.sma150[n - 1] > ind.sma200[n - 1] ? lastCross(ind.sma150, ind.sma200, true) : n - 60;
+      const setup = contractionAgent(bars, ind, cross, cfg);
+      const vol = volumeAgent(bars, ind, setup.contractions?.[0]?.hiI ?? n - 130, 'long', cfg);
+      return { setup, vol, risk: setup.entry ? riskAgent('long', setup, cfg) : null, ma150above200: ind.sma150[n - 1] > ind.sma200[n - 1] };
+    }
     const inv = invertBars(bars);
     const indInv = computeIndicators(inv);
     const cross = ind.sma150[n - 1] < ind.sma200[n - 1] ? lastCross(ind.sma150, ind.sma200, false) : n - 60;
@@ -321,7 +321,16 @@ export function analyzeTicker(meta, bars, cfg = CONFIG) {
     // express contractions back in real prices (rallies inside the downtrend)
     setup.contractions = (setup.contractions || []).map(c => ({ ...c, lo: 1 / c.hi, hi: 1 / c.lo, loT: c.hiT, hiT: c.loT, loI: c.hiI, hiI: c.loI }));
     const vol = volumeAgent(bars, ind, setup.contractions?.[0]?.loI ?? n - 130, 'short', cfg);
-    out.short = { setup, vol, risk: setup.entry ? riskAgent('short', setup, cfg) : null, ma150below200: ind.sma150[n - 1] < ind.sma200[n - 1] };
+    return { setup, vol, risk: setup.entry ? riskAgent('short', setup, cfg) : null, ma150below200: ind.sma150[n - 1] < ind.sma200[n - 1] };
+  };
+
+  if (stage.stage === 2) out.long = sideAnalysis('long');
+  if (stage.stage === 4) out.short = sideAnalysis('short');
+  // Lean agent: every stock gets a direction and trade levels, so any ticker can be looked up.
+  // Stage 2 -> up, Stage 4 -> down, Stage 3 (topping) -> down, Stage 1 (basing) -> side of the 150 MA.
+  if (stage.stage) {
+    out.lean = stage.stage === 2 ? 'long' : stage.stage === 4 || stage.stage === 3 ? 'short' : (close >= ind.sma150[n - 1] ? 'long' : 'short');
+    out.leanS = out.lean === 'long' ? (out.long || sideAnalysis('long')) : (out.short || sideAnalysis('short'));
   }
   out.chart = chartData(bars, ind, 180);
   return out;
@@ -393,15 +402,63 @@ export function rankAll(analyses, topN = 5) {
 
 // Human-readable reasoning for a pick (what each agent concluded)
 export const fmtPrice = x => (x >= 100 ? x.toFixed(2) : x >= 1 ? x.toFixed(3) : x.toPrecision(4));
-export function explain(a, side) {
-  const S = side === 'long' ? a.long : a.short;
+export function explain(a, side, S0) {
+  const S = S0 || (side === 'long' ? a.long : a.short);
   const st = S.setup, pct = x => (x * 100).toFixed(1) + '%';
   const notes = [];
-  notes.push(`Stage agent: Stage ${a.stage} — 150-day MA ${side === 'long' ? 'rising' : 'falling'} ${pct(Math.abs(a.slope150))} over 20 days; price ${pct(Math.abs(a.dist150))} ${a.dist150 >= 0 ? 'above' : 'below'} it.`);
+  notes.push(`Stage agent: Stage ${a.stage} — 150-day MA ${a.slope150 >= 0 ? 'rising' : 'falling'} ${pct(Math.abs(a.slope150))} over 20 days; price ${pct(Math.abs(a.dist150))} ${a.dist150 >= 0 ? 'above' : 'below'} it.`);
   if (st.contractions?.length) {
     notes.push(`Contraction agent: ${st.count} ${side === 'long' ? 'pullbacks' : 'rallies'} (${st.contractions.map((c, i) => 'C' + (i + 1) + ' ' + pct(c.depth)).join(' → ')}); ${st.valid ? 'valid buy-point structure' : 'not valid yet: ' + st.reason}. Breakout zone: ${st.zone}.`);
   } else notes.push(`Contraction agent: ${st.reason}.`);
   notes.push(`Volume agent: ${S.vol.upBig} big up-days vs ${S.vol.downBig} big down-days above the 50-day volume average; $${(S.vol.dollarVol / 1e6).toFixed(0)}M/day traded.`);
   if (S.risk) notes.push(`Risk agent: ${side === 'long' ? 'buy-stop' : 'sell-stop'} ${fmtPrice(S.risk.entry)}, stop ${fmtPrice(S.risk.stop)} (${pct(S.risk.riskPct)} risk), target ${fmtPrice(S.risk.target)} (1:2), move stop to entry at ${fmtPrice(S.risk.breakeven)}.`);
   return notes;
+}
+
+// ---------- Lookup agent: one compact record per ticker for the "Analyse a stock" box ----------
+const VERDICT = {
+  2: ['up', 'Uptrend', 'Stage 2: the 150-day MA is rising and price is above it.'],
+  4: ['down', 'Downtrend', 'Stage 4: the 150-day MA is falling and price is below it.'],
+  3: ['down', 'Topping — leaning down', 'Stage 3: the 150-day MA has flattened after an uptrend; a Stage 4 decline often follows.'],
+  1: ['neutral', 'Basing — no trend yet', 'Stage 1: the 150-day MA is flat. Wait for Stage 2 (buy) or Stage 4 (short).'],
+};
+export function scoreAny(a, rsPct) {
+  const S = a.leanS;
+  if (!S) return null;
+  return scoreSide({ ...a, long: a.lean === 'long' ? S : null, short: a.lean === 'short' ? S : null }, a.lean, a.lean === 'long' ? rsPct : 1 - rsPct);
+}
+export function lookupRecord(a, rsPct, k = 120) {
+  if (a.skip) return { t: a.ticker, skip: a.skip };
+  const S = a.leanS, st = S?.setup || {}, side = a.lean;
+  const [dir, head, why] = VERDICT[a.stage] || ['neutral', 'Not enough data', ''];
+  let action;
+  if (a.stage === 2 || a.stage === 4) action = st.valid && !['EXTENDED', 'BROKEN'].includes(st.status)
+    ? (side === 'long' ? 'Valid buy setup' : 'Valid short setup')
+    : `No valid ${side === 'long' ? 'buy' : 'short'} point yet${st.reason ? ': ' + st.reason : st.status === 'EXTENDED' ? ': price has run more than 5% past the trigger' : ''}`;
+  else action = `Levels below are for a ${side === 'long' ? 'breakout up' : 'breakdown'} only — the course trades Stage ${side === 'long' ? '2' : '4'}`;
+  const r = x => (x == null ? null : +(+x).toPrecision(5));
+  const r4 = x => (x == null ? null : +(+x).toPrecision(4));
+  const n = a.chart.t.length, s0 = Math.max(0, n - k), t0 = a.chart.t[s0];
+  const day = t => Math.round((Date.parse(t) - Date.parse(t0)) / 864e5);
+  const idx = t => a.chart.t.indexOf(t) - s0;
+  return {
+    t: a.ticker, n: a.name, sec: a.sector, st: a.stage, dir, side, head, why, action,
+    status: st.status || null, valid: !!st.valid, zone: st.zone || null,
+    close: r(a.close), asOf: a.asOf, slope150: +a.slope150.toFixed(4), dist150: +a.dist150.toFixed(4), ret126: +a.ret126.toFixed(4),
+    lv: S?.risk ? { e: r(S.risk.entry), s: r(S.risk.stop), tg: r(S.risk.target), be: r(S.risk.breakeven), risk: +S.risk.riskPct.toFixed(4), size: S.risk.positionPct } : null,
+    score: scoreAny(a, rsPct),
+    cs: (st.contractions || []).map(c => ({ hi: r(c.hi), lo: r(c.lo), a: idx(side === 'long' ? c.hiT : c.loT), b: idx(side === 'long' ? c.loT : c.hiT), d: +c.depth.toFixed(4) })),
+    notes: S ? explain(a, side, S) : [],
+    ch: {
+      t0, d: a.chart.t.slice(s0).map(day),
+      c: a.chart.c.slice(s0).map(r),
+      m50: a.chart.sma50.slice(s0).map(r4), m150: a.chart.sma150.slice(s0).map(r4), m200: a.chart.sma200.slice(s0).map(r4),
+    },
+  };
+}
+export function lookupTable(analyses) {
+  const ok = analyses.filter(a => !a.skip);
+  const byRet = [...ok].sort((x, y) => x.ret126 - y.ret126);
+  const pct = new Map(byRet.map((a, i) => [a.ticker, byRet.length > 1 ? i / (byRet.length - 1) : 0.5]));
+  return analyses.map(a => lookupRecord(a, pct.get(a.ticker) ?? 0.5));
 }

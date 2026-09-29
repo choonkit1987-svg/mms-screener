@@ -7,7 +7,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { analyzeTicker, rankAll, explain, stageAgent, computeIndicators, CONFIG } from './engine.js';
+import { analyzeTicker, rankAll, explain, stageAgent, computeIndicators, lookupTable, CONFIG } from './engine.js';
 import { loadUniverse, yahooHistory, massiveHistory } from './data.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -33,7 +33,8 @@ export function buildReport(universe, history, provider, { cfg = CONFIG, regimeT
     };
   };
   const asOf = analyses.filter(a => !a.skip).map(a => a.asOf).sort().pop();
-  return {
+  const lookup = { asOf, market, generatedAt: new Date().toISOString(), rows: lookupTable(analyses) };
+  return { lookup, report: {
     generatedAt: new Date().toISOString(), asOf, provider, market,
     universe: market === 'crypto' ? 'Top 100 coins' : 'S&P 500', universeSize: universe.length, scanned: ranked.scanned,
     skipped: analyses.filter(a => a.skip).map(a => a.ticker),
@@ -41,7 +42,7 @@ export function buildReport(universe, history, provider, { cfg = CONFIG, regimeT
     up: ranked.up.top.map(x => pack(x, 'long')), upPassed: ranked.up.passedCount, upCandidates: ranked.up.total,
     down: ranked.down.top.map(x => pack(x, 'short')), downPassed: ranked.down.passedCount, downCandidates: ranked.down.total,
     config: cfg,
-  };
+  } };
 }
 
 async function main() {
@@ -62,12 +63,13 @@ async function main() {
   log(`  history for ${Object.keys(history).length} tickers`);
 
   log('Stage / Contraction / Volume / Risk agents: analysing');
-  const report = buildReport(universe, history, provider);
+  const { report, lookup } = buildReport(universe, history, provider);
   log(`Ranking agent: ${report.upPassed} valid long setups, ${report.downPassed} valid short setups (as of ${report.asOf})`);
 
   const dataDir = path.join(root, 'docs/data');
   fs.mkdirSync(path.join(dataDir, 'archive'), { recursive: true });
   fs.writeFileSync(path.join(dataDir, 'latest.json'), JSON.stringify(report));
+  fs.writeFileSync(path.join(dataDir, 'all.json'), JSON.stringify(lookup)); // every stock, for the lookup box (latest only, not archived)
   fs.writeFileSync(path.join(dataDir, 'archive', `${report.asOf}.json`), JSON.stringify(report));
   const idxFile = path.join(dataDir, 'index.json');
   const idx = fs.existsSync(idxFile) ? JSON.parse(fs.readFileSync(idxFile, 'utf8')) : [];

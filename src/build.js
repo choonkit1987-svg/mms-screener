@@ -22,6 +22,8 @@ for (const [src, dst] of snaps) {
   fs.mkdirSync(path.join(root, 'dist'), { recursive: true });
   const data = fs.readFileSync(latest, 'utf8').replace(/</g, '\\u003c');
   const b = src.includes('crypto') ? body.replace('<title>MMS Daily Screener</title>', '<title>MMS Crypto Screener</title>') : body;
-  fs.writeFileSync(path.join(root, dst), b.slice(0, b.indexOf('<script>')) + `<script type="application/json" id="embedded-data">${data}</script>\n` + b.slice(b.indexOf('<script>')));
+  const allFile = path.join(path.dirname(latest), 'all.json');
+  const all = fs.existsSync(allFile) ? `<script type="application/json" id="embedded-all">${fs.readFileSync(allFile, 'utf8').replace(/</g, '\\u003c')}</script>\n` : '';
+  fs.writeFileSync(path.join(root, dst), b.slice(0, b.indexOf('<script>')) + `<script type="application/json" id="embedded-data">${data}</script>\n` + all + b.slice(b.indexOf('<script>')));
 }
 console.log('built docs/index.html, docs/crypto/index.html and snapshots');

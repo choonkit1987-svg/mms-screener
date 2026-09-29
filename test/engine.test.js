@@ -68,4 +68,17 @@ assert.equal(res.up.top[0].a.ticker, 'VCP');
 assert.equal(res.up.top[0].tier, 'setup');
 assert.equal(res.down.top[0].a.ticker, 'BEAR');
 console.log('stage counts', res.stageCounts, '| VCP score', res.up.top[0].s, '| BEAR score', res.down.top[0].s);
+// 6) lookup records: every ticker gets a direction and levels
+import { lookupTable } from '../src/engine.js';
+const rows = lookupTable([a, b, analyzeTicker({ ticker: 'FLAT' }, flat), { ticker: 'SHORT', skip: 'less than 220 daily bars' }]);
+const [ru, rd, rf, rs] = rows;
+assert.equal(ru.dir, 'up'); assert.equal(ru.side, 'long'); assert.match(ru.action, /Valid buy setup/);
+assert.ok(ru.lv.e > ru.close && ru.lv.s < ru.close && ru.lv.tg > ru.lv.e, 'long levels: stop < price < buy-stop < target');
+assert.equal(rd.dir, 'down'); assert.equal(rd.side, 'short'); assert.match(rd.action, /Valid short setup/);
+assert.ok(rd.lv.e < rd.close && rd.lv.s > rd.close && rd.lv.tg < rd.lv.e, 'short levels: target < sell-stop < price < stop');
+assert.equal(rf.dir, 'neutral'); assert.ok(['long', 'short'].includes(rf.side));
+assert.equal(rs.skip, 'less than 220 daily bars');
+assert.equal(ru.ch.c.length, 120); assert.equal(ru.ch.d[0], 0);
+assert.ok(JSON.stringify(ru).length < 4500, 'lookup record stays compact: ' + JSON.stringify(ru).length);
+console.log('lookup:', ru.t, ru.head, ru.lv, '|', rd.t, rd.head, rd.lv, '|', rf.t, rf.head, rf.action);
 console.log('ALL TESTS PASSED');

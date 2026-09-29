@@ -35,6 +35,17 @@ Full rule mapping: [RULES.md](RULES.md).
 
 From then on it runs automatically at 22:30 UTC Monday–Friday (6:30 am Malaysia time) and the dashboard updates itself. Past days are kept in `docs/data/archive/` and appear in the History menu.
 
+## Analyse a stock (or coin)
+
+Below the market summary there is a search box. Type any S&P 500 ticker or company name (on the crypto page: any top-100 coin) and the page shows the agents' verdict for that one name:
+
+- **Direction:** Uptrend (Stage 2), Downtrend (Stage 4), Topping (Stage 3, leaning down) or Basing (Stage 1, no trend yet)
+- **Levels:** buy-stop (uptrend) or sell-stop (downtrend), stop loss, 1:2 target, risk to stop, breakeven point
+- **Whether it's a trade:** a valid setup near its trigger, already triggered, too extended to chase, or no valid setup yet (with the rule it fails)
+- a chart with the 50/150/200-day MAs and the contractions the agents counted, plus each agent's notes
+
+Every daily run analyses every name and saves the results in `docs/data/all.json` (and `docs/crypto/data/all.json`), so the answer appears instantly and needs no API key. Only the latest day is kept for lookups. Link straight to a name with `#TICKER`, e.g. `https://<you>.github.io/mms-screener/#AAPL`.
+
 ## Crypto page
 
 `docs/crypto/` is a second dashboard (link at the top of each page) with the same agents tuned for coins:

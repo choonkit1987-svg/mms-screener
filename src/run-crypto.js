@@ -21,12 +21,13 @@ async function main() {
   log(`  ${universe.length} coins after removing stablecoins and wrapped tokens`);
   log('Market-data agent: Yahoo daily candles');
   const { history, notes } = await cryptoHistory(universe, { log });
-  const report = buildReport(universe, history, 'yahoo+coingecko', { cfg: CRYPTO_CONFIG, regimeTicker: 'BTC', market: 'crypto' });
+  const { report, lookup } = buildReport(universe, history, 'yahoo+coingecko', { cfg: CRYPTO_CONFIG, regimeTicker: 'BTC', market: 'crypto' });
   report.dataNotes = notes;
   log(`Ranking agent: ${report.upPassed} valid long setups, ${report.downPassed} valid short setups (as of ${report.asOf})`);
   const dataDir = path.join(root, 'docs/crypto/data');
   fs.mkdirSync(path.join(dataDir, 'archive'), { recursive: true });
   fs.writeFileSync(path.join(dataDir, 'latest.json'), JSON.stringify(report));
+  fs.writeFileSync(path.join(dataDir, 'all.json'), JSON.stringify(lookup));
   fs.writeFileSync(path.join(dataDir, 'archive', `${report.asOf}.json`), JSON.stringify(report));
   const idxFile = path.join(dataDir, 'index.json');
   const idx = fs.existsSync(idxFile) ? JSON.parse(fs.readFileSync(idxFile, 'utf8')) : [];

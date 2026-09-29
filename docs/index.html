@@ -97,6 +97,29 @@ details ul{margin:8px 0 0;padding-left:18px;font-size:13.5px;display:flex;flex-d
 .rules .src{color:var(--muted);font-size:12px}
 .foot{color:var(--muted);font-size:12.5px;max-width:90ch}
 .empty{padding:24px;border:1px dashed var(--rule);border-radius:10px;color:var(--muted)}
+
+/* lookup */
+.lookup{background:var(--surface);border:1px solid var(--rule);border-radius:10px;padding:16px 18px;display:flex;flex-direction:column;gap:12px}
+.lkhead{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
+.lkhead h2{font-size:22px}
+.lkhead small{color:var(--muted)}
+.lkform{display:flex;gap:8px;flex-wrap:wrap}
+.lkform input{flex:1 1 220px;min-width:0;font:inherit;font-size:16px;padding:9px 12px;border:1px solid var(--rule);border-radius:8px;background:var(--bg);color:var(--ink)}
+.lkform input:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.lkform button,.lkpick{font:inherit;font-weight:600;padding:9px 18px;border-radius:8px;border:0;background:var(--accent);color:var(--surface);cursor:pointer}
+.lkpick{padding:4px 10px;font-size:13px;background:var(--soft);color:var(--ink);border:1px solid var(--rule)}
+.lkpick:hover{border-color:var(--accent)}
+.lkres{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:860px){.lkres{grid-template-columns:1fr}}
+.verdict{border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:4px;border-left:4px solid var(--muted);background:var(--soft)}
+.verdict.up{border-color:var(--up);background:var(--up-soft)}
+.verdict.down{border-color:var(--down);background:var(--down-soft)}
+.verdict.neutral{border-color:var(--warn);background:var(--warn-soft)}
+.verdict .big{font-family:var(--display);font-size:26px;font-weight:700;line-height:1.1}
+.verdict.up .big{color:var(--up)} .verdict.down .big{color:var(--down)} .verdict.neutral .big{color:var(--warn)}
+.verdict p{margin:0;font-size:13.5px}
+.lkside{display:flex;flex-direction:column;gap:10px}
+.lkmsg{color:var(--muted);font-size:14px}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style></head><body>
 
@@ -115,6 +138,17 @@ details ul{margin:8px 0 0;padding-left:18px;font-size:13.5px;display:flex;flex-d
   </header>
 
   <section class="regime" id="regime" aria-label="Market regime"></section>
+
+  <section class="lookup" aria-labelledby="lkh">
+    <div class="lkhead"><h2 id="lkh">Analyse a stock</h2><small id="lkmeta">Type any S&amp;P 500 ticker or company name</small></div>
+    <form class="lkform" id="lkform" autocomplete="off">
+      <label class="label" for="lkq" hidden>Ticker or name</label>
+      <input id="lkq" list="lklist" placeholder="e.g. AAPL or Apple" spellcheck="false" autocapitalize="characters">
+      <datalist id="lklist"></datalist>
+      <button type="submit" id="lkgo">Analyse</button>
+    </form>
+    <div id="lkout" aria-live="polite"><p class="lkmsg" id="lkhint">The agents analyse every stock after each close. Pick one to see its trend direction, trade levels and why.</p></div>
+  </section>
 
   <div class="cols">
     <section class="col" aria-labelledby="uph">
@@ -258,6 +292,10 @@ function site(d){
     ?'Every day after the 00:00 UTC candle close the agents scan the top 100 coins by market cap (stablecoins and wrapped tokens removed) on the daily chart and pick the 5 strongest Stage 2 buy setups and the 5 strongest Stage 4 short setups, using the course rules for stage, contraction, volume and buy/sell triggers.'
     :'Every trading day the agents scan the S&P 500 on the daily chart and pick the 5 strongest Stage 2 buy setups and the 5 strongest Stage 4 short setups, using the course rules for stage, contraction, volume and buy/sell triggers.';
   $('#asoflabel').textContent=c?'Daily close (UTC)':'Market close';
+  $('#lkh').textContent=c?'Analyse a coin':'Analyse a stock';
+  $('#lkmeta').textContent=c?'Type any top-100 coin symbol or name':'Type any S&P 500 ticker or company name';
+  $('#lkq').placeholder=c?'e.g. SOL or Solana':'e.g. AAPL or Apple';
+  $('#lkhint').textContent=c?'The agents analyse every coin after each daily close. Pick one to see its trend direction, trade levels and why.':'The agents analyse every stock after each close. Pick one to see its trend direction, trade levels and why.';
   $('#liqrule').textContent=c?'50-day average USD volume must exceed US$1M a day.':'50-day average volume × price must exceed US$1M a day.';
   const nav=$('#nav');
   if(!NAV_BASE){nav.hidden=true;}else{
@@ -292,7 +330,89 @@ function render(d){
   $('#prov').textContent=`Data: ${d.provider==='massive'?'Massive (Polygon.io)':d.provider==='yahoo+coingecko'?'Yahoo Finance daily candles (UTC close), coin list from CoinGecko':'Yahoo Finance'} daily bars · generated ${d.generatedAt.slice(0,16).replace('T',' ')} UTC.`;
 }
 
-const rerender=()=>{if(CUR)render(CUR)};
+// ---------- Analyse-a-stock lookup ----------
+let LK=null,LKP=null;
+async function loadLookup(){
+  if(LK)return LK;
+  if(!LKP)LKP=(async()=>{const e=document.getElementById('embedded-all');
+    const d=e?JSON.parse(e.textContent):await (await fetch('data/all.json',{cache:'no-store'})).json();
+    LK=d;$('#lklist').innerHTML=d.rows.filter(r=>!r.skip).map(r=>`<option value="${esc(r.t)}">${esc(r.n||'')}</option>`).join('');return d;})();
+  return LKP;
+}
+function lineSVG(r){
+  const ch=r.ch,n=ch.c.length,W=640,H=230,top=12,bot=214,left=4,right=56,cw=(W-left-right)/n;
+  const lv=r.lv?[r.lv.e,r.lv.s,r.lv.tg]:[];let lo=Infinity,hi=-Infinity;
+  ch.c.forEach(v=>{lo=Math.min(lo,v);hi=Math.max(hi,v)});lv.forEach(v=>{lo=Math.min(lo,v);hi=Math.max(hi,v)});(r.cs||[]).forEach(c=>{if(c.a>=0){lo=Math.min(lo,c.lo);hi=Math.max(hi,c.hi)}});
+  ['m50','m150','m200'].forEach(k=>ch[k].forEach(v=>{if(v!=null&&v>lo*0.8&&v<hi*1.2){lo=Math.min(lo,v);hi=Math.max(hi,v)}}));
+  const pad=(hi-lo)*0.05;lo-=pad;hi+=pad;const y=v=>top+(hi-v)/(hi-lo)*(bot-top),x=i=>left+cw*(i+.5);
+  let s=`<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(r.t)} closing prices, last ${n} sessions">`;
+  for(let k=0;k<=4;k++){const v=lo+(hi-lo)*k/4,yy=y(v);s+=`<line x1="${left}" x2="${W-right}" y1="${yy}" y2="${yy}" stroke="var(--soft)"/>`;if(yy>top+6&&yy<bot-2&&!lv.some(l=>Math.abs(y(l)-yy)<16))s+=`<text x="${W-right+6}" y="${yy+4}" font-size="10" font-family="IBM Plex Mono, monospace" fill="var(--muted)">${px(v)}</text>`;}
+  (r.cs||[]).forEach((c,k)=>{if(c.a<0||c.b<=c.a)return;const x0=x(c.a)-cw/2,x1=x(Math.min(c.b,n-1))+cw/2;
+    s+=`<rect x="${x0}" y="${y(c.hi)}" width="${x1-x0}" height="${y(c.lo)-y(c.hi)}" fill="var(--box)" stroke="var(--box-line)"/><text x="${(x0+x1)/2}" y="${r.side==='long'?y(c.hi)-3:y(c.lo)+11}" text-anchor="middle" font-size="10" font-weight="600" font-family="IBM Plex Mono, monospace" fill="var(--accent)">C${k+1} ${(c.d*100).toFixed(1)}%</text>`;});
+  [['m50','var(--ma50)',1.2],['m150','var(--ma150)',2.2],['m200','var(--ma200)',1.2],['c','var(--ink)',1.6]].forEach(([k,c,w])=>{let d='';ch[k].forEach((v,i)=>{if(v==null)return;d+=(d?'L':'M')+x(i).toFixed(1)+' '+y(v).toFixed(1)});if(d)s+=`<path d="${d}" fill="none" stroke="${c}" stroke-width="${w}"/>`;});
+  if(r.lv)[[r.lv.e,'var(--accent)'],[r.lv.s,'var(--down)'],[r.lv.tg,'var(--up)']].forEach(([v,c])=>{const yy=y(v);s+=`<line x1="${left}" x2="${W-right}" y1="${yy}" y2="${yy}" stroke="${c}" stroke-width="1.2" stroke-dasharray="5 4"/><rect x="${W-right+1}" y="${yy-8}" width="${right-2}" height="16" rx="3" fill="${c}"/><text x="${W-right+5}" y="${yy+4}" font-size="10" font-family="IBM Plex Mono, monospace" fill="var(--surface)">${px(v)}</text>`;});
+  s+=`<circle cx="${x(n-1)}" cy="${y(ch.c[n-1])}" r="3.5" fill="var(--ink)"/></svg>`;
+  return s.replace(/var\((--[\w-]+)\)/g,(m,v)=>css(v));
+}
+let LKCUR=null;
+function showRecord(r){
+  LKCUR=r;const out=$('#lkout');
+  if(r.skip){out.innerHTML=`<p class="lkmsg"><b>${esc(r.t)}</b> was skipped by the data agents: ${esc(r.skip)}.</p>`;return;}
+  const L=r.lv,long=r.side==='long',sc=r.score;
+  const parts=sc?[['Stage',sc.stage,25],['Contraction',sc.vcp,30],['Trigger',sc.trigger,20],['Volume',sc.volume,15],['Rel. strength',sc.rs,10]]:[];
+  const dist=L?Math.abs(long?L.e/r.close-1:1-L.e/r.close):null;
+  const stTxt={SETUP:'Near trigger',TRIGGERED:'Triggered',FORMING:'Forming',EXTENDED:'Extended',BROKEN:'Broken'};
+  out.innerHTML=`<article class="pick lk">
+    <div class="phead"><span class="rank"></span><span class="tk">${esc(r.t)}</span>
+      <div class="score">${sc?`<span class="n">${sc.total.toFixed(0)}</span><span class="label">score</span>`:''}</div>
+      <span></span><span class="nm">${esc(r.n||'')} · ${esc(r.sec||'')} · close ${px(r.close)} on ${esc(r.asOf)}</span></div>
+    <div class="lkres">
+      <div>${lineSVG(r)}<div class="readout">Close line with 50/150/200-day MAs · boxes are the contractions the agents counted</div></div>
+      <div class="lkside">
+        <div class="verdict ${r.dir}"><span class="label">Agents' verdict</span><span class="big">${esc(r.head)}</span><p>${esc(r.why)}</p><p><b>${esc(r.action)}.</b></p></div>
+        <div class="chips"><span class="chip">Stage ${r.st}</span>${r.status?`<span class="chip ${r.status==='TRIGGERED'?'trig':''}">${r.status==='EXTENDED'&&dist!=null&&dist<=0.05?'Crossed earlier':(stTxt[r.status]||r.status)}${r.status==='SETUP'&&dist!=null?' · '+pct(dist)+' away':''}</span>`:''}${r.zone?`<span class="chip">${esc(r.zone)} zone</span>`:''}<span class="chip">6-mo ${r.ret126>=0?'+':''}${pct(r.ret126,0)}</span></div>
+        ${L?`<div class="levels">
+          <div class="entry"><div class="label">${long?'Buy-stop':'Sell-stop'}</div><div class="v">${px(L.e)}</div></div>
+          <div class="stop"><div class="label">Stop loss</div><div class="v">${px(L.s)}</div></div>
+          <div class="tgt"><div class="label">Target 1:2</div><div class="v">${px(L.tg)}</div></div>
+          <div><div class="label">Risk to stop</div><div class="v">${pct(L.risk)}</div></div></div>
+          <p class="lkmsg" style="margin:0">${howTo(r)}</p>`
+          :'<p class="lkmsg">No contraction pattern to set levels from yet.</p>'}
+      </div>
+    </div>
+    ${parts.length?`<div class="bars">${parts.map(([l,v,m])=>`<div><span>${l}</span><div class="track"><div class="fill" style="width:${Math.max(0,Math.min(100,v/m*100))}%"></div></div><span class="num">${v.toFixed(0)}/${m}</span></div>`).join('')}</div>`:''}
+    <details open><summary>What each agent found</summary><ul>${(r.notes||[]).map(n=>`<li>${esc(n)}</li>`).join('')}</ul></details>
+  </article>`;
+}
+function howTo(r){
+  const L=r.lv,long=r.side==="long",past=long?r.close>=L.e:r.close<=L.e,gap=Math.abs(L.e/r.close-1);
+  const lv=`${long?'buy-stop':'sell-stop'} ${px(L.e)}, stop ${px(L.s)}, target ${px(L.tg)}`;
+  const tail=` Stop ${px(L.s)}, target ${px(L.tg)}; move the stop to entry at ${px(L.be)} (1:1.5). First position ${L.size}% of capital.`;
+  if(r.st===1||r.st===3)return `No trade in Stage ${r.st}. If it turns Stage ${long?'2':'4'}, these are the levels from the latest ${long?'pullback':'rally'}: ${lv}.`;
+  if(!r.valid)return `No trade yet — the contraction rules are not met. For reference only, the latest ${long?'pullback':'rally'} gives: ${lv}.`;
+  if(r.status==='BROKEN')return `Price has already closed ${long?'below':'above'} the stop ${px(L.s)} — this setup failed. Wait for a new contraction.`;
+  if(past&&gap>0.05)return `Price is already ${pct(gap)} ${long?'above the buy-stop':'below the sell-stop'} ${px(L.e)} — too extended to chase. The course waits for the next contraction.`;
+  if(past)return `The ${long?'buy':'sell'}-stop ${px(L.e)} has been crossed and price is ${pct(gap)} ${long?'above':'below'} it — still within 5%, so the setup is live.`+tail;
+  return `${long?'Buy when price trades above':'Short when price trades below'} ${px(L.e)} (${pct(gap)} away).`+tail;
+}
+async function analyse(q){
+  q=(q||'').trim();if(!q)return;
+  const out=$('#lkout');out.innerHTML='<p class="lkmsg">Loading the agents\' results…</p>';
+  let d;try{d=await loadLookup()}catch(e){out.innerHTML='<p class="lkmsg">The per-stock results are not available yet. They are created by the next scheduled scan.</p>';return;}
+  const Q=q.toUpperCase(),rows=d.rows;
+  let hit=rows.find(r=>r.t.toUpperCase()===Q||r.t.toUpperCase()===Q.replace('-','.'));
+  if(!hit){const m=rows.filter(r=>!r.skip&&(r.n||'').toUpperCase().includes(Q));
+    if(m.length===1)hit=m[0];
+    else if(m.length>1){out.innerHTML=`<p class="lkmsg">Several matches for “${esc(q)}” — pick one:</p><div class="chips">${m.slice(0,12).map(r=>`<button class="lkpick" type="button" data-t="${esc(r.t)}">${esc(r.t)} · ${esc(r.n)}</button>`).join('')}</div>`;
+      out.querySelectorAll('.lkpick').forEach(b=>b.addEventListener('click',()=>{$('#lkq').value=b.dataset.t;analyse(b.dataset.t)}));return;}}
+  if(!hit){out.innerHTML=`<p class="lkmsg">“${esc(q)}” is not in the ${d.market==='crypto'?'top 100 coins':'S&amp;P 500'} list the agents scan. Check the spelling, or try the ticker symbol.</p>`;return;}
+  showRecord(hit);try{history.replaceState(null,'','#'+hit.t.replace(/[^A-Za-z0-9._~-]/g,''))}catch(e){}
+}
+$('#lkform').addEventListener('submit',e=>{e.preventDefault();analyse($('#lkq').value)});
+$('#lkq').addEventListener('focus',()=>{loadLookup().catch(()=>{})},{once:true});
+$('#lkq').addEventListener('change',e=>{const v=e.target.value;if(LK&&LK.rows.some(r=>r.t===v))analyse(v)});
+
+const rerender=()=>{if(CUR)render(CUR);if(LKCUR)showRecord(LKCUR)};
 try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',rerender)}catch(e){}
 new MutationObserver(rerender).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
 async function boot(){
@@ -305,7 +425,7 @@ async function boot(){
       sel.addEventListener('change',async()=>render(await (await fetch('data/archive/'+sel.value+'.json')).json()));}
   }catch(e){$('#up').innerHTML='<div class="empty">No scan data yet. Run the “Daily MMS scan” workflow once from the Actions tab.</div>';}
 }
-boot();
+boot().then(()=>{const h=decodeURIComponent(location.hash.slice(1));if(h){$('#lkq').value=h;analyse(h)}});
 })();
 </script>
 </body></html>
