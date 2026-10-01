@@ -1,0 +1,2102 @@
+[
+ {
+  "ticker": "600519",
+  "code": "600519",
+  "yahoo": "600519.SS",
+  "name": "Kweichow Moutai",
+  "sector": "Consumer Staples"
+ },
+ {
+  "ticker": "601318",
+  "code": "601318",
+  "yahoo": "601318.SS",
+  "name": "Ping An Insurance",
+  "sector": "Financials"
+ },
+ {
+  "ticker": "300750",
+  "code": "300750",
+  "yahoo": "300750.SZ",
+  "name": "CATL",
+  "sector": "Industrials"
+ },
+ {
+  "ticker": "600036",
+  "code": "600036",
+  "yahoo": "600036.SS",
+  "name": "China Merchants Bank",
+  "sector": "Financials"
+ },
+ {
+  "ticker": "000333",
+  "code": "000333",
+  "yahoo": "000333.SZ",
+  "name": "Midea Group",
+  "sector": "Consumer Discretionary"
+ },
+ {
+  "ticker": "000858",
+  "code": "000858",
+  "yahoo": "000858.SZ",
+  "name": "Wuliangye Yibin",
+  "sector": "Consumer Staples"
+ },
+ {
+  "ticker": "600900",
+  "code": "600900",
+  "yahoo": "600900.SS",
+  "name": "China Yangtze Power",
+  "sector": "Utilities"
+ },
+ {
+  "ticker": "601166",
+  "code": "601166",
+  "yahoo": "601166.SS",
+  "name": "Industrial Bank",
+  "sector": "Financials"
+ },
+ {
+  "ticker": "601899",
+  "code": "601899",
+  "yahoo": "601899.SS",
+  "name": "Zijin Mining Group",
+  "sector": "Materials"
+ },
+ {
+  "ticker": "600030",
+  "code": "600030",
+  "yahoo": "600030.SS",
+  "name": "CITIC Securities",
+  "sector": "Financials"
+ },
+ {
+  "ticker": "600276",
+  "code": "600276",
+  "yahoo": "600276.SS",
+  "name": "Jiangsu Hengrui Medicine",
+  "sector": "Health Care"
+ },
+ {
+  "ticker": "601398",
+  "code": "601398",
+  "yahoo": "601398.SS",
+  "name": "Industrial and Commercial Bank of China",
+  "sector": "Financials"
+ },
+ {
+  "ticker": "600887",
+  "code": "600887",
+  "yahoo": "600887.SS",
+  "name": "Inner Mongolia Yili Industrial Group",
+  "sector": "Consumer Staples"
+ },
+ {
+  "ticker": "300059",
+  "code": "300059",
+  "yahoo": "300059.SZ",
+  "name": "East Money",
+  "sector": "Financials"
+ },
+ {
+  "ticker": "000651",
+  "code": "000651",
+  "yahoo": "000651.SZ",
+  "name": "Gree Electric",
+  "sector": "Consumer Discretionary"
+ },
+ {
+  "ticker": "300760",
+  "code": "300760",
+  "yahoo": "300760.SZ",
+  "name": "Mindray",
+  "sector": "Health Care"
+ },
+ {
+  "ticker": "002594",
+  "code": "002594",
+  "yahoo": "002594.SZ",
+  "name": "BYD",
+  "sector": "Consumer Discretionary"
+ },
+ {
+  "ticker": "601328",
+  "code": "601328",
+  "yahoo": "601328.SS",
+  "name": "Bank of Communications",
+  "sector": "Financials"
+ },
+ {
+  "ticker": "600309",
+  "code": "600309",
+  "yahoo": "600309.SS",
+  "name": "Wanhua Chemical Group",
+  "sector": "Materials"
+ },
+ {
+  "ticker": "000725",
+  "code": "000725",
+  "yahoo": "000725.SZ",
+  "name": "BOE Technology Group",
+  "sector": "Information Technology"
+ },
+ {
+  "ticker": "600919",
+  "code": "600919",
+  "yahoo": "600919.SS",
+  "name": "Bank of Jiangsu",
+  "sector": "Financials"
+ },
+ {
+  "ticker": "002475",
+  "code": "002475",
+  "yahoo": "002475.SZ",
+  "name": "Luxshare Precision Industry",
+  "sector": "Information Technology"
+ },
+ {
+  "ticker": "300124",
+  "code": "300124",
+  "yahoo": "300124.SZ",
+  "name": "Shenzhen Inovance Technology",
+  "sector": "Industrials"
+ },
+ {
+  "ticker": "601288",
+  "code": "601288",
+  "yahoo": "601288.SS",
+  "name": "Agricultural Bank of China",
+  "sector": "Financials"
+ },
+ {
+  "ticker": "002415",
+  "code": "002415",
+  "yahoo": "002415.SZ",
+  "name": "Hangzhou Hikvision Digital Technology",
+  "sector": "Information Technology"
+ },
+ {
+  "ticker": "000568",
+  "code": "000568",
+  "yahoo": "000568.SZ",
+  "name": "Luzhou Lao Jiao",
+  "sector": "Consumer Staples"
+ },
+ {
+  "ticker": "601012",
+  "code": "601012",
+  "yahoo": "601012.SS",
+  "name": "Longi Green Energy Technology",
+  "sector": "Information Technology"
+ },
+ {
+  "ticker": "601088",
+  "code": "601088",
+  "yahoo": "601088.SS",
+  "name": "China Shenhua Energy",
+  "sector": "Energy"
+ },
+ {
+  "ticker": "601816",
+  "code": "601816",
+  "yahoo": "601816.SS",
+  "name": "Beijing-Shanghai High Speed Railway",
+  "sector": "Industrials"
+ },
+ {
+  "ticker": "600028",
+  "code": "600028",
+  "yahoo": "600028.SS",
+  "name": "China Petroleum & Chemical Corporation",
+  "sector": "Energy"
+ },
+ {
+  "ticker": "600809",
+  "code": "600809",
+  "yahoo": "600809.SS",
+  "name": "Shanxi Xinghuacun Fen Wine Factory",
+  "sector": "Consumer Staples"
+ },
+ {
+  "ticker": "601668",
+  "code": "601668",
+  "yahoo": "601668.SS",
+  "name": "China State Construction Engineering",
+  "sector": "Industrials"
+ },
+ {
+  "ticker": "603259",
+  "code": "603259",
+  "yahoo": "603259.SS",
+  "name": "WuXi AppTec",
+  "sector": "Health Care"
+ },
+ {
+  "ticker": "002714",
+  "code": "002714",
+  "yahoo": "002714.SZ",
+  "name": "Muyuan Foodstuff",
+  "sector": "Consumer Staples"
+ },
+ {
+  "ticker": "000001",
+  "code": "000001",
+  "yahoo": "000001.SZ",
+  "name": "Ping An Bank",
+  "sector": "Financials"
+ },
+ {
+  "ticker": "300498",
+  "code": "300498",
+  "yahoo": "300498.SZ",
+  "name": "Wens Foodstuff Group",
+  "sector": "Consumer Staples"
+ },
+ {
+  "ticker": "600016",
+  "code": "600016",
+  "yahoo": "600016.SS",
+  "name": "China Minsheng Bank",
+  "sector": "Financials"
+ },
+ {
+  "ticker": "601857",
+  "code": "601857",
+  "yahoo": "601857.SS",
+  "name": "PetroChina",
+  "sector": "Energy"
+ },
+ {
+  "ticker": "601225",
+  "code": "601225",
+  "yahoo": "601225.SS",
+  "name": "Shaanxi Coal Industry Company",
+  "sector": "Energy"
+ },
+ {
+  "ticker": "300308",
+  "code": "300308",
+  "yahoo": "300308.SZ",
+  "name": "Zhongji Innolight",
+  "sector": "Information Technology"
+ },
+ {
+  "ticker": "688981",
+  "code": "688981",
+  "yahoo": "688981.SS",
+  "name": "Semiconductor Manufacturing International Corporation",
+  "sector": "Information Technology"
+ },
+ {
+  "ticker": "000063",
+  "code": "000063",
+  "yahoo": "000063.SZ",
+  "name": "ZTE",
+  "sector": "Information Technology"
+ },
+ {
+  "ticker": "601988",
+  "code": "601988",
+  "yahoo": "601988.SS",
+  "name": "Bank of China",
+  "sector": "Financials"
+ },
+ {
+  "ticker": "002352",
+  "code": "002352",
+  "yahoo": "002352.SZ",
+  "name": "S.F. Holding",
+  "sector": "Industrials"
+ },
+ {
+  "ticker": "600406",
+  "code": "600406",
+  "yahoo": "600406.SS",
+  "name": "NARI Technology",
+  "sector": "Industrials"
+ },
+ {
+  "ticker": "600941",
+  "code": "600941",
+  "yahoo": "600941.SS",
+  "name": "China Mobile",
+  "sector": "Communication"
+ },
+ {
+  "ticker": "000338",
+  "code": "000338",
+  "yahoo": "000338.SZ",
+  "name": "Weichai Power",
+  "sector": "Industrials"
+ },
+ {
+  "ticker": "600050",
+  "code": "600050",
+  "yahoo": "600050.SS",
+  "name": "China United Network Communications",
+  "sector": "Communication"
+ },
+ {
+  "ticker": "002230",
+  "code": "002230",
+  "yahoo": "002230.SZ",
+  "name": "Iflytek",
+  "sector": "Information Technology"
+ },
+ {
+  "ticker": "600690",
+  "code": "600690",
+  "yahoo": "600690.SS",
+  "name": "Qingdao Haier",
+  "sector": "Consumer Discretionary"
+ },
+ {
+  "ticker": "601728",
+  "code": "601728",
+  "yahoo": "601728.SS",
+  "name": "China Telecom Corporation",
+  "sector": "Communication"
+ },
+ {
+  "ticker": "300274",
+  "code": "300274",
+  "yahoo": "300274.SZ",
+  "name": "Sungrow Power Supply",
+  "sector": "Industrials"
+ },
+ {
+  "ticker": "002142",
+  "code": "002142",
+  "yahoo": "002142.SZ",
+  "name": "Bank of Ningbo",
+  "sector": "Financials"
+ },
+ {
+  "ticker": "600837",
+  "code": "600837",
+  "yahoo": "600837.SS",
+  "name": "Haitong Securities Company",
+  "sector": "Financials"
+ },
+ {
+  "ticker": "000792",
+  "code": "000792",
+  "yahoo": "000792.SZ",
+  "name": "Qinghai Salt Lake Potash",
+  "sector": "Materials"
+ },
+ {
+  "ticker": "601601",
+  "code": "601601",
+  "yahoo": "601601.SS",
+  "name": "China Pacific Insurance",
+  "sector": "Financials"
+ },
+ {
+  "ticker": "000100",
+  "code": "000100",
+  "yahoo": "000100.SZ",
+  "name": "TCL Corporation",
+  "sector": "Information Technology"
+ },
+ {
+  "ticker": "601888",
+  "code": "601888",
+  "yahoo": "601888.SS",
+  "name": "China International Travel Service",
+  "sector": "Consumer Discretionary"
+ },
+ {
+  "ticker": "600000",
+  "code": "600000",
+  "yahoo": "600000.SS",
+  "name": "Shanghai Pudong Development Bank",
+  "sector": "Financials"
+ },
+ {
+  "ticker": "600031",
+  "code": "600031",
+  "yahoo": "600031.SS",
+  "name": "Sany Heavy Industry",
+  "sector": "Industrials"
+ },
+ {
+  "ticker": "601985",
+  "code": "601985",
+  "yahoo": "601985.SS",
+  "name": "China National Nuclear Power",
+  "sector": "Utilities"
+ },
+ {
+  "ticker": "600150",
+  "code": "600150",
+  "yahoo": "600150.SS",
+  "name": "China CSSC Holdings",
+  "sector": "Industrials"
+ },
+ {
+  "ticker": "688041",
+  "code": "688041",
+  "yahoo": "688041.SS",
+  "name": "Hygon Information Technology",
+  "sector": "Information Technology"
+ },
+ {
+  "ticker": "601766",
+  "code": "601766",
+  "yahoo": "601766.SS",
+  "name": "CRRC Corporation",
+  "sector": "Industrials"
+ },
+ {
+  "ticker": "601169",
+  "code": "601169",
+  "yahoo": "601169.SS",
+  "name": "Bank of Beijing",
+  "sector": "Financials"
+ },
+ {
+  "ticker": "002371",
+  "code": "002371",
+  "yahoo": "002371.SZ",
+  "name": "NAURA Technology Group",
+  "sector": "Information Technology"
+ },
+ {
+  "ticker": "600089",
+  "code": "600089",
+  "yahoo": "600089.SS",
+  "name": "TBEA",
+  "sector": "Industrials"
+ },
+ {
+  "ticker": "601688",
+  "code": "601688",
+  "yahoo": "601688.SS",
+  "name": "Huatai Securities",
+  "sector": "Financials"
+ },
+ {
+  "ticker": "601138",
+  "code": "601138",
+  "yahoo": "601138.SS",
+  "name": "Foxconn Industrial Internet",
+  "sector": "Information Technology"
+ },
+ {
+  "ticker": "000625",
+  "code": "000625",
+  "yahoo": "000625.SZ",
+  "name": "Chongqing Changan Automobile",
+  "sector": "Consumer Discretionary"
+ },
+ {
+  "ticker": "600438",
+  "code": "600438",
+  "yahoo": "600438.SS",
+  "name": "Tongwei Company",
+  "sector": "Information Technology"
+ },
+ {
+  "ticker": "600048",
+  "code": "600048",
+  "yahoo": "600048.SS",
+  "name": "Poly Real Estate Group",
+  "sector": "Real Estate"
+ },
+ {
+  "ticker": "603501",
+  "code": "603501",
+  "yahoo": "603501.SS",
+  "name": "Will Semiconductor",
+  "sector": "Information Technology"
+ },
+ {
+  "ticker": "600104",
+  "code": "600104",
+  "yahoo": "600104.SS",
+  "name": "SAIC Motor",
+  "sector": "Consumer Discretionary"
+ },
+ {
+  "ticker": "600660",
+  "code": "600660",
+  "yahoo": "600660.SS",
+  "name": "Fuyao Glass Industry Group",
+  "sector": "Consumer Discretionary"
+ },
+ {
+  "ticker": "000002",
+  "code": "000002",
+  "yahoo": "000002.SZ",
+  "name": "China Vanke",
+  "sector": "Real Estate"
+ },
+ {
+  "ticker": "300015",
+  "code": "300015",
+  "yahoo": "300015.SZ",
+  "name": "Aier Eye Hospital",
+  "sector": "Health Care"
+ },
+ {
+  "ticker": "601211",
+  "code": "601211",
+  "yahoo": "601211.SS",
+  "name": "Guotai Junan Securities",
+  "sector": "Financials"
+ },
+ {
+  "ticker": "603288",
+  "code": "603288",
+  "yahoo": "603288.SS",
+  "name": "Foshan Haitian Flavouring & Food Co",
+  "sector": "Consumer Staples"
+ },
+ {
+  "ticker": "600436",
+  "code": "600436",
+  "yahoo": "600436.SS",
+  "name": "Zhangzhou Pientzehuang Pharmaceutical",
+  "sector": "Health Care"
+ },
+ {
+  "ticker": "601919",
+  "code": "601919",
+  "yahoo": "601919.SS",
+  "name": "China Cosco Holdings",
+  "sector": "Industrials"
+ },
+ {
+  "ticker": "600905",
+  "code": "600905",
+  "yahoo": "600905.SS",
+  "name": "China Three Gorges Renewables (Group)",
+  "sector": "Utilities"
+ },
+ {
+  "ticker": "601390",
+  "code": "601390",
+  "yahoo": "601390.SS",
+  "name": "China Railway Group Limited",
+  "sector": "Industrials"
+ },
+ {
+  "ticker": "601229",
+  "code": "601229",
+  "yahoo": "601229.SS",
+  "name": "Bank of Shanghai",
+  "sector": "Financials"
+ },
+ {
+  "ticker": "300122",
+  "code": "300122",
+  "yahoo": "300122.SZ",
+  "name": "Chongqing Zhifei Biological Products",
+  "sector": "Health Care"
+ },
+ {
+  "ticker": "002027",
+  "code": "002027",
+  "yahoo": "002027.SZ",
+  "name": "Focus Media Information Technology",
+  "sector": "Communication"
+ },
+ {
+  "ticker": "688012",
+  "code": "688012",
+  "yahoo": "688012.SS",
+  "name": "Advanced Micro-Fabrication Equipment",
+  "sector": "Information Technology"
+ },
+ {
+  "ticker": "688111",
+  "code": "688111",
+  "yahoo": "688111.SS",
+  "name": "Beijing Kingsoft Office Software",
+  "sector": "Information Technology"
+ },
+ {
+  "ticker": "601006",
+  "code": "601006",
+  "yahoo": "601006.SS",
+  "name": "Daqin Railway",
+  "sector": "Industrials"
+ },
+ {
+  "ticker": "002304",
+  "code": "002304",
+  "yahoo": "002304.SZ",
+  "name": "Jiangsu Yanghe Brewery Joint-Stock",
+  "sector": "Consumer Staples"
+ },
+ {
+  "ticker": "601818",
+  "code": "601818",
+  "yahoo": "601818.SS",
+  "name": "China Everbright Bank",
+  "sector": "Financials"
+ },
+ {
+  "ticker": "600019",
+  "code": "600019",
+  "yahoo": "600019.SS",
+  "name": "Baoshan Iron and Steel",
+  "sector": "Materials"
+ },
+ {
+  "ticker": "688271",
+  "code": "688271",
+  "yahoo": "688271.SS",
+  "name": "United Imaging",
+  "sector": "Health Care"
+ },
+ {
+  "ticker": "603019",
+  "code": "603019",
+  "yahoo": "603019.SS",
+  "name": "Dawning Information Industry",
+  "sector": "Information Technology"
+ },
+ {
+  "ticker": "600585",
+  "code": "600585",
+  "yahoo": "600585.SS",
+  "name": "Anhui Conch Cement",
+  "sector": "Materials"
+ },
+ {
+  "ticker": "002050",
+  "code": "002050",
+  "yahoo": "002050.SZ",
+  "name": "ZHEJIANG SANHUA INTELLIGENT CONTROLS",
+  "sector": "Industrials"
+ },
+ {
+  "ticker": "002466",
+  "code": "002466",
+  "yahoo": "002466.SZ",
+  "name": "Tianqi Lithium Industries",
+  "sector": "Materials"
+ },
+ {
+  "ticker": "601658",
+  "code": "601658",
+  "yahoo": "601658.SS",
+  "name": "Postal Savings Bank of China",
+  "sector": "Financials"
+ },
+ {
+  "ticker": "601989",
+  "code": "601989",
+  "yahoo": "601989.SS",
+  "name": "China Shipbuilding Industry Company",
+  "sector": "Industrials"
+ },
+ {
+  "ticker": "600938",
+  "code": "600938",
+  "yahoo": "600938.SS",
+  "name": "CNOOC Limited",
+  "sector": "Energy"
+ },
+ {
+  "ticker": "600999",
+  "code": "600999",
+  "yahoo": "600999.SS",
+  "name": "China Merchants Securities",
+  "sector": "Financials"
+ },
+ {
+  "ticker": "688036",
+  "code": "688036",
+  "yahoo": "688036.SS",
+  "name": "Transsion",
+  "sector": "Information Technology"
+ },
+ {
+  "ticker": "000938",
+  "code": "000938",
+  "yahoo": "000938.SZ",
+  "name": "Unisplendour",
+  "sector": "Information Technology"
+ },
+ {
+  "ticker": "601628",
+  "code": "601628",
+  "yahoo": "601628.SS",
+  "name": "China Life Insurance Company",
+  "sector": "Financials"
+ },
+ {
+  "ticker": "603986",
+  "code": "603986",
+  "yahoo": "603986.SS",
+  "name": "GigaDevice",
+  "sector": "Information Technology"
+ },
+ {
+  "ticker": "002049",
+  "code": "002049",
+  "yahoo": "002049.SZ",
+  "name": "Unigroup Guoxin Microelectronics",
+  "sector": "Information Technology"
+ },
+ {
+  "ticker": "601600",
+  "code": "601600",
+  "yahoo": "601600.SS",
+  "name": "Aluminum Corporation of China Limited",
+  "sector": "Materials"
+ },
+ {
+  "ticker": "600111",
+  "code": "600111",
+  "yahoo": "600111.SS",
+  "name": "China Northern Rare Earth Group",
+  "sector": "Materials"
+ },
+ {
+  "ticker": "688008",
+  "code": "688008",
+  "yahoo": "688008.SS",
+  "name": "Montage Technology",
+  "sector": "Information Technology"
+ },
+ {
+  "ticker": "300014",
+  "code": "300014",
+  "yahoo": "300014.SZ",
+  "name": "Eve Energy",
+  "sector": "Industrials"
+ },
+ {
+  "ticker": "601939",
+  "code": "601939",
+  "yahoo": "601939.SS",
+  "name": "China Construction Bank",
+  "sector": "Financials"
+ },
+ {
+  "ticker": "600958",
+  "code": "600958",
+  "yahoo": "600958.SS",
+  "name": "Orient Securities",
+  "sector": "Financials"
+ },
+ {
+  "ticker": "600893",
+  "code": "600893",
+  "yahoo": "600893.SS",
+  "name": "AVIC Aviation Engine Corporation",
+  "sector": "Industrials"
+ },
+ {
+  "ticker": "002460",
+  "code": "002460",
+  "yahoo": "002460.SZ",
+  "name": "Ganfeng Lithium",
+  "sector": "Materials"
+ },
+ {
+  "ticker": "601009",
+  "code": "601009",
+  "yahoo": "601009.SS",
+  "name": "Bank of Nanjing",
+  "sector": "Financials"
+ },
+ {
+  "ticker": "000538",
+  "code": "000538",
+  "yahoo": "000538.SZ",
+  "name": "Yunnan Baiyao Group",
+  "sector": "Health Care"
+ },
+ {
+  "ticker": "601669",
+  "code": "601669",
+  "yahoo": "601669.SS",
+  "name": "Power Construction Corporation of China",
+  "sector": "Industrials"
+ },
+ {
+  "ticker": "600009",
+  "code": "600009",
+  "yahoo": "600009.SS",
+  "name": "Shanghai International Airport",
+  "sector": "Industrials"
+ },
+ {
+  "ticker": "002129",
+  "code": "002129",
+  "yahoo": "002129.SZ",
+  "name": "Tianjin Zhonghuan Semiconductor",
+  "sector": "Information Technology"
+ },
+ {
+  "ticker": "603993",
+  "code": "603993",
+  "yahoo": "603993.SS",
+  "name": "China Molybdenum",
+  "sector": "Materials"
+ },
+ {
+  "ticker": "600886",
+  "code": "600886",
+  "yahoo": "600886.SS",
+  "name": "SDIC Power Holdings",
+  "sector": "Utilities"
+ },
+ {
+  "ticker": "600760",
+  "code": "600760",
+  "yahoo": "600760.SS",
+  "name": "AVIC SHENYANG AIRCRAFT COMPANY",
+  "sector": "Industrials"
+ },
+ {
+  "ticker": "000425",
+  "code": "000425",
+  "yahoo": "000425.SZ",
+  "name": "XCMG Construction Machinery",
+  "sector": "Industrials"
+ },
+ {
+  "ticker": "000776",
+  "code": "000776",
+  "yahoo": "000776.SZ",
+  "name": "GF Securities",
+  "sector": "Financials"
+ },
+ {
+  "ticker": "601916",
+  "code": "601916",
+  "yahoo": "601916.SS",
+  "name": "China Zheshang Bank",
+  "sector": "Financials"
+ },
+ {
+  "ticker": "600795",
+  "code": "600795",
+  "yahoo": "600795.SS",
+  "name": "GD Power Development",
+  "sector": "Utilities"
+ },
+ {
+  "ticker": "000661",
+  "code": "000661",
+  "yahoo": "000661.SZ",
+  "name": "Chang Chun High and New Technology Industry (Group)",
+  "sector": "Health Care"
+ },
+ {
+  "ticker": "000166",
+  "code": "000166",
+  "yahoo": "000166.SZ",
+  "name": "Shenwan Hongyuan",
+  "sector": "Financials"
+ },
+ {
+  "ticker": "600426",
+  "code": "600426",
+  "yahoo": "600426.SS",
+  "name": "Shandong Hualu-Hengsheng Chemical",
+  "sector": "Materials"
+ },
+ {
+  "ticker": "600015",
+  "code": "600015",
+  "yahoo": "600015.SS",
+  "name": "Hua Xia Bank",
+  "sector": "Financials"
+ },
+ {
+  "ticker": "300782",
+  "code": "300782",
+  "yahoo": "300782.SZ",
+  "name": "Maxscend Microelectronics",
+  "sector": "Information Technology"
+ },
+ {
+  "ticker": "601377",
+  "code": "601377",
+  "yahoo": "601377.SS",
+  "name": "Industrial Securities",
+  "sector": "Financials"
+ },
+ {
+  "ticker": "601186",
+  "code": "601186",
+  "yahoo": "601186.SS",
+  "name": "China Railway Construction",
+  "sector": "Industrials"
+ },
+ {
+  "ticker": "000157",
+  "code": "000157",
+  "yahoo": "000157.SZ",
+  "name": "Zoomlion Heavy Industry Science & Technology",
+  "sector": "Industrials"
+ },
+ {
+  "ticker": "002241",
+  "code": "002241",
+  "yahoo": "002241.SZ",
+  "name": "GoerTek",
+  "sector": "Information Technology"
+ },
+ {
+  "ticker": "600926",
+  "code": "600926",
+  "yahoo": "600926.SS",
+  "name": "Bank of Hangzhou",
+  "sector": "Financials"
+ },
+ {
+  "ticker": "600547",
+  "code": "600547",
+  "yahoo": "600547.SS",
+  "name": "Shandong Gold-Mining",
+  "sector": "Materials"
+ },
+ {
+  "ticker": "600011",
+  "code": "600011",
+  "yahoo": "600011.SS",
+  "name": "Huaneng Power International",
+  "sector": "Utilities"
+ },
+ {
+  "ticker": "000977",
+  "code": "000977",
+  "yahoo": "000977.SZ",
+  "name": "Inspur Electronic Information Industry",
+  "sector": "Information Technology"
+ },
+ {
+  "ticker": "002252",
+  "code": "002252",
+  "yahoo": "002252.SZ",
+  "name": "Shanghai RAAS Blood Products",
+  "sector": "Health Care"
+ },
+ {
+  "ticker": "600674",
+  "code": "600674",
+  "yahoo": "600674.SS",
+  "name": "Sichuan Chuantou Energy",
+  "sector": "Utilities"
+ },
+ {
+  "ticker": "603799",
+  "code": "603799",
+  "yahoo": "603799.SS",
+  "name": "ZHEJIANG HUAYOU COBALT",
+  "sector": "Materials"
+ },
+ {
+  "ticker": "600584",
+  "code": "600584",
+  "yahoo": "600584.SS",
+  "name": "JCET",
+  "sector": "Information Technology"
+ },
+ {
+  "ticker": "600570",
+  "code": "600570",
+  "yahoo": "600570.SS",
+  "name": "Hundsun Technologies",
+  "sector": "Information Technology"
+ },
+ {
+  "ticker": "002236",
+  "code": "002236",
+  "yahoo": "002236.SZ",
+  "name": "Zhejiang Dahua Technology",
+  "sector": "Information Technology"
+ },
+ {
+  "ticker": "002179",
+  "code": "002179",
+  "yahoo": "002179.SZ",
+  "name": "AVIC Jonhon Optronic Technology",
+  "sector": "Information Technology"
+ },
+ {
+  "ticker": "000596",
+  "code": "000596",
+  "yahoo": "000596.SZ",
+  "name": "Anhui Gujing Distillery",
+  "sector": "Consumer Staples"
+ },
+ {
+  "ticker": "002311",
+  "code": "002311",
+  "yahoo": "002311.SZ",
+  "name": "Guangdong Haid Group",
+  "sector": "Consumer Staples"
+ },
+ {
+  "ticker": "600188",
+  "code": "600188",
+  "yahoo": "600188.SS",
+  "name": "Yanzhou Coal Mining",
+  "sector": "Energy"
+ },
+ {
+  "ticker": "300896",
+  "code": "300896",
+  "yahoo": "300896.SZ",
+  "name": "IMEIK TECHNOLOGY DEVELOPMENT",
+  "sector": "Health Care"
+ },
+ {
+  "ticker": "688256",
+  "code": "688256",
+  "yahoo": "688256.SS",
+  "name": "Cambricon Technologies",
+  "sector": "Information Technology"
+ },
+ {
+  "ticker": "600010",
+  "code": "600010",
+  "yahoo": "600010.SS",
+  "name": "Inner Mongolia Baotou Steel Union",
+  "sector": "Materials"
+ },
+ {
+  "ticker": "002271",
+  "code": "002271",
+  "yahoo": "002271.SZ",
+  "name": "Beijing Oriental Yuhong Waterproof Technology",
+  "sector": "Materials"
+ },
+ {
+  "ticker": "601111",
+  "code": "601111",
+  "yahoo": "601111.SS",
+  "name": "Air China",
+  "sector": "Industrials"
+ },
+ {
+  "ticker": "001979",
+  "code": "001979",
+  "yahoo": "001979.SZ",
+  "name": "China Merchants Shekou Industrial Zone Holdings",
+  "sector": "Real Estate"
+ },
+ {
+  "ticker": "300408",
+  "code": "300408",
+  "yahoo": "300408.SZ",
+  "name": "Chaozhou Three-Circle",
+  "sector": "Information Technology"
+ },
+ {
+  "ticker": "600845",
+  "code": "600845",
+  "yahoo": "600845.SS",
+  "name": "Baosight Software",
+  "sector": "Information Technology"
+ },
+ {
+  "ticker": "603369",
+  "code": "603369",
+  "yahoo": "603369.SS",
+  "name": "Jiangsu King's Luck Brewery Joint-Stock",
+  "sector": "Consumer Staples"
+ },
+ {
+  "ticker": "600989",
+  "code": "600989",
+  "yahoo": "600989.SS",
+  "name": "Ningxia Baofeng Energy Group",
+  "sector": "Materials"
+ },
+ {
+  "ticker": "600745",
+  "code": "600745",
+  "yahoo": "600745.SS",
+  "name": "Wingtech",
+  "sector": "Information Technology"
+ },
+ {
+  "ticker": "601788",
+  "code": "601788",
+  "yahoo": "601788.SS",
+  "name": "Everbright Securities",
+  "sector": "Financials"
+ },
+ {
+  "ticker": "600115",
+  "code": "600115",
+  "yahoo": "600115.SS",
+  "name": "China Eastern Airlines Corp",
+  "sector": "Industrials"
+ },
+ {
+  "ticker": "600029",
+  "code": "600029",
+  "yahoo": "600029.SS",
+  "name": "China Southern Airlines",
+  "sector": "Industrials"
+ },
+ {
+  "ticker": "002601",
+  "code": "002601",
+  "yahoo": "002601.SZ",
+  "name": "LB Group",
+  "sector": "Materials"
+ },
+ {
+  "ticker": "601360",
+  "code": "601360",
+  "yahoo": "601360.SS",
+  "name": "360 Security Technology",
+  "sector": "Information Technology"
+ },
+ {
+  "ticker": "601901",
+  "code": "601901",
+  "yahoo": "601901.SS",
+  "name": "Founder Securities",
+  "sector": "Financials"
+ },
+ {
+  "ticker": "002493",
+  "code": "002493",
+  "yahoo": "002493.SZ",
+  "name": "Rongsheng Petro Chemical",
+  "sector": "Materials"
+ },
+ {
+  "ticker": "600196",
+  "code": "600196",
+  "yahoo": "600196.SS",
+  "name": "Fosun Pharmaceutical",
+  "sector": "Health Care"
+ },
+ {
+  "ticker": "002459",
+  "code": "002459",
+  "yahoo": "002459.SZ",
+  "name": "JA Solar Technology",
+  "sector": "Information Technology"
+ },
+ {
+  "ticker": "601699",
+  "code": "601699",
+  "yahoo": "601699.SS",
+  "name": "Shanxi Lu'an Environmental Energy Development",
+  "sector": "Energy"
+ },
+ {
+  "ticker": "601995",
+  "code": "601995",
+  "yahoo": "601995.SS",
+  "name": "China International Capital Corporation",
+  "sector": "Financials"
+ },
+ {
+  "ticker": "600085",
+  "code": "600085",
+  "yahoo": "600085.SS",
+  "name": "Beijing Tongrentang",
+  "sector": "Health Care"
+ },
+ {
+  "ticker": "601100",
+  "code": "601100",
+  "yahoo": "601100.SS",
+  "name": "Jiangsu Hengli Hydraulic",
+  "sector": "Industrials"
+ },
+ {
+  "ticker": "601800",
+  "code": "601800",
+  "yahoo": "601800.SS",
+  "name": "China Communications Construction Company",
+  "sector": "Industrials"
+ },
+ {
+  "ticker": "000895",
+  "code": "000895",
+  "yahoo": "000895.SZ",
+  "name": "Henan Shuanghui Investment & Development",
+  "sector": "Consumer Staples"
+ },
+ {
+  "ticker": "002555",
+  "code": "002555",
+  "yahoo": "002555.SZ",
+  "name": "37 Interactive Entertainment Network Technology Group",
+  "sector": "Communication"
+ },
+ {
+  "ticker": "003816",
+  "code": "003816",
+  "yahoo": "003816.SZ",
+  "name": "CGN Power",
+  "sector": "Utilities"
+ },
+ {
+  "ticker": "600489",
+  "code": "600489",
+  "yahoo": "600489.SS",
+  "name": "Zhongjin Gold",
+  "sector": "Materials"
+ },
+ {
+  "ticker": "601066",
+  "code": "601066",
+  "yahoo": "601066.SS",
+  "name": "China Securities",
+  "sector": "Financials"
+ },
+ {
+  "ticker": "000963",
+  "code": "000963",
+  "yahoo": "000963.SZ",
+  "name": "Huadong Medicine",
+  "sector": "Health Care"
+ },
+ {
+  "ticker": "300142",
+  "code": "300142",
+  "yahoo": "300142.SZ",
+  "name": "Walvax Biotechnology",
+  "sector": "Health Care"
+ },
+ {
+  "ticker": "300033",
+  "code": "300033",
+  "yahoo": "300033.SZ",
+  "name": "Hithink RoyalFlush Information Network",
+  "sector": "Financials"
+ },
+ {
+  "ticker": "000768",
+  "code": "000768",
+  "yahoo": "000768.SZ",
+  "name": "AVIC Aircraft",
+  "sector": "Industrials"
+ },
+ {
+  "ticker": "601633",
+  "code": "601633",
+  "yahoo": "601633.SS",
+  "name": "Great Wall Motor",
+  "sector": "Consumer Discretionary"
+ },
+ {
+  "ticker": "000786",
+  "code": "000786",
+  "yahoo": "000786.SZ",
+  "name": "Beijing New Building Materials Public",
+  "sector": "Industrials"
+ },
+ {
+  "ticker": "002920",
+  "code": "002920",
+  "yahoo": "002920.SZ",
+  "name": "Huizhou Desay SV Automotive",
+  "sector": "Consumer Discretionary"
+ },
+ {
+  "ticker": "600600",
+  "code": "600600",
+  "yahoo": "600600.SS",
+  "name": "Tsingtao Brewery",
+  "sector": "Consumer Staples"
+ },
+ {
+  "ticker": "601868",
+  "code": "601868",
+  "yahoo": "601868.SS",
+  "name": "China Energy Engineering Corporation",
+  "sector": "Industrials"
+ },
+ {
+  "ticker": "002648",
+  "code": "002648",
+  "yahoo": "002648.SZ",
+  "name": "SATELLITE CHEMICAL",
+  "sector": "Materials"
+ },
+ {
+  "ticker": "601021",
+  "code": "601021",
+  "yahoo": "601021.SS",
+  "name": "Spring Airlines",
+  "sector": "Industrials"
+ },
+ {
+  "ticker": "603392",
+  "code": "603392",
+  "yahoo": "603392.SS",
+  "name": "BEIJING WANTAI BIOLOGICAL PHARMACY ENTERPRISE",
+  "sector": "Health Care"
+ },
+ {
+  "ticker": "000301",
+  "code": "000301",
+  "yahoo": "000301.SZ",
+  "name": "Jiangsu Eastern Shenghong",
+  "sector": "Materials"
+ },
+ {
+  "ticker": "002001",
+  "code": "002001",
+  "yahoo": "002001.SZ",
+  "name": "Zhejiang NHU",
+  "sector": "Health Care"
+ },
+ {
+  "ticker": "600741",
+  "code": "600741",
+  "yahoo": "600741.SS",
+  "name": "HUAYU Automotive Systems Company",
+  "sector": "Consumer Discretionary"
+ },
+ {
+  "ticker": "601336",
+  "code": "601336",
+  "yahoo": "601336.SS",
+  "name": "New China Life Insurance",
+  "sector": "Financials"
+ },
+ {
+  "ticker": "601689",
+  "code": "601689",
+  "yahoo": "601689.SS",
+  "name": "Ningbo Tuopu Group",
+  "sector": "Consumer Discretionary"
+ },
+ {
+  "ticker": "688599",
+  "code": "688599",
+  "yahoo": "688599.SS",
+  "name": "Trina Solar",
+  "sector": "Information Technology"
+ },
+ {
+  "ticker": "002812",
+  "code": "002812",
+  "yahoo": "002812.SZ",
+  "name": "Yunnan Energy New Material",
+  "sector": "Materials"
+ },
+ {
+  "ticker": "600346",
+  "code": "600346",
+  "yahoo": "600346.SS",
+  "name": "Hengli Petrochemical",
+  "sector": "Materials"
+ },
+ {
+  "ticker": "000983",
+  "code": "000983",
+  "yahoo": "000983.SZ",
+  "name": "Shanxi Coking Coal Energy Group",
+  "sector": "Energy"
+ },
+ {
+  "ticker": "601881",
+  "code": "601881",
+  "yahoo": "601881.SS",
+  "name": "China Galaxy Securities",
+  "sector": "Financials"
+ },
+ {
+  "ticker": "600588",
+  "code": "600588",
+  "yahoo": "600588.SS",
+  "name": "Yonyou Network Technology",
+  "sector": "Information Technology"
+ },
+ {
+  "ticker": "600515",
+  "code": "600515",
+  "yahoo": "600515.SS",
+  "name": "Hainan Airport Infrastructure",
+  "sector": "Real Estate"
+ },
+ {
+  "ticker": "601117",
+  "code": "601117",
+  "yahoo": "601117.SS",
+  "name": "China National Chemical Engineering",
+  "sector": "Industrials"
+ },
+ {
+  "ticker": "601838",
+  "code": "601838",
+  "yahoo": "601838.SS",
+  "name": "BANK OF CHENGDU",
+  "sector": "Financials"
+ },
+ {
+  "ticker": "688126",
+  "code": "688126",
+  "yahoo": "688126.SS",
+  "name": "National Silicon Industry Group",
+  "sector": "Information Technology"
+ },
+ {
+  "ticker": "300450",
+  "code": "300450",
+  "yahoo": "300450.SZ",
+  "name": "WUXI LEAD INTELLIGENT EQUIPMENT",
+  "sector": "Industrials"
+ },
+ {
+  "ticker": "002736",
+  "code": "002736",
+  "yahoo": "002736.SZ",
+  "name": "Guosen Securities",
+  "sector": "Financials"
+ },
+ {
+  "ticker": "002821",
+  "code": "002821",
+  "yahoo": "002821.SZ",
+  "name": "Asymchem Laboratories (Tianjin)",
+  "sector": "Health Care"
+ },
+ {
+  "ticker": "300316",
+  "code": "300316",
+  "yahoo": "300316.SZ",
+  "name": "Zhejiang Jingsheng Mechanical & Electrical",
+  "sector": "Information Technology"
+ },
+ {
+  "ticker": "300433",
+  "code": "300433",
+  "yahoo": "300433.SZ",
+  "name": "Lens Technology",
+  "sector": "Information Technology"
+ },
+ {
+  "ticker": "600176",
+  "code": "600176",
+  "yahoo": "600176.SS",
+  "name": "CHINA JUSHI",
+  "sector": "Materials"
+ },
+ {
+  "ticker": "002709",
+  "code": "002709",
+  "yahoo": "002709.SZ",
+  "name": "Guangzhou Tinci Materials Technology",
+  "sector": "Materials"
+ },
+ {
+  "ticker": "300347",
+  "code": "300347",
+  "yahoo": "300347.SZ",
+  "name": "Hangzhou Tigermed Consulting",
+  "sector": "Health Care"
+ },
+ {
+  "ticker": "601618",
+  "code": "601618",
+  "yahoo": "601618.SS",
+  "name": "Metallurgical Corporation of China",
+  "sector": "Industrials"
+ },
+ {
+  "ticker": "601872",
+  "code": "601872",
+  "yahoo": "601872.SS",
+  "name": "China Merchants Energy Shipping",
+  "sector": "Energy"
+ },
+ {
+  "ticker": "000408",
+  "code": "000408",
+  "yahoo": "000408.SZ",
+  "name": "ZANGGE MINING COMPANY",
+  "sector": "Materials"
+ },
+ {
+  "ticker": "002180",
+  "code": "002180",
+  "yahoo": "002180.SZ",
+  "name": "Ninestar Corporation",
+  "sector": "Information Technology"
+ },
+ {
+  "ticker": "300661",
+  "code": "300661",
+  "yahoo": "300661.SZ",
+  "name": "SG Micro",
+  "sector": "Information Technology"
+ },
+ {
+  "ticker": "600372",
+  "code": "600372",
+  "yahoo": "600372.SS",
+  "name": "China Avionics Systems",
+  "sector": "Industrials"
+ },
+ {
+  "ticker": "601898",
+  "code": "601898",
+  "yahoo": "601898.SS",
+  "name": "China Coal Energy",
+  "sector": "Energy"
+ },
+ {
+  "ticker": "688396",
+  "code": "688396",
+  "yahoo": "688396.SS",
+  "name": "China Resources Microelectronics",
+  "sector": "Information Technology"
+ },
+ {
+  "ticker": "300496",
+  "code": "300496",
+  "yahoo": "300496.SZ",
+  "name": "Thunder Software Technology",
+  "sector": "Information Technology"
+ },
+ {
+  "ticker": "000733",
+  "code": "000733",
+  "yahoo": "000733.SZ",
+  "name": "China Zhenhua (Group) Science & Technology",
+  "sector": "Information Technology"
+ },
+ {
+  "ticker": "601877",
+  "code": "601877",
+  "yahoo": "601877.SS",
+  "name": "Zhejiang Chint Electrics",
+  "sector": "Industrials"
+ },
+ {
+  "ticker": "600233",
+  "code": "600233",
+  "yahoo": "600233.SS",
+  "name": "YTO Express Group",
+  "sector": "Industrials"
+ },
+ {
+  "ticker": "000999",
+  "code": "000999",
+  "yahoo": "000999.SZ",
+  "name": "China Resources Sanjiu Medical & Pharmaceutical",
+  "sector": "Health Care"
+ },
+ {
+  "ticker": "600219",
+  "code": "600219",
+  "yahoo": "600219.SS",
+  "name": "Shandong Nanshan Aluminium",
+  "sector": "Materials"
+ },
+ {
+  "ticker": "002007",
+  "code": "002007",
+  "yahoo": "002007.SZ",
+  "name": "Hualan Biological Engineering",
+  "sector": "Health Care"
+ },
+ {
+  "ticker": "600023",
+  "code": "600023",
+  "yahoo": "600023.SS",
+  "name": "Zhejiang Zheneng Electric Power",
+  "sector": "Utilities"
+ },
+ {
+  "ticker": "002074",
+  "code": "002074",
+  "yahoo": "002074.SZ",
+  "name": "GUOXUAN HIGH-TECH",
+  "sector": "Industrials"
+ },
+ {
+  "ticker": "002202",
+  "code": "002202",
+  "yahoo": "002202.SZ",
+  "name": "Xinjiang Goldwind Science & Technology",
+  "sector": "Industrials"
+ },
+ {
+  "ticker": "300759",
+  "code": "300759",
+  "yahoo": "300759.SZ",
+  "name": "Pharmaron Beijing",
+  "sector": "Health Care"
+ },
+ {
+  "ticker": "600332",
+  "code": "600332",
+  "yahoo": "600332.SS",
+  "name": "Guangzhou Baiyunshan Pharmaceutical Holdings",
+  "sector": "Health Care"
+ },
+ {
+  "ticker": "603806",
+  "code": "603806",
+  "yahoo": "603806.SS",
+  "name": "HANGZHOU FIRST PV MATERIAL",
+  "sector": "Information Technology"
+ },
+ {
+  "ticker": "600362",
+  "code": "600362",
+  "yahoo": "600362.SS",
+  "name": "Jiangxi Copper",
+  "sector": "Materials"
+ },
+ {
+  "ticker": "000876",
+  "code": "000876",
+  "yahoo": "000876.SZ",
+  "name": "New Hope Liuhe",
+  "sector": "Consumer Staples"
+ },
+ {
+  "ticker": "600183",
+  "code": "600183",
+  "yahoo": "600183.SS",
+  "name": "Shengyi Technology",
+  "sector": "Information Technology"
+ },
+ {
+  "ticker": "601607",
+  "code": "601607",
+  "yahoo": "601607.SS",
+  "name": "Shanghai Pharmaceuticals Holding",
+  "sector": "Health Care"
+ },
+ {
+  "ticker": "601799",
+  "code": "601799",
+  "yahoo": "601799.SS",
+  "name": "Changzhou Xingyu Automotive Lighting Systems",
+  "sector": "Consumer Discretionary"
+ },
+ {
+  "ticker": "301269",
+  "code": "301269",
+  "yahoo": "301269.SZ",
+  "name": "Empyrean Technology",
+  "sector": "Information Technology"
+ },
+ {
+  "ticker": "601238",
+  "code": "601238",
+  "yahoo": "601238.SS",
+  "name": "Guangzhou Automobile Group",
+  "sector": "Consumer Discretionary"
+ },
+ {
+  "ticker": "601878",
+  "code": "601878",
+  "yahoo": "601878.SS",
+  "name": "ZHESHANG SECURITIES",
+  "sector": "Financials"
+ },
+ {
+  "ticker": "601998",
+  "code": "601998",
+  "yahoo": "601998.SS",
+  "name": "China Citic Bank",
+  "sector": "Financials"
+ },
+ {
+  "ticker": "600918",
+  "code": "600918",
+  "yahoo": "600918.SS",
+  "name": "Zhongtai Securities",
+  "sector": "Financials"
+ },
+ {
+  "ticker": "300999",
+  "code": "300999",
+  "yahoo": "300999.SZ",
+  "name": "Yihai Kerry",
+  "sector": "Consumer Staples"
+ },
+ {
+  "ticker": "300223",
+  "code": "300223",
+  "yahoo": "300223.SZ",
+  "name": "Ingenic Semiconductor",
+  "sector": "Information Technology"
+ },
+ {
+  "ticker": "603260",
+  "code": "603260",
+  "yahoo": "603260.SS",
+  "name": "Hoshine Silicon Industry",
+  "sector": "Materials"
+ },
+ {
+  "ticker": "688303",
+  "code": "688303",
+  "yahoo": "688303.SS",
+  "name": "XinJiang Daqo New Energy",
+  "sector": "Information Technology"
+ },
+ {
+  "ticker": "300413",
+  "code": "300413",
+  "yahoo": "300413.SZ",
+  "name": "Mango Excellent Media",
+  "sector": "Communication"
+ },
+ {
+  "ticker": "601615",
+  "code": "601615",
+  "yahoo": "601615.SS",
+  "name": "MingYangSmartEnergyGroup",
+  "sector": "Industrials"
+ },
+ {
+  "ticker": "002410",
+  "code": "002410",
+  "yahoo": "002410.SZ",
+  "name": "Glodon Software",
+  "sector": "Information Technology"
+ },
+ {
+  "ticker": "600875",
+  "code": "600875",
+  "yahoo": "600875.SS",
+  "name": "Dongfang Electric Corporation",
+  "sector": "Industrials"
+ },
+ {
+  "ticker": "002603",
+  "code": "002603",
+  "yahoo": "002603.SZ",
+  "name": "Shijiazhuang Yiling Pharmaceutical",
+  "sector": "Health Care"
+ },
+ {
+  "ticker": "600061",
+  "code": "600061",
+  "yahoo": "600061.SS",
+  "name": "SDIC Essence",
+  "sector": "Financials"
+ },
+ {
+  "ticker": "688223",
+  "code": "688223",
+  "yahoo": "688223.SS",
+  "name": "Jinko Solar",
+  "sector": "Information Technology"
+ },
+ {
+  "ticker": "600460",
+  "code": "600460",
+  "yahoo": "600460.SS",
+  "name": "Hangzhou Silan Microelectronics",
+  "sector": "Information Technology"
+ },
+ {
+  "ticker": "600803",
+  "code": "600803",
+  "yahoo": "600803.SS",
+  "name": "ENN Ecological Holdings",
+  "sector": "Utilities"
+ },
+ {
+  "ticker": "300751",
+  "code": "300751",
+  "yahoo": "300751.SZ",
+  "name": "Suzhou Maxwell Technologies",
+  "sector": "Information Technology"
+ },
+ {
+  "ticker": "600025",
+  "code": "600025",
+  "yahoo": "600025.SS",
+  "name": "HuanengLancang River Hydropower",
+  "sector": "Utilities"
+ },
+ {
+  "ticker": "601319",
+  "code": "601319",
+  "yahoo": "601319.SS",
+  "name": "People's Insurance Company of China",
+  "sector": "Financials"
+ },
+ {
+  "ticker": "002841",
+  "code": "002841",
+  "yahoo": "002841.SZ",
+  "name": "Guangzhou Shiyuan Electronic Technology Company",
+  "sector": "Information Technology"
+ },
+ {
+  "ticker": "600732",
+  "code": "600732",
+  "yahoo": "600732.SS",
+  "name": "Shanghai Aiko Solar Energy",
+  "sector": "Information Technology"
+ },
+ {
+  "ticker": "603659",
+  "code": "603659",
+  "yahoo": "603659.SS",
+  "name": "Shanghai Putailai New Energy Technology",
+  "sector": "Materials"
+ },
+ {
+  "ticker": "300454",
+  "code": "300454",
+  "yahoo": "300454.SZ",
+  "name": "Sangfor Technologies",
+  "sector": "Information Technology"
+ },
+ {
+  "ticker": "300919",
+  "code": "300919",
+  "yahoo": "300919.SZ",
+  "name": "CNGR Advanced Material",
+  "sector": "Materials"
+ },
+ {
+  "ticker": "600132",
+  "code": "600132",
+  "yahoo": "600132.SS",
+  "name": "Chongqing Brewery",
+  "sector": "Consumer Staples"
+ },
+ {
+  "ticker": "000617",
+  "code": "000617",
+  "yahoo": "000617.SZ",
+  "name": "CNPC Capital Company",
+  "sector": "Financials"
+ },
+ {
+  "ticker": "300763",
+  "code": "300763",
+  "yahoo": "300763.SZ",
+  "name": "Ginlong Technologies",
+  "sector": "Industrials"
+ },
+ {
+  "ticker": "000069",
+  "code": "000069",
+  "yahoo": "000069.SZ",
+  "name": "Shenzhen Overseas Chinese Town Company",
+  "sector": "Real Estate"
+ },
+ {
+  "ticker": "600018",
+  "code": "600018",
+  "yahoo": "600018.SS",
+  "name": "Shanghai International Port Group",
+  "sector": "Industrials"
+ },
+ {
+  "ticker": "000708",
+  "code": "000708",
+  "yahoo": "000708.SZ",
+  "name": "CITIC Pacific Special Steel Group",
+  "sector": "Materials"
+ },
+ {
+  "ticker": "300628",
+  "code": "300628",
+  "yahoo": "300628.SZ",
+  "name": "Yealink Network Technology",
+  "sector": "Information Technology"
+ },
+ {
+  "ticker": "002938",
+  "code": "002938",
+  "yahoo": "002938.SZ",
+  "name": "Avary Holding (Shenzhen) Co",
+  "sector": "Information Technology"
+ },
+ {
+  "ticker": "002916",
+  "code": "002916",
+  "yahoo": "002916.SZ",
+  "name": "Shennan Circuits",
+  "sector": "Information Technology"
+ },
+ {
+  "ticker": "605117",
+  "code": "605117",
+  "yahoo": "605117.SS",
+  "name": "Ningbo Deye Technology",
+  "sector": "Industrials"
+ },
+ {
+  "ticker": "600039",
+  "code": "600039",
+  "yahoo": "600039.SS",
+  "name": "Sichuan Road&Bridge",
+  "sector": "Industrials"
+ },
+ {
+  "ticker": "605499",
+  "code": "605499",
+  "yahoo": "605499.SS",
+  "name": "Eastroc Beverage (Group)",
+  "sector": "Consumer Staples"
+ },
+ {
+  "ticker": "603195",
+  "code": "603195",
+  "yahoo": "603195.SS",
+  "name": "GONGNIU GROUP",
+  "sector": "Industrials"
+ },
+ {
+  "ticker": "600754",
+  "code": "600754",
+  "yahoo": "600754.SS",
+  "name": "Shanghai Jin Jiang International Hotels",
+  "sector": "Consumer Discretionary"
+ },
+ {
+  "ticker": "603899",
+  "code": "603899",
+  "yahoo": "603899.SS",
+  "name": "SHANGHAI M&G STATIONERY",
+  "sector": "Industrials"
+ },
+ {
+  "ticker": "603290",
+  "code": "603290",
+  "yahoo": "603290.SS",
+  "name": "StarPower Semiconductor",
+  "sector": "Information Technology"
+ },
+ {
+  "ticker": "603833",
+  "code": "603833",
+  "yahoo": "603833.SS",
+  "name": "Oppein Home Group",
+  "sector": "Consumer Discretionary"
+ },
+ {
+  "ticker": "601865",
+  "code": "601865",
+  "yahoo": "601865.SS",
+  "name": "Flat Glass Group",
+  "sector": "Information Technology"
+ },
+ {
+  "ticker": "688363",
+  "code": "688363",
+  "yahoo": "688363.SS",
+  "name": "Bloomage Biotechnology Corporation",
+  "sector": "Health Care"
+ },
+ {
+  "ticker": "000877",
+  "code": "000877",
+  "yahoo": "000877.SZ",
+  "name": "Xinjiang Tianshan Cement",
+  "sector": "Materials"
+ },
+ {
+  "ticker": "688065",
+  "code": "688065",
+  "yahoo": "688065.SS",
+  "name": "Cathay Biotech",
+  "sector": "Materials"
+ },
+ {
+  "ticker": "300957",
+  "code": "300957",
+  "yahoo": "300957.SZ",
+  "name": "Yunnan Botanee Bio-Technology Group",
+  "sector": "Consumer Staples"
+ },
+ {
+  "ticker": "601236",
+  "code": "601236",
+  "yahoo": "601236.SS",
+  "name": "HONGTA SECURITIES",
+  "sector": "Financials"
+ },
+ {
+  "ticker": "601698",
+  "code": "601698",
+  "yahoo": "601698.SS",
+  "name": "China Satellite Communications",
+  "sector": "Communication"
+ },
+ {
+  "ticker": "688187",
+  "code": "688187",
+  "yahoo": "688187.SS",
+  "name": "Zhuzhou CRRC Times Electric",
+  "sector": "Industrials"
+ },
+ {
+  "ticker": "688561",
+  "code": "688561",
+  "yahoo": "688561.SS",
+  "name": "Qi An Xin Technology Group",
+  "sector": "Information Technology"
+ },
+ {
+  "ticker": "601155",
+  "code": "601155",
+  "yahoo": "601155.SS",
+  "name": "Future Land Holdings",
+  "sector": "Real Estate"
+ },
+ {
+  "ticker": "600606",
+  "code": "600606",
+  "yahoo": "600606.SS",
+  "name": "China Development Holdings",
+  "sector": "Real Estate"
+ },
+ {
+  "ticker": "300979",
+  "code": "300979",
+  "yahoo": "300979.SZ",
+  "name": "Huali Industrial Group Company",
+  "sector": "Consumer Discretionary"
+ },
+ {
+  "ticker": "601808",
+  "code": "601808",
+  "yahoo": "601808.SS",
+  "name": "China Oilfield Services",
+  "sector": "Energy"
+ },
+ {
+  "ticker": "603486",
+  "code": "603486",
+  "yahoo": "603486.SS",
+  "name": "Ecovacs Robotics",
+  "sector": "Consumer Discretionary"
+ },
+ {
+  "ticker": "000800",
+  "code": "000800",
+  "yahoo": "000800.SZ",
+  "name": "FAW Car",
+  "sector": "Industrials"
+ },
+ {
+  "ticker": "601059",
+  "code": "601059",
+  "yahoo": "601059.SS",
+  "name": "CINDA SECURITIES",
+  "sector": "Financials"
+ },
+ {
+  "ticker": "001289",
+  "code": "001289",
+  "yahoo": "001289.SZ",
+  "name": "China Longyuan Power Group Limited",
+  "sector": "Utilities"
+ }
+]

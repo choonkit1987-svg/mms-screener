@@ -73,6 +73,18 @@ export async function loadKLCI() {
   if (out.length < 28) throw new Error(`KLCI table has only ${out.length} rows`);
   return out;
 }
+// CSI 300: China A-shares. Wikipedia lists "SSE: 600519" / "SZSE: 000001"; Yahoo uses 600519.SS / 000001.SZ.
+// The 6-digit code is the display ticker (that is how A-shares are quoted).
+export async function loadCSI300() {
+  const rows = parseWikiTable(await wikiPage('CSI 300 Index'), /ticker/i);
+  const out = rows.map(r => {
+    const raw = pick(r, /ticker|code|symbol/), code = (raw.match(/\d{6}/) || [''])[0];
+    const sz = /SZSE|Shenzhen/i.test(raw + ' ' + pick(r, /exchange/)) || /^[03]/.test(code);
+    return { ticker: code, code, yahoo: code + (sz ? '.SZ' : '.SS'), name: pick(r, /company|name/), sector: pick(r, /segment|sector|industry/) };
+  }).filter(u => u.code);
+  if (out.length < 280) throw new Error(`CSI 300 table has only ${out.length} rows`);
+  return [...new Map(out.map(u => [u.code, u])).values()];
+}
 // Runs a list loader; saves the result, or falls back to the last saved list if the loader fails.
 export async function cachedList(file, loader, log = console.log) {
   try {

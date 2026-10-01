@@ -13,7 +13,7 @@ const styleEnd = rest.indexOf('</style>') + 8;
 const page = `${head}${title}${rest.slice(0, styleEnd)}</head><body>${rest.slice(styleEnd)}</body></html>\n`;
 // [folder, page title, snapshot file]
 const MARKETS = [['', 'MMS Daily Screener', 'dashboard'], ['nasdaq', 'MMS Nasdaq Screener', 'nasdaq'], ['dow', 'MMS Dow Jones Screener', 'dow'],
-  ['bursa', 'MMS Bursa Screener', 'bursa'], ['crypto', 'MMS Crypto Screener', 'crypto']];
+  ['bursa', 'MMS Bursa Screener', 'bursa'], ['china', 'MMS China Screener', 'china'], ['crypto', 'MMS Crypto Screener', 'crypto']];
 const retitle = (html, t) => html.replace('<title>MMS Daily Screener</title>', `<title>${t}</title>`);
 for (const [dir, t, snap] of MARKETS) {
   const out = path.join(root, 'docs', dir);
@@ -28,4 +28,4 @@ for (const [dir, t, snap] of MARKETS) {
   const all = fs.existsSync(allFile) ? `<script type="application/json" id="embedded-all">${esc(allFile)}</script>\n` : '';
   fs.writeFileSync(path.join(root, `dist/${snap}-snapshot.html`), b.slice(0, b.indexOf('<script>')) + `<script type="application/json" id="embedded-data">${esc(latest)}</script>\n` + all + b.slice(b.indexOf('<script>')));
 }
-console.log('built docs/{,nasdaq/,dow/,bursa/,crypto/}index.html and snapshots');
+console.log('built docs/{,nasdaq/,dow/,bursa/,china/,crypto/}index.html and snapshots');

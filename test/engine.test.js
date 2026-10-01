@@ -96,4 +96,6 @@ const rn = renameBursa([{ ticker: '1155', code: '1155', name: 'Malayan Banking B
 assert.deepEqual(rn.universe.map(u => u.ticker), ['MAYBANK', '9999']);
 assert.equal(rn.universe[0].name, 'Malayan Banking Berhad (1155)');
 assert.deepEqual(Object.keys(rn.history).sort(), ['9999', 'KLCI', 'MAYBANK']);
+import { tidyNames } from '../src/run-china.js';
+assert.deepEqual(tidyNames([{ ticker: '601059', name: 'CINDA SECURITIES' }, { ticker: '600519', name: 'Kweichow Moutai' }], { 601059: { longName: 'Cinda Securities Co., Ltd.' } }).map(u => u.name), ['Cinda Securities Co., Ltd.', 'Kweichow Moutai']);
 console.log('ALL TESTS PASSED');

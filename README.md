@@ -8,6 +8,7 @@ A multi-agent screener that applies the **Market Maker Strategy (MMS) 2026** cou
 | `/nasdaq/` | Nasdaq-100 | QQQ | same US run |
 | `/dow/` | Dow Jones 30 | DIA | same US run |
 | `/bursa/` | FBM KLCI 30 (Bursa Malaysia) | KLCI index | 10:15 UTC Mon–Fri (6:15 pm MYT) |
+| `/china/` | CSI 300 (China A-shares, Shanghai + Shenzhen) | CSI 300 index | 08:15 UTC Mon–Fri (4:15 pm MYT) |
 | `/crypto/` | Top 100 coins | Bitcoin | 02:30 UTC daily (10:30 am MYT) |
 
 For each market it picks:
@@ -21,7 +22,7 @@ Results are published as a web dashboard (GitHub Pages) with candlestick charts,
 
 | Agent | Course chapter | Job |
 |---|---|---|
-| Universe agent | – | Downloads the current index members (S&P 500 from GitHub datasets; Nasdaq-100, Dow 30 and FBM KLCI from Wikipedia) |
+| Universe agent | – | Downloads the current index members (S&P 500 from GitHub datasets; Nasdaq-100, Dow 30, FBM KLCI and CSI 300 from Wikipedia) |
 | Market-data agent | – | Daily OHLCV, 2 years (Massive/Polygon grouped-daily with a free key, or Yahoo) |
 | Stage agent | Ch.1 Stage 1–4 | 150-day MA slope + price position → Stage 1/2/3/4 and strength |
 | Contraction agent | Ch.2 Contraction, Base | Finds C1…C6 from the highest high since the 150/200 cross; checks tightening, rising lows, last contraction < 10%, breakout zone |
@@ -62,6 +63,14 @@ Every daily run analyses every name and saves the results in each page's `data/a
 - **Nasdaq-100 and Dow** are scanned in the same run as the S&P 500 (one download covers all three). Their market regime is QQQ and DIA.
 - **Bursa Malaysia** has its own workflow, `.github/workflows/bursa-scan.yml`, which runs at 6:15 pm Malaysia time after Bursa closes. Data is Yahoo's `<stock code>.KL` daily bars; if it is run while Bursa is still trading, today's unfinished bar is ignored. Stocks are shown by their Bursa short name (MAYBANK, TENAGA…); the lookup box also accepts the 4-digit stock code. Prices are in RM and the liquidity rule is RM1M a day.
 
+## China A-shares page
+
+- **Universe:** the CSI 300 (Wikipedia's "CSI 300 Index" constituents table, saved to `data/lists/csi300.json`). Shanghai codes map to Yahoo `<code>.SS`, Shenzhen codes to `<code>.SZ`; stocks are shown by their 6-digit code, and the lookup box accepts the code or the company name.
+- **Schedule:** `.github/workflows/china-scan.yml` runs at 4:15 pm Malaysia time, after the 3:00 pm close. During Chinese holidays (e.g. Golden Week) the page simply keeps the last trading day.
+- **Prices** are in CNY (¥); liquidity = ¥1M a day. The regime is the CSI 300 ETF 510300, because Yahoo has almost no history for the index itself (000300.SS).
+- **Shorting:** short selling A-shares is restricted for most investors, so treat the downtrend list as stocks to avoid or exit. Daily price limits (±10%, ±20% on ChiNext/STAR) can also make a stop fill later than planned.
+- Wikipedia's list is updated by volunteers and can lag the June/December index reviews by a few weeks.
+
 ## Crypto page
 
 `docs/crypto/` is a second dashboard (link at the top of each page) with the same agents tuned for coins:
@@ -84,6 +93,7 @@ node test/engine.test.js                     # unit tests
 DATA_PROVIDER=yahoo node src/run.js          # stocks (or: MASSIVE_API_KEY=xxx node src/run.js)
 node src/run-crypto.js                       # crypto
 node src/run-bursa.js                        # Bursa Malaysia (FBM KLCI)
+node src/run-china.js                        # China A-shares (CSI 300)
 node src/build.js                            # rebuild docs/index.html
 npx serve docs                               # open http://localhost:3000
 ```

@@ -13,7 +13,7 @@ import { loadUniverse, loadNasdaq100, loadDow30, cachedList, yahooHistory, massi
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const log = (...a) => console.log(new Date().toISOString().slice(11, 19), ...a);
 
-export const MARKET_LABELS = { stocks: 'S&P 500', nasdaq: 'Nasdaq-100', dow: 'Dow Jones 30', bursa: 'FBM KLCI 30', crypto: 'Top 100 coins' };
+export const MARKET_LABELS = { stocks: 'S&P 500', nasdaq: 'Nasdaq-100', dow: 'Dow Jones 30', bursa: 'FBM KLCI 30', china: 'CSI 300', crypto: 'Top 100 coins' };
 
 export function buildReport(universe, history, provider, { cfg = CONFIG, regimeTicker = 'SPY', market = 'stocks' } = {}) {
   const analyses = universe.map(u => analyzeTicker(u, history[u.ticker], cfg));

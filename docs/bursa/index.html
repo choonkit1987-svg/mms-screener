@@ -126,7 +126,7 @@ details ul{margin:8px 0 0;padding-left:18px;font-size:13.5px;display:flex;flex-d
 <div class="wrap">
   <header class="top">
     <div>
-      <nav class="nav" id="nav"><a data-m="stocks" href="#">S&amp;P 500</a><a data-m="nasdaq" href="#">Nasdaq-100</a><a data-m="dow" href="#">Dow Jones</a><a data-m="bursa" href="#">Bursa Malaysia</a><a data-m="crypto" href="#">Crypto</a></nav>
+      <nav class="nav" id="nav"><a data-m="stocks" href="#">S&amp;P 500</a><a data-m="nasdaq" href="#">Nasdaq-100</a><a data-m="dow" href="#">Dow Jones</a><a data-m="bursa" href="#">Bursa Malaysia</a><a data-m="china" href="#">China A-shares</a><a data-m="crypto" href="#">Crypto</a></nav>
       <div class="label">Market Maker Strategy · multi-agent scan</div>
       <h1>MMS Daily <span id="h1b">Screener</span></h1>
       <p id="intro">Every trading day the agents scan the S&amp;P 500 on the daily chart and pick the 5 strongest Stage 2 buy setups and the 5 strongest Stage 4 short setups, using the course rules for stage, contraction, volume and buy/sell triggers.</p>
@@ -288,14 +288,15 @@ const MK={
   nasdaq:{dir:'nasdaq/',title:'MMS Nasdaq Screener',h1:'Nasdaq-100 Screener',idx:'Nasdaq-100',scan:'the Nasdaq-100',reg:'Nasdaq-100 (QQQ) stage',eg:'e.g. NVDA or Nvidia',ccy:'US$'},
   dow:{dir:'dow/',title:'MMS Dow Jones Screener',h1:'Dow Jones Screener',idx:'Dow Jones 30',scan:'the 30 Dow Jones Industrial Average stocks',reg:'Dow Jones (DIA) stage',eg:'e.g. JPM or JPMorgan',ccy:'US$'},
   bursa:{dir:'bursa/',title:'MMS Bursa Screener',h1:'Bursa Malaysia Screener',idx:'FBM KLCI 30',scan:'the 30 FBM KLCI stocks on Bursa Malaysia',reg:'FBM KLCI index stage',eg:'e.g. MAYBANK, 1155 or Tenaga',ccy:'RM',close:'Bursa close (prices in RM)'},
+  china:{dir:'china/',title:'MMS China Screener',h1:'China A-share Screener',idx:'CSI 300',scan:'the CSI 300 (the 300 largest China A-shares on Shanghai and Shenzhen)',reg:'CSI 300 (ETF 510300) stage',eg:'e.g. 600519 or Moutai',ccy:'¥',close:'China close (prices in CNY)',note:' Short selling A-shares is restricted for most investors, so treat the downtrend list as stocks to avoid or exit.'},
   crypto:{dir:'crypto/',title:'MMS Crypto Screener',h1:'Crypto Screener',idx:'top 100 coins',scan:'the top 100 coins by market cap (stablecoins and wrapped tokens removed)',reg:'Bitcoin (BTC) stage',eg:'e.g. SOL or Solana',ccy:'US$',close:'Daily close (UTC)'}};
 const mk=d=>MK[d.market]||MK.stocks;
-const NAV_BASE=document.getElementById('embedded-data')?null:(/\/(crypto|nasdaq|dow|bursa)\//.test(location.pathname)?'../':'./');
+const NAV_BASE=document.getElementById('embedded-data')?null:(/\/(crypto|nasdaq|dow|bursa|china)\//.test(location.pathname)?'../':'./');
 function site(d){
   const c=d.market==='crypto',M=mk(d);
   document.title=M.title;
   $('#h1b').textContent=M.h1;
-  $('#intro').textContent=`Every ${c?'day after the 00:00 UTC candle close':'trading day'} the agents scan ${M.scan} on the daily chart and pick the 5 strongest Stage 2 buy setups and the 5 strongest Stage 4 short setups, using the course rules for stage, contraction, volume and buy/sell triggers.`;
+  $('#intro').textContent=`Every ${c?'day after the 00:00 UTC candle close':'trading day'} the agents scan ${M.scan} on the daily chart and pick the 5 strongest Stage 2 buy setups and the 5 strongest Stage 4 short setups, using the course rules for stage, contraction, volume and buy/sell triggers.${M.note||''}`;
   $('#asoflabel').textContent=M.close||'Market close';
   $('#lkh').textContent=c?'Analyse a coin':'Analyse a stock';
   $('#lkmeta').textContent=c?'Type any top-100 coin symbol or name':`Type any ${M.idx} ticker or company name`;
