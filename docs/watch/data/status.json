@@ -1,12 +1,12 @@
 {
- "at": "2026-10-19T07:18:38.100Z",
+ "at": "2026-10-19T07:24:01.972Z",
  "ok": true,
  "asOf": "2026-10-16",
  "message": "",
  "coverage": {
   "share": 1,
-  "fresh": 2,
-  "total": 2,
+  "fresh": 3,
+  "total": 3,
   "newest": "2026-10-16"
  },
  "sources": {
