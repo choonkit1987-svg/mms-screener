@@ -1,0 +1,702 @@
+[
+ {
+  "ticker": "BTC",
+  "name": "Bitcoin",
+  "sector": "Crypto",
+  "yahoo": "BTC-USD",
+  "cgPrice": null
+ },
+ {
+  "ticker": "ETH",
+  "name": "Ethereum",
+  "sector": "Crypto",
+  "yahoo": "ETH-USD",
+  "cgPrice": null
+ },
+ {
+  "ticker": "BNB",
+  "name": "BNB",
+  "sector": "Crypto",
+  "yahoo": "BNB-USD",
+  "cgPrice": null
+ },
+ {
+  "ticker": "XRP",
+  "name": "XRP",
+  "sector": "Crypto",
+  "yahoo": "XRP-USD",
+  "cgPrice": null
+ },
+ {
+  "ticker": "SOL",
+  "name": "Solana",
+  "sector": "Crypto",
+  "yahoo": "SOL-USD",
+  "cgPrice": null
+ },
+ {
+  "ticker": "TRX",
+  "name": "TRON",
+  "sector": "Crypto",
+  "yahoo": "TRX-USD",
+  "cgPrice": null
+ },
+ {
+  "ticker": "ZEC",
+  "name": "Zcash",
+  "sector": "Crypto",
+  "yahoo": "ZEC-USD",
+  "cgPrice": null
+ },
+ {
+  "ticker": "HYPE",
+  "name": "Hyperliquid",
+  "sector": "Crypto",
+  "yahoo": "HYPE32196-USD",
+  "cgPrice": null
+ },
+ {
+  "ticker": "DOGE",
+  "name": "Dogecoin",
+  "sector": "Crypto",
+  "yahoo": "DOGE-USD",
+  "cgPrice": null
+ },
+ {
+  "ticker": "LINK",
+  "name": "Chainlink",
+  "sector": "Crypto",
+  "yahoo": "LINK-USD",
+  "cgPrice": null
+ },
+ {
+  "ticker": "XMR",
+  "name": "Monero",
+  "sector": "Crypto",
+  "yahoo": "XMR-USD",
+  "cgPrice": null
+ },
+ {
+  "ticker": "WBT",
+  "name": "WhiteBIT Coin",
+  "sector": "Crypto",
+  "yahoo": "WBT-USD",
+  "cgPrice": null
+ },
+ {
+  "ticker": "ADA",
+  "name": "Cardano",
+  "sector": "Crypto",
+  "yahoo": "ADA-USD",
+  "cgPrice": null
+ },
+ {
+  "ticker": "RAIN",
+  "name": "Rain",
+  "sector": "Crypto",
+  "yahoo": "RAIN38341-USD",
+  "cgPrice": null
+ },
+ {
+  "ticker": "LEO",
+  "name": "LEO Token",
+  "sector": "Crypto",
+  "yahoo": "LEO-USD",
+  "cgPrice": null
+ },
+ {
+  "ticker": "XLM",
+  "name": "Stellar",
+  "sector": "Crypto",
+  "yahoo": "XLM-USD",
+  "cgPrice": null
+ },
+ {
+  "ticker": "BCH",
+  "name": "Bitcoin Cash",
+  "sector": "Crypto",
+  "yahoo": "BCH-USD",
+  "cgPrice": null
+ },
+ {
+  "ticker": "NEAR",
+  "name": "NEAR Protocol",
+  "sector": "Crypto",
+  "yahoo": "NEAR-USD",
+  "cgPrice": null
+ },
+ {
+  "ticker": "UNI",
+  "name": "Uniswap",
+  "sector": "Crypto",
+  "yahoo": "UNI7083-USD",
+  "cgPrice": null
+ },
+ {
+  "ticker": "LTC",
+  "name": "Litecoin",
+  "sector": "Crypto",
+  "yahoo": "LTC-USD",
+  "cgPrice": null
+ },
+ {
+  "ticker": "CC",
+  "name": "Canton",
+  "sector": "Crypto",
+  "yahoo": "CC37263-USD",
+  "cgPrice": null
+ },
+ {
+  "ticker": "HBAR",
+  "name": "Hedera",
+  "sector": "Crypto",
+  "yahoo": "HBAR-USD",
+  "cgPrice": null
+ },
+ {
+  "ticker": "AVAX",
+  "name": "Avalanche",
+  "sector": "Crypto",
+  "yahoo": "AVAX-USD",
+  "cgPrice": null
+ },
+ {
+  "ticker": "SUI",
+  "name": "Sui",
+  "sector": "Crypto",
+  "yahoo": "SUI20947-USD",
+  "cgPrice": null
+ },
+ {
+  "ticker": "GRAM",
+  "name": "GRAM",
+  "sector": "Crypto",
+  "yahoo": "GRAM-USD",
+  "cgPrice": null
+ },
+ {
+  "ticker": "TAO",
+  "name": "Bittensor",
+  "sector": "Crypto",
+  "yahoo": "TAO22974-USD",
+  "cgPrice": null
+ },
+ {
+  "ticker": "CRO",
+  "name": "Cronos",
+  "sector": "Crypto",
+  "yahoo": "CRO-USD",
+  "cgPrice": null
+ },
+ {
+  "ticker": "SHIB",
+  "name": "SHIB",
+  "sector": "Crypto",
+  "yahoo": "SHIB-USD",
+  "cgPrice": null
+ },
+ {
+  "ticker": "QNT",
+  "name": "Quant",
+  "sector": "Crypto",
+  "yahoo": "QNT-USD",
+  "cgPrice": null
+ },
+ {
+  "ticker": "BTW",
+  "name": "BTW",
+  "sector": "Crypto",
+  "yahoo": "BTW39158-USD",
+  "cgPrice": null
+ },
+ {
+  "ticker": "M",
+  "name": "MemeCore",
+  "sector": "Crypto",
+  "yahoo": "M35491-USD",
+  "cgPrice": null
+ },
+ {
+  "ticker": "ENA",
+  "name": "Ethena",
+  "sector": "Crypto",
+  "yahoo": "ENA-USD",
+  "cgPrice": null
+ },
+ {
+  "ticker": "OKB",
+  "name": "OKB",
+  "sector": "Crypto",
+  "yahoo": "OKB-USD",
+  "cgPrice": null
+ },
+ {
+  "ticker": "ONDO",
+  "name": "Ondo",
+  "sector": "Crypto",
+  "yahoo": "ONDO-USD",
+  "cgPrice": null
+ },
+ {
+  "ticker": "AAVE",
+  "name": "Aave",
+  "sector": "Crypto",
+  "yahoo": "AAVE-USD",
+  "cgPrice": null
+ },
+ {
+  "ticker": "PUMP",
+  "name": "Pump.fun",
+  "sector": "Crypto",
+  "yahoo": "PUMP36507-USD",
+  "cgPrice": null
+ },
+ {
+  "ticker": "MNT",
+  "name": "Mantle",
+  "sector": "Crypto",
+  "yahoo": "MNT27075-USD",
+  "cgPrice": null
+ },
+ {
+  "ticker": "DOT",
+  "name": "Polkadot",
+  "sector": "Crypto",
+  "yahoo": "DOT-USD",
+  "cgPrice": null
+ },
+ {
+  "ticker": "ASTER",
+  "name": "Aster",
+  "sector": "Crypto",
+  "yahoo": "ASTER36341-USD",
+  "cgPrice": null
+ },
+ {
+  "ticker": "SKY",
+  "name": "Sky",
+  "sector": "Crypto",
+  "yahoo": "SKY33038-USD",
+  "cgPrice": null
+ },
+ {
+  "ticker": "WLD",
+  "name": "Worldcoin",
+  "sector": "Crypto",
+  "yahoo": "WLD-USD",
+  "cgPrice": null
+ },
+ {
+  "ticker": "WLFI",
+  "name": "World Liberty Financial",
+  "sector": "Crypto",
+  "yahoo": "WLFI33251-USD",
+  "cgPrice": null
+ },
+ {
+  "ticker": "PEPE",
+  "name": "PEPE",
+  "sector": "Crypto",
+  "yahoo": "PEPE24478-USD",
+  "cgPrice": null
+ },
+ {
+  "ticker": "ICP",
+  "name": "Internet Computer",
+  "sector": "Crypto",
+  "yahoo": "ICP-USD",
+  "cgPrice": null
+ },
+ {
+  "ticker": "MORPHO",
+  "name": "Morpho",
+  "sector": "Crypto",
+  "yahoo": "MORPHO34104-USD",
+  "cgPrice": null
+ },
+ {
+  "ticker": "HTX",
+  "name": "HTX",
+  "sector": "Crypto",
+  "yahoo": "HTX-USD",
+  "cgPrice": null
+ },
+ {
+  "ticker": "ETC",
+  "name": "Ethereum Classic",
+  "sector": "Crypto",
+  "yahoo": "ETC-USD",
+  "cgPrice": null
+ },
+ {
+  "ticker": "BGB",
+  "name": "Bitget Token",
+  "sector": "Crypto",
+  "yahoo": "BGB-USD",
+  "cgPrice": null
+ },
+ {
+  "ticker": "ARB",
+  "name": "Arbitrum",
+  "sector": "Crypto",
+  "yahoo": "ARB11841-USD",
+  "cgPrice": null
+ },
+ {
+  "ticker": "VVV",
+  "name": "Venice Token",
+  "sector": "Crypto",
+  "yahoo": "VVV35509-USD",
+  "cgPrice": null
+ },
+ {
+  "ticker": "KAS",
+  "name": "Kaspa",
+  "sector": "Crypto",
+  "yahoo": "KAS-USD",
+  "cgPrice": null
+ },
+ {
+  "ticker": "ALGO",
+  "name": "Algorand",
+  "sector": "Crypto",
+  "yahoo": "ALGO-USD",
+  "cgPrice": null
+ },
+ {
+  "ticker": "POL",
+  "name": "POL",
+  "sector": "Crypto",
+  "yahoo": "POL-USD",
+  "cgPrice": null
+ },
+ {
+  "ticker": "GT",
+  "name": "Gate",
+  "sector": "Crypto",
+  "yahoo": "GT-USD",
+  "cgPrice": null
+ },
+ {
+  "ticker": "LIT",
+  "name": "Lighter",
+  "sector": "Crypto",
+  "yahoo": "LIT39125-USD",
+  "cgPrice": null
+ },
+ {
+  "ticker": "JUP",
+  "name": "Jupiter",
+  "sector": "Crypto",
+  "yahoo": "JUP29210-USD",
+  "cgPrice": null
+ },
+ {
+  "ticker": "JST",
+  "name": "JUST",
+  "sector": "Crypto",
+  "yahoo": "JST-USD",
+  "cgPrice": null
+ },
+ {
+  "ticker": "KCS",
+  "name": "KuCoin",
+  "sector": "Crypto",
+  "yahoo": "KCS-USD",
+  "cgPrice": null
+ },
+ {
+  "ticker": "PI",
+  "name": "Pi Network",
+  "sector": "Crypto",
+  "yahoo": "PI35697-USD",
+  "cgPrice": null
+ },
+ {
+  "ticker": "RENDER",
+  "name": "Render",
+  "sector": "Crypto",
+  "yahoo": "RENDER-USD",
+  "cgPrice": null
+ },
+ {
+  "ticker": "ATOM",
+  "name": "Cosmos Hub",
+  "sector": "Crypto",
+  "yahoo": "ATOM-USD",
+  "cgPrice": null
+ },
+ {
+  "ticker": "FIL",
+  "name": "Filecoin",
+  "sector": "Crypto",
+  "yahoo": "FIL-USD",
+  "cgPrice": null
+ },
+ {
+  "ticker": "NEXO",
+  "name": "NEXO",
+  "sector": "Crypto",
+  "yahoo": "NEXO-USD",
+  "cgPrice": null
+ },
+ {
+  "ticker": "CAKE",
+  "name": "PancakeSwap",
+  "sector": "Crypto",
+  "yahoo": "CAKE-USD",
+  "cgPrice": null
+ },
+ {
+  "ticker": "AERO",
+  "name": "Aerodrome Finance",
+  "sector": "Crypto",
+  "yahoo": "AERO29270-USD",
+  "cgPrice": null
+ },
+ {
+  "ticker": "DASH",
+  "name": "Dash",
+  "sector": "Crypto",
+  "yahoo": "DASH-USD",
+  "cgPrice": null
+ },
+ {
+  "ticker": "VET",
+  "name": "VeChain",
+  "sector": "Crypto",
+  "yahoo": "VET-USD",
+  "cgPrice": null
+ },
+ {
+  "ticker": "STABLE",
+  "name": "\u200b\u200bStable",
+  "sector": "Crypto",
+  "yahoo": "STABLE38892-USD",
+  "cgPrice": null
+ },
+ {
+  "ticker": "INJ",
+  "name": "Injective",
+  "sector": "Crypto",
+  "yahoo": "INJ-USD",
+  "cgPrice": null
+ },
+ {
+  "ticker": "APT",
+  "name": "Aptos",
+  "sector": "Crypto",
+  "yahoo": "APT21794-USD",
+  "cgPrice": null
+ },
+ {
+  "ticker": "AKE",
+  "name": "Akedo",
+  "sector": "Crypto",
+  "yahoo": "AKE-USD",
+  "cgPrice": null
+ },
+ {
+  "ticker": "XDC",
+  "name": "XDC Network",
+  "sector": "Crypto",
+  "yahoo": "XDC-USD",
+  "cgPrice": null
+ },
+ {
+  "ticker": "ETHFI",
+  "name": "Ether.fi",
+  "sector": "Crypto",
+  "yahoo": "ETHFI-USD",
+  "cgPrice": null
+ },
+ {
+  "ticker": "PYTH",
+  "name": "Pyth Network",
+  "sector": "Crypto",
+  "yahoo": "PYTH-USD",
+  "cgPrice": null
+ },
+ {
+  "ticker": "FLR",
+  "name": "Flare",
+  "sector": "Crypto",
+  "yahoo": "FLR-USD",
+  "cgPrice": null
+ },
+ {
+  "ticker": "CRV",
+  "name": "Curve DAO",
+  "sector": "Crypto",
+  "yahoo": "CRV-USD",
+  "cgPrice": null
+ },
+ {
+  "ticker": "BDX",
+  "name": "Beldex",
+  "sector": "Crypto",
+  "yahoo": "BDX-USD",
+  "cgPrice": null
+ },
+ {
+  "ticker": "STX",
+  "name": "Stacks",
+  "sector": "Crypto",
+  "yahoo": "STX4847-USD",
+  "cgPrice": null
+ },
+ {
+  "ticker": "PENGU",
+  "name": "Pudgy Penguins",
+  "sector": "Crypto",
+  "yahoo": "PENGU34466-USD",
+  "cgPrice": null
+ },
+ {
+  "ticker": "TRUMP",
+  "name": "Official Trump",
+  "sector": "Crypto",
+  "yahoo": "TRUMP35336-USD",
+  "cgPrice": null
+ },
+ {
+  "ticker": "ZRO",
+  "name": "LayerZero",
+  "sector": "Crypto",
+  "yahoo": "ZRO26997-USD",
+  "cgPrice": null
+ },
+ {
+  "ticker": "VIRTUAL",
+  "name": "Virtuals Protocol",
+  "sector": "Crypto",
+  "yahoo": "VIRTUAL-USD",
+  "cgPrice": null
+ },
+ {
+  "ticker": "FET",
+  "name": "Artificial Superintelligence Alliance",
+  "sector": "Crypto",
+  "yahoo": "FET-USD",
+  "cgPrice": null
+ },
+ {
+  "ticker": "RAY",
+  "name": "Raydium",
+  "sector": "Crypto",
+  "yahoo": "RAY-USD",
+  "cgPrice": null
+ },
+ {
+  "ticker": "SEI",
+  "name": "Sei",
+  "sector": "Crypto",
+  "yahoo": "SEI-USD",
+  "cgPrice": null
+ },
+ {
+  "ticker": "NIGHT",
+  "name": "Midnight",
+  "sector": "Crypto",
+  "yahoo": "NIGHT-USD",
+  "cgPrice": null
+ },
+ {
+  "ticker": "XPL",
+  "name": "Plasma",
+  "sector": "Crypto",
+  "yahoo": "XPL-USD",
+  "cgPrice": null
+ },
+ {
+  "ticker": "PRL",
+  "name": "PRL",
+  "sector": "Crypto",
+  "yahoo": "PRL41876-USD",
+  "cgPrice": null
+ },
+ {
+  "ticker": "GRASS",
+  "name": "Grass",
+  "sector": "Crypto",
+  "yahoo": "GRASS32956-USD",
+  "cgPrice": null
+ },
+ {
+  "ticker": "TIA",
+  "name": "Celestia",
+  "sector": "Crypto",
+  "yahoo": "TIA-USD",
+  "cgPrice": null
+ },
+ {
+  "ticker": "HASH",
+  "name": "Provenance Blockchain",
+  "sector": "Crypto",
+  "yahoo": "HASH19960-USD",
+  "cgPrice": null
+ },
+ {
+  "ticker": "PENDLE",
+  "name": "Pendle",
+  "sector": "Crypto",
+  "yahoo": "PENDLE-USD",
+  "cgPrice": null
+ },
+ {
+  "ticker": "BSV",
+  "name": "Bitcoin SV",
+  "sector": "Crypto",
+  "yahoo": "BSV-USD",
+  "cgPrice": null
+ },
+ {
+  "ticker": "PIEVERSE",
+  "name": "Pieverse",
+  "sector": "Crypto",
+  "yahoo": "PIEVERSE-USD",
+  "cgPrice": null
+ },
+ {
+  "ticker": "DRV",
+  "name": "Derive",
+  "sector": "Crypto",
+  "yahoo": "DRV35014-USD",
+  "cgPrice": null
+ },
+ {
+  "ticker": "SPX",
+  "name": "SPX6900",
+  "sector": "Crypto",
+  "yahoo": "SPX28081-USD",
+  "cgPrice": null
+ },
+ {
+  "ticker": "BTT",
+  "name": "BTT",
+  "sector": "Crypto",
+  "yahoo": "BTT-USD",
+  "cgPrice": null
+ },
+ {
+  "ticker": "FF",
+  "name": "Falcon Finance",
+  "sector": "Crypto",
+  "yahoo": "FF38482-USD",
+  "cgPrice": null
+ },
+ {
+  "ticker": "UB",
+  "name": "Unibase",
+  "sector": "Crypto",
+  "yahoo": "UB38339-USD",
+  "cgPrice": null
+ },
+ {
+  "ticker": "PONS",
+  "name": "PONS",
+  "sector": "Crypto",
+  "yahoo": "PONS-USD",
+  "cgPrice": null
+ }
+]

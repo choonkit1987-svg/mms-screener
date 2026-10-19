@@ -79,7 +79,7 @@ assert.ok(rd.lv.e < rd.close && rd.lv.s > rd.close && rd.lv.tg < rd.lv.e, 'short
 assert.equal(rf.dir, 'neutral'); assert.ok(['long', 'short'].includes(rf.side));
 assert.match(rs.skip, /daily bars/);
 assert.equal(ru.ch.c.length, 120); assert.equal(ru.ch.d[0], 0);
-assert.ok(JSON.stringify(ru).length < 4500, 'lookup record stays compact: ' + JSON.stringify(ru).length);
+assert.ok(JSON.stringify(ru).length < 5200, 'lookup record stays compact: ' + JSON.stringify(ru).length);
 console.log('lookup:', ru.t, ru.head, ru.lv, '|', rd.t, rd.head, rd.lv, '|', rf.t, rf.head, rf.action);
 // 7) index member lists (Wikipedia table parser) and Bursa renaming
 import { parseWikiTable } from '../src/data.js';
@@ -112,4 +112,56 @@ assert.equal(analyzeTicker({ ticker: 'BBY' }, upTo('2026-05-27')).early, undefin
 // 9) watchlist parser
 import { parseWatchlist } from '../src/data.js';
 assert.deepEqual(parseWatchlist('# my list\nTEM, Tempus AI\n spcx \nTEM\n\nbrk.b ; Berkshire\n').map(u => [u.ticker, u.name]), [['TEM', 'Tempus AI'], ['SPCX', 'SPCX'], ['BRK.B', 'Berkshire']]);
+// 10) score v3: per-market profiles; on US stocks a stock near its 150 MA with a modest run and room for the stop wins
+import { scoreSide, SCORE_V3 } from '../src/engine.js';
+const mkS = (o, profile) => ({ profile, long: { risk: { riskPct: o.risk }, vol: { upBig: 1, downBig: o.down }, setup: { contractions: Array.from({ length: o.n }, () => ({ depth: o.c1 })), zonePos: 0.8, distToEntry: 0.03 } },
+  dist150: o.d150, slope150: 0.03, dist50: 0.02, ret126: o.r126, ret21: 0.02, offHigh: 0.05, offLow: 0.5, atr20: 0.025 });
+const calmS = scoreSide(mkS({ d150: 0.04, r126: 0.08, risk: 0.12, c1: 0.12, n: 5, down: 5 }, 'stocks'), 'long', 0.5);
+const hotS = scoreSide(mkS({ d150: 0.35, r126: 0.8, risk: 0.05, c1: 0.03, n: 1, down: 0 }, 'stocks'), 'long', 0.5);
+assert.equal(calmS.v, 3); assert.equal(calmS.parts.length, Object.keys(SCORE_V3.stocks).length);
+assert.ok(calmS.total > 75 && hotS.total < 10, `calm ${calmS.total} hot ${hotS.total}`);
+// Bursa rewards the opposite (trend strength) on 150 MA distance
+const bz = p => scoreSide(mkS(p, 'bursa'), 'long', 0.5).parts.find(x => /150-day/.test(x[0]));
+assert.ok(bz({ d150: 0.28, r126: 0.2, risk: 0.08, c1: 0.1, n: 2, down: 1 })[1] > bz({ d150: 0.03, r126: 0.2, risk: 0.08, c1: 0.1, n: 2, down: 1 })[1]);
+// 11) live scorecard: fill, breakeven, target, stop, expiry, shorts, de-duplication
+import os from 'node:os';
+import { evaluate, summarize, updateScorecard } from '../src/scorecard.js';
+const bar = (t, o, h, l, c) => ({ t, o, h, l, c, v: 1 });
+const days = n => Array.from({ length: n }, (_, i) => `2026-11-${String(i + 1).padStart(2, '0')}`);
+const L0 = { d: '2026-10-31', side: 'long', e: 100, s: 95, tg: 110, be: 107.5 };
+const flatB = n => days(n).map(t => bar(t, 99, 99.5, 98.5, 99));
+// fills on day 3, reaches 1:1.5 on day 4, then falls back to entry -> breakeven (0 R)
+let bs = flatB(2).concat([bar('2026-11-03', 99, 101, 98, 100.5), bar('2026-11-04', 101, 108, 100.5, 107), bar('2026-11-05', 106, 106, 99, 99.5)]);
+let ev = evaluate(L0, bs); assert.equal(ev.status, 'breakeven'); assert.equal(ev.R, 0); assert.equal(ev.fd, '2026-11-03');
+// straight to target
+ev = evaluate(L0, flatB(1).concat([bar('2026-11-02', 101, 103, 100.5, 102), bar('2026-11-03', 103, 111, 102, 110)]));
+assert.equal(ev.status, 'target'); assert.ok(Math.abs(ev.R - 1.8) < 1e-9, 'gap fill at 101 then +9 on 5 risk = 1.8R: ' + ev.R);
+// stop
+ev = evaluate(L0, [bar('2026-11-01', 99, 100.2, 98, 100), bar('2026-11-02', 99, 99, 94, 94.5)]); assert.equal(ev.status, 'stop'); assert.equal(ev.R, -1);
+// never reaches the buy-stop within 15 days
+ev = evaluate(L0, flatB(16)); assert.equal(ev.status, 'expired'); assert.equal(ev.R, 0);
+ev = evaluate(L0, flatB(5)); assert.equal(ev.status, 'waiting');
+// short side mirrored
+ev = evaluate({ d: '2026-10-31', side: 'short', e: 50, s: 52, tg: 46, be: 47 }, [bar('2026-11-01', 51, 51, 49.5, 49.8), bar('2026-11-02', 49, 49.2, 45.5, 46)]);
+assert.equal(ev.status, 'target'); assert.equal(ev.R, 2);
+const sm = summarize([{ status: 'target', R: 2, fd: 'x', d: 'a' }, { status: 'stop', R: -1, fd: 'x', d: 'b' }, { status: 'expired', R: 0, d: 'c' }, { status: 'open', R: 0.5, fd: 'x', d: 'd' }]);
+assert.equal(sm.closed, 2); assert.equal(sm.hitRate, 0.5); assert.equal(sm.avgR, 0.5); assert.equal(sm.rPer100, 33.3);
+// recording: same pick on two days is tracked once
+const tmp = fs.mkdtempSync(os.tmpdir() + '/sc-');
+const pick = asOf => ({ ticker: 'TST', name: 'Test', tier: 'setup', asOf, risk: { entry: 100, stop: 95, target: 110, breakeven: 107.5 }, score: { total: 70 } });
+updateScorecard(tmp, { market: 'stocks', asOf: '2026-10-30', up: [pick('2026-10-30')], down: [] }, { TST: flatB(1) });
+const sc2 = updateScorecard(tmp, { market: 'stocks', asOf: '2026-10-31', up: [pick('2026-10-31'), { ...pick('2026-10-31'), ticker: 'W', tier: 'watch' }], down: [] }, { TST: flatB(2) });
+assert.equal(sc2.summary.signals, 1); assert.equal(sc2.recent[0].status, 'waiting');
+// 12) data sources: parsers and coverage
+import { parseBinance, parseOkx, parseEastmoney, parseTencent, coverage } from '../src/sources.js';
+const bn = parseBinance([[1792195200000, '81615.9', '81770.0', '80819.6', '81491.0', '7038.8', 1792281599999, '573731477.3'], [1792281600000, '1', '2', '0.5', '1.5', '1', Date.now() + 1e7, '5']]);
+assert.equal(bn.length, 1); assert.equal(bn[0].t, '2026-10-17'); assert.equal(bn[0].v, 573731477.3);
+const ok = parseOkx([['1792368000000', '82109.3', '82880', '82009', '82675.4', '1', '2', '92582983.0', '0'], ['1792281600000', '81489.5', '82291.1', '80680.5', '82109.3', '1', '2', '277723115.6', '1']]);
+assert.equal(ok.length, 1); assert.equal(ok[0].c, 82109.3);
+const em = parseEastmoney({ data: { klines: ['2026-10-15,1286.00,1312.97,1317.76,1282.00,57677,7537706224.00'] } });
+assert.deepEqual(em[0], { t: '2026-10-15', o: 1286, h: 1317.76, l: 1282, c: 1312.97, v: 5767700 });
+const tc = parseTencent({ data: { sh600519: { qfqday: [['2026-10-15', '1286.000', '1312.970', '1317.760', '1282.000', '57677.000']] } } }, 'sh600519');
+assert.deepEqual(tc[0], em[0]);
+const cov = coverage([{ ticker: 'A' }, { ticker: 'B' }, { ticker: 'C' }], { A: [{ t: '2026-10-16' }], B: [{ t: '2026-09-01' }] });
+assert.equal(cov.fresh, 1); assert.equal(cov.total, 3);
 console.log('ALL TESTS PASSED');

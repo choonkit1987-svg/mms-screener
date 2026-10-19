@@ -1,9 +1,12 @@
 // Crypto agents.
 //  * Universe agent: top coins by market cap from CoinGecko (free, no key), with stablecoins,
 //    wrapped / staked / bridged tokens and tokenised funds removed.
-//  * Market-data agent: Yahoo daily candles (UTC close). Handles two Yahoo quirks:
+//  * Market-data agent: Binance daily candles first, then OKX, then Yahoo (see sources.js). The Yahoo
+//    fallback handles two Yahoo quirks:
 //      1. coins whose plain symbol is taken get a numbered symbol (SUI -> SUI20947-USD); found via search
 //      2. yesterday's daily candle is sometimes still blank shortly after 00:00 UTC; rebuilt from hourly candles
+import { binanceBars, okxBars, firstWorking, makeHealth } from './sources.js';
+
 const CG = 'https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=250&page=1';
 const YF = 'https://query1.finance.yahoo.com';
 
@@ -95,14 +98,24 @@ async function resolveSymbol(u) {
 // (guards against a Yahoo symbol that belongs to a different token).
 const priceOk = (bars, cgPrice) => bars.length && (!cgPrice || Math.abs(bars[bars.length - 1].c / cgPrice - 1) <= 0.25);
 
-export async function cryptoHistory(universe, { log = console.log, concurrency = 3 } = {}) {
+export async function cryptoHistory(universe, { log = console.log, concurrency = 3, health = makeHealth(log) } = {}) {
   const todayUTC = new Date().toISOString().slice(0, 10);
-  const out = {}, notes = { renamed: [], dropped: [], rebuilt: 0 };
+  const out = {}, notes = { renamed: [], dropped: [], rebuilt: 0, sources: {} };
   let idx = 0;
   async function worker() {
     while (idx < universe.length) {
       const u = universe[idx++];
       try {
+        // 1) exchange feeds (work from cloud servers); the price check guards against a different token with the same symbol
+        const ex = await firstWorking([['binance', () => binanceBars(u.ticker)], ['okx', () => okxBars(u.ticker)]], health, 30);
+        if (ex.bars && priceOk(ex.bars, u.cgPrice)) {
+          out[u.ticker] = ex.bars.filter(b => b.t < todayUTC);
+          notes.sources[ex.source] = (notes.sources[ex.source] || 0) + 1;
+          await sleep(60);
+          continue;
+        }
+        // 2) Yahoo fallback (coins not listed on Binance or OKX)
+        if (health.dead.has('yahoo')) { notes.dropped.push(u.ticker); continue; }
         const candidates = [u.yahoo];
         let daily = parseChart(await yjson(`/v8/finance/chart/${u.yahoo}?range=2y&interval=1d`));
         if (!priceOk(daily, u.cgPrice)) {
@@ -114,7 +127,8 @@ export async function cryptoHistory(universe, { log = console.log, concurrency =
             if (priceOk(d, u.cgPrice)) { daily = d; u.yahoo = sym; notes.renamed.push(`${u.ticker}→${sym}`); break; }
           }
         }
-        if (!daily.length) { notes.dropped.push(u.ticker); continue; }
+        if (!daily.length) { notes.dropped.push(u.ticker); health.fail('yahoo', new Error('no data or blocked')); continue; }
+        health.ok('yahoo'); notes.sources.yahoo = (notes.sources.yahoo || 0) + 1;
         daily = daily.filter(b => b.t < todayUTC); // today's candle is still open
         const hourly = parseChart(await yjson(`/v8/finance/chart/${u.yahoo}?range=5d&interval=1h`));
         const p = patchMissingDays(daily, hourly, todayUTC);
@@ -128,5 +142,6 @@ export async function cryptoHistory(universe, { log = console.log, concurrency =
   if (notes.renamed.length) log(`  numbered Yahoo symbols used: ${notes.renamed.join(', ')}`);
   if (notes.dropped.length) log(`  no matching Yahoo data for: ${notes.dropped.join(', ')}`);
   if (notes.rebuilt) log(`  ${notes.rebuilt} coin(s) had yesterday's candle rebuilt from hourly data`);
+  notes.health = health.summary();
   return { history: out, notes };
 }

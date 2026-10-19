@@ -8,7 +8,8 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { CONFIG } from './engine.js';
 import { loadKLCI, cachedList, yahooHistory } from './data.js';
-import { buildReport, writeOutputs } from './run.js';
+import { makeHealth } from './sources.js';
+import { buildReport, writeOutputs, enoughData } from './run.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const log = (...a) => console.log(new Date().toISOString().slice(11, 19), ...a);
@@ -35,12 +36,16 @@ async function main() {
   log(`  ${klci.length} stocks`);
   log('Market-data agent: Yahoo daily bars (.KL)');
   const meta = {};
-  const raw = await yahooHistory([...klci, { ticker: 'KLCI', yahoo: '^KLSE' }], { log, meta, dropOpen: true, concurrency: 3 });
+  const health = makeHealth(log);
+  const raw = await yahooHistory([...klci, { ticker: 'KLCI', yahoo: '^KLSE' }], { log, meta, dropOpen: true, concurrency: 3, health });
   const { universe, history } = renameBursa(klci, raw, meta);
   log(`  history for ${Object.keys(history).length} tickers`);
+  const dataDir = path.join(root, 'docs/bursa/data');
+  const check = enoughData('FBM KLCI', universe, history, dataDir, health, log);
+  if (!check.ok) return;
   const { report, lookup } = buildReport(universe, history, 'yahoo', { cfg: BURSA_CONFIG, regimeTicker: 'KLCI', market: 'bursa' });
   log(`Ranking agent: ${report.upPassed} valid long setups, ${report.downPassed} valid short setups (as of ${report.asOf})`);
-  writeOutputs(path.join(root, 'docs/bursa/data'), report, lookup);
+  writeOutputs(dataDir, report, lookup, history, check);
   for (const [label, arr] of [['UP', report.up], ['DOWN', report.down]]) log(`Top ${label}: ` + arr.map(p => `${p.ticker}(${p.score.total}${p.tier === 'watch' ? ',watch' : ''})`).join(' '));
 }
 

@@ -314,6 +314,12 @@ export function earlyTurnAgent(bars, ind, stage, cfg = CONFIG) {
   return { side, from: bars[from].t, favour, against, slopeNow, slopePrev };
 }
 
+function hiLo(bars, close) {
+  let hi = 0, lo = Infinity;
+  for (let i = Math.max(0, bars.length - 252); i < bars.length; i++) { hi = Math.max(hi, bars[i].h); lo = Math.min(lo, bars[i].l); }
+  return { offHigh: 1 - close / hi, offLow: close / lo - 1 }; // % below the 52-week high / % above the 52-week low
+}
+
 export function analyzeTicker(meta, bars, cfg = CONFIG) {
   if (!bars || !bars.length) return { ticker: meta.ticker, name: meta.name, skip: 'no price data found for this ticker' };
   if (bars.length < 220) return { ticker: meta.ticker, name: meta.name, skip: `only ${bars.length} daily bars of history — the agents need about 220 (the 150- and 200-day MAs), so it is analysed once it has traded about ${220 - bars.length} more days` };
@@ -326,7 +332,9 @@ export function analyzeTicker(meta, bars, cfg = CONFIG) {
   const ret126 = n > 127 ? close / bars[n - 127].c - 1 : 0;
   const base = { ticker: meta.ticker, name: meta.name, sector: meta.sector, close, asOf: bars[n - 1].t,
     stage: stage.stage, slope150: stage.slope, dist150: stage.dist, ret126,
-    sma50: ind.sma50[n - 1], sma150: ind.sma150[n - 1], sma200: ind.sma200[n - 1] };
+    sma50: ind.sma50[n - 1], sma150: ind.sma150[n - 1], sma200: ind.sma200[n - 1],
+    dist50: close / ind.sma50[n - 1] - 1, ret21: n > 22 ? close / bars[n - 22].c - 1 : 0, ...hiLo(bars, close),
+    atr20: atrPct(bars, 20), profile: cfg.scoreProfile || 'stocks' };
 
   const out = { ...base, long: null, short: null };
 
@@ -374,24 +382,53 @@ export function chartData(bars, ind, k) {
 }
 
 // ---------- Agent 5: Ranking / portfolio agent ----------
+// ---------- MMS score v3 (Oct 2026) ----------
+// Rebuilt per market from a 5-year backtest (late 2022 - Sep 2026) of every Stage 2 signal: enter at the
+// buy-stop, stop loss, 1:2 target, stop moved to entry at 1:1.5. A trait is used for a market only if it pointed
+// the same way in both halves of the period (2022-24 and 2024-26). Each trait scores 0-1 between the
+// market's 10th and 90th percentile ([lo, hi, direction]; direction -1 = lower is better); the score is
+// the average x 100. Nasdaq-100, Dow 30 and the watchlist use the S&P 500 profile.
+export const SCORE_V3 = {
+  stocks: { dist150: [0.0324, 0.2739, -1], ret126: [0.0626, 0.509, -1], c1: [0.0371, 0.1367, 1], risk: [0.0525, 0.1323, 1], ncon: [1.0, 6.0, 1], downBig: [0.0, 6.0, 1] },
+  bursa: { dist150: [0.0272, 0.2891, 1], dist50: [-0.0185, 0.1104, 1], ret21: [-0.0344, 0.1114, 1], risk: [0.0496, 0.1094, 1], ncon: [1.0, 6.0, -1], zonepos: [0.308, 1.0, 1], downBig: [0.0, 5.0, -1] },
+  china: { dist150: [0.0258, 0.3482, -1], slope150: [0.0133, 0.0728, -1], dist50: [-0.0482, 0.1738, -1], ret126: [0.0568, 0.6533, -1], ret21: [-0.0789, 0.1951, -1], offHigh: [0.0264, 0.233, -1], c1: [0.0533, 0.1985, -1], zonepos: [-0.073, 1.0, 1], atr: [0.0191, 0.0583, -1], dist_entry: [-0.0253, 0.1524, 1] },
+  crypto: { dist150: [0.0517, 0.9476, -1], slope150: [0.0199, 0.1973, -1], ret126: [0.1276, 2.5195, -1], c1: [0.0765, 0.3225, -1], ncon: [1.0, 6.0, -1], zonepos: [-0.315, 1.0, 1], upBig: [0.0, 5.0, -1], downBig: [0.0, 6.0, -1], atr: [0.0292, 0.1162, -1], dist_entry: [-0.0481, 0.2316, 1] },
+};
+export const PROFILE_OF = { stocks: 'stocks', nasdaq: 'stocks', dow: 'stocks', watch: 'stocks', bursa: 'bursa', china: 'china', crypto: 'crypto' };
+const TRAIT_LABEL = {
+  dist150: ['Close to 150-day MA', 'Well above 150-day MA'], slope150: ['Gently rising 150-day MA', 'Steep 150-day MA'],
+  dist50: ['Close to 50-day MA', 'Above 50-day MA'], ret126: ['Modest 6-month gain', 'Strong 6-month gain'],
+  ret21: ['Calm last month', 'Strong last month'], offHigh: ['Near 52-week high', 'Room below 52-week high'],
+  c1: ['Shallow first pullback', 'Deep first pullback'], risk: ['Tight stop', 'Room for the stop'],
+  ncon: ['Few contractions', 'More contractions'], zonepos: ['Low breakout zone', 'Higher breakout zone'],
+  upBig: ['Few big up-volume days', 'Many big up-volume days'], downBig: ['Few big down-volume days', 'Many big down-volume days'],
+  atr: ['Low daily volatility', 'High daily volatility'], dist_entry: ['Buy-stop close by', 'Buy-stop not yet near'],
+};
+// trait values for one side; shorts mirror the price traits so "better" means the same thing
+export function traitValues(a, side) {
+  const S = side === 'long' ? a.long : a.short, st = S?.setup || {}, cs = st.contractions || [], L = side === 'long';
+  return {
+    dist150: L ? a.dist150 : -a.dist150, slope150: L ? a.slope150 : -a.slope150, dist50: L ? a.dist50 : -a.dist50,
+    ret126: L ? a.ret126 : -a.ret126, ret21: L ? a.ret21 : -a.ret21, offHigh: L ? a.offHigh : a.offLow,
+    c1: cs[0]?.depth, risk: S?.risk?.riskPct, ncon: cs.length || null, zonepos: st.zonePos,
+    upBig: L ? S?.vol?.upBig : S?.vol?.downBig, downBig: L ? S?.vol?.downBig : S?.vol?.upBig,
+    atr: a.atr20, dist_entry: st.distToEntry,
+  };
+}
 export function scoreSide(a, side, rsPct) {
   const S = side === 'long' ? a.long : a.short;
   if (!S) return null;
-  const st = S.setup;
-  const strength = side === 'long' ? a.dist150 : -a.dist150;
-  const slope = side === 'long' ? a.slope150 : -a.slope150;
-  const stageScore = 15 * clamp(strength / 0.30, 0, 1) + 10 * clamp(slope / 0.08, 0, 1);
-  let vcp = 0;
-  if (st.contractions?.length) {
-    const d1 = st.contractions[0].depth, dl = st.contractions[st.contractions.length - 1].depth;
-    vcp = (st.baseOk ? 8 : 0) + 8 * clamp(1 - dl / d1, 0, 1) + 8 * clamp((0.10 - dl) / 0.08, 0, 1)
-      + (st.c1Established ? 3 : 0) + 3 * clamp(1 - st.increases / 2, 0, 1);
+  const prof = SCORE_V3[a.profile] || SCORE_V3.stocks, keys = Object.keys(prof), max = 100 / keys.length;
+  const tv = traitValues(a, side), parts = [];
+  let total = 0;
+  for (const k of keys) {
+    const [lo, hi, dir] = prof[k], x = tv[k];
+    let v = x == null || !isFinite(x) ? 0.5 : clamp((x - lo) / (hi - lo), 0, 1);
+    if (dir < 0) v = 1 - v;
+    total += v * max;
+    parts.push([TRAIT_LABEL[k][dir < 0 ? 0 : 1], +(v * max).toFixed(1), +max.toFixed(1)]);
   }
-  const trig = triggerScore(st.status, st.distToEntry ?? 1);
-  const volScore = 15 * S.vol.ratio;
-  const rs = 10 * rsPct;
-  const total = stageScore + vcp + trig + volScore + rs;
-  return { total: +total.toFixed(1), stage: +stageScore.toFixed(1), vcp: +vcp.toFixed(1), trigger: +trig.toFixed(1), volume: +volScore.toFixed(1), rs: +rs.toFixed(1) };
+  return { total: +total.toFixed(1), v: 3, profile: a.profile || 'stocks', parts };
 }
 
 export function rankAll(analyses, topN = 5) {

@@ -6,6 +6,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import zlib from 'node:zlib';
+import { yahooBars, makeHealth, pool, SourceError } from './sources.js';
 
 const UNIVERSE_URL = 'https://raw.githubusercontent.com/datasets/s-and-p-500-companies/main/data/constituents.csv';
 const sleep = ms => new Promise(r => setTimeout(r, ms));
@@ -133,36 +134,22 @@ async function getJSON(url, tries = 4) {
 }
 
 // ---------- Yahoo (no key) ----------
-export async function yahooHistory(universe, { range = '2y', concurrency = 4, log = console.log, dropToday = false, dropOpen = false, meta = null } = {}) {
-  const todayUTC = new Date().toISOString().slice(0, 10);
+// Uses sources.js: browser-like request, query1 -> query2 fallback, short retries and a circuit breaker,
+// so a Yahoo block from a cloud server ends the attempt in seconds instead of timing out the job.
+export async function yahooHistory(universe, { range = '2y', concurrency = 4, log = console.log, dropToday = false, dropOpen = false, meta = null, health = makeHealth(log) } = {}) {
   const out = {};
-  let idx = 0, done = 0;
-  async function worker() {
-    while (idx < universe.length) {
-      const u = universe[idx++];
-      const sym = u.yahoo || u.ticker.replace('.', '-');
-      try {
-        const j = await getJSON(`https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(sym)}?range=${range}&interval=1d&events=split`);
-        const r = j.chart.result[0], q = r.indicators.quote[0];
-        if (meta) meta[u.ticker] = { shortName: r.meta.shortName, longName: r.meta.longName, currency: r.meta.currency };
-        const adj = r.indicators.adjclose?.[0]?.adjclose;
-        const bars = [];
-        const off = r.meta.gmtoffset || 0, reg = r.meta.currentTradingPeriod?.regular;
-        // dropOpen: skip today's bar while the exchange session is still trading (15 min grace after the close)
-        const openFrom = dropOpen && reg && Date.now() / 1000 < reg.end + 900 ? reg.start : Infinity;
-        r.timestamp.forEach((ts, i) => {
-          if (q.close[i] == null || q.open[i] == null || ts >= openFrom) return;
-          const f = adj && adj[i] ? adj[i] / q.close[i] : 1; // split/dividend-adjust OHLC
-          bars.push({ t: new Date((ts + off) * 1000).toISOString().slice(0, 10), o: q.open[i] * f, h: q.high[i] * f, l: q.low[i] * f, c: q.close[i] * f, v: q.volume[i] || 0 });
-        });
-        // crypto trades 24/7: today's candle is still open, so only use completed days
-        out[u.ticker] = dropToday ? bars.filter(b => b.t < todayUTC) : bars;
-      } catch (e) { log(`  ${u.ticker}: ${e.message}`); }
-      if (++done % 50 === 0) log(`  yahoo: ${done}/${universe.length}`);
-      await sleep(250);
-    }
-  }
-  await Promise.all(Array.from({ length: concurrency }, worker));
+  let done = 0;
+  await pool(universe, concurrency, async u => {
+    const sym = u.yahoo || u.ticker.replace('.', '-');
+    if (health.dead.has('yahoo')) return;
+    try {
+      const r = await yahooBars(sym, { range, dropOpen, dropToday });
+      if (meta && r.meta) meta[u.ticker] = r.meta;
+      if (r.bars.length) { out[u.ticker] = r.bars; health.ok('yahoo'); } else health.fail('yahoo', new SourceError('no bars', 404));
+    } catch (e) { health.fail('yahoo', e); if (e.status !== 404) log(`  ${u.ticker}: ${e.message}`); }
+    if (++done % 50 === 0) log(`  yahoo: ${done}/${universe.length}`);
+    await sleep(150);
+  });
   return out;
 }
 

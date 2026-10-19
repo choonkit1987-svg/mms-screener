@@ -310,11 +310,6 @@
   "sector": "Technology"
  },
  {
-  "ticker": "MRNA",
-  "name": "Moderna",
-  "sector": "Health Care"
- },
- {
   "ticker": "MDLZ",
   "name": "Mondelez International",
   "sector": "Consumer Staples"
@@ -487,6 +482,11 @@
  {
   "ticker": "WMT",
   "name": "Walmart",
+  "sector": "Consumer Discretionary"
+ },
+ {
+  "ticker": "WBD",
+  "name": "Warner Bros. Discovery",
   "sector": "Consumer Discretionary"
  },
  {
