@@ -59,6 +59,10 @@ select{font:inherit;font-family:var(--mono);background:var(--surface);color:var(
 /* pick card */
 .pick{background:var(--surface);border:1px solid var(--rule);border-radius:10px;padding:14px 16px;display:flex;flex-direction:column;gap:10px}
 .pick.watch{border-style:dashed}
+.pick.early{border-color:var(--accent);border-style:dashed}
+.earlyhead{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap;margin-top:18px;padding-bottom:6px;border-bottom:1px solid var(--rule)}
+.earlyhead h3{font-size:17px;margin:0}
+.earlynote{font-size:13px;color:var(--muted);margin:2px 0 0}
 .phead{display:grid;grid-template-columns:auto 1fr auto;gap:4px 12px;align-items:center}
 .rank{font-family:var(--mono);font-size:13px;color:var(--muted);width:22px}
 .tk{font-family:var(--display);font-size:24px;font-weight:700;line-height:1}
@@ -126,7 +130,7 @@ details ul{margin:8px 0 0;padding-left:18px;font-size:13.5px;display:flex;flex-d
 <div class="wrap">
   <header class="top">
     <div>
-      <nav class="nav" id="nav"><a data-m="stocks" href="#">S&amp;P 500</a><a data-m="nasdaq" href="#">Nasdaq-100</a><a data-m="dow" href="#">Dow Jones</a><a data-m="bursa" href="#">Bursa Malaysia</a><a data-m="china" href="#">China A-shares</a><a data-m="crypto" href="#">Crypto</a></nav>
+      <nav class="nav" id="nav"><a data-m="stocks" href="#">S&amp;P 500</a><a data-m="nasdaq" href="#">Nasdaq-100</a><a data-m="dow" href="#">Dow Jones</a><a data-m="bursa" href="#">Bursa Malaysia</a><a data-m="china" href="#">China A-shares</a><a data-m="crypto" href="#">Crypto</a><a data-m="watch" href="#">My watchlist</a></nav>
       <div class="label">Market Maker Strategy · multi-agent scan</div>
       <h1>MMS Daily <span id="h1b">Screener</span></h1>
       <p id="intro">Every trading day the agents scan the S&amp;P 500 on the daily chart and pick the 5 strongest Stage 2 buy setups and the 5 strongest Stage 4 short setups, using the course rules for stage, contraction, volume and buy/sell triggers.</p>
@@ -154,10 +158,16 @@ details ul{margin:8px 0 0;padding-left:18px;font-size:13.5px;display:flex;flex-d
     <section class="col" aria-labelledby="uph">
       <div class="colhead up"><h2 id="uph">Uptrend · Stage 2 buys</h2><small id="upmeta"></small></div>
       <div id="up" class="col"></div>
+      <div class="earlyhead"><h3>Early alerts · turning into Stage 2</h3><small id="upEmeta"></small></div>
+      <p class="earlynote">Valid contraction setups while the 150-day MA is still turning up (Stage 1 → 2), with price above the 50 and 150 MAs and big up-volume since the low. Earlier entry, less confirmation.</p>
+      <div id="upE" class="col"></div>
     </section>
     <section class="col down" aria-labelledby="dnh">
       <div class="colhead down"><h2 id="dnh">Downtrend · Stage 4 shorts</h2><small id="dnmeta"></small></div>
       <div id="down" class="col"></div>
+      <div class="earlyhead"><h3>Early alerts · turning into Stage 4</h3><small id="dnEmeta"></small></div>
+      <p class="earlynote">Valid rally setups while the 150-day MA is still turning down (Stage 3 → 4), with price below the 50 and 150 MAs and big down-volume since the high.</p>
+      <div id="downE" class="col"></div>
     </section>
   </div>
 
@@ -167,7 +177,8 @@ details ul{margin:8px 0 0;padding-left:18px;font-size:13.5px;display:flex;flex-d
       <li>Daily chart, 150-day moving average only.</li>
       <li>Stage 2: 150 MA rising, price above it. Further above = stronger.</li>
       <li>Stage 4: 150 MA falling, price below it — the shorting stage.</li>
-      <li>Stage 1 / 3: 150 MA flat (base / top).</li></ul><div class="src">Course ch.1 · Stage 1–4</div></div>
+      <li>Stage 1 / 3: 150 MA flat (base / top).</li>
+      <li>Early alert: Stage 1 turning up (150 MA slope improving, price above a rising 50 MA, 3+ big up-volume days since the low) with a valid contraction setup. Mirrored for Stage 3 → 4.</li></ul><div class="src">Course ch.1 · Stage 1–4</div></div>
     <div><h3>2 · Contraction agent</h3><ul>
       <li>Counts pullbacks (C1, C2 …) from the highest high since the 150 MA crossed the 200 MA.</li>
       <li>Each contraction must be shallower, each low higher.</li>
@@ -246,7 +257,7 @@ function chartSVG(p,side){
 
 function card(p,i,side){
   const el=document.createElement('article');
-  el.className='pick'+(p.tier==='watch'?' watch':'');
+  el.className='pick'+(p.tier==='watch'?' watch':p.tier==='early'?' early':'');
   const trig=p.status==='TRIGGERED';
   const {svg,geom}=chartSVG(p,side);
   const sc=p.score,parts=[['Stage',sc.stage,25],['Contraction',sc.vcp,30],['Trigger',sc.trigger,20],['Volume',sc.volume,15],['Rel. strength',sc.rs,10]];
@@ -257,7 +268,7 @@ function card(p,i,side){
       <div class="score"><span class="n">${sc.total.toFixed(0)}</span><span class="label">score</span></div>
       <span></span><span class="nm">${esc(p.name||'')} · ${esc(p.sector||'')}</span></div>
     <div class="chips">
-      <span class="chip ${p.tier==='watch'?'watch':'setup'}">${p.tier==='watch'?'Watch':'Valid setup'}</span>
+      <span class="chip ${p.tier==='watch'?'watch':'setup'}">${p.tier==='watch'?'Watch':p.tier==='early'?'Early alert · Stage '+p.stage+'→'+(side==='long'?2:4):'Valid setup'}</span>
       <span class="chip ${trig?'trig':''}">${STATUS[p.status]||p.status}${p.risk&&p.status==='SETUP'?' · '+pct(Math.abs(side==='long'?p.risk.entry/p.close-1:1-p.risk.entry/p.close))+' away':''}</span>
       <span class="chip">Stage ${p.stage}</span>
       ${p.zone?`<span class="chip">${esc(p.zone)} zone</span>`:''}
@@ -289,9 +300,10 @@ const MK={
   dow:{dir:'dow/',title:'MMS Dow Jones Screener',h1:'Dow Jones Screener',idx:'Dow Jones 30',scan:'the 30 Dow Jones Industrial Average stocks',reg:'Dow Jones (DIA) stage',eg:'e.g. JPM or JPMorgan',ccy:'US$'},
   bursa:{dir:'bursa/',title:'MMS Bursa Screener',h1:'Bursa Malaysia Screener',idx:'FBM KLCI 30',scan:'the 30 FBM KLCI stocks on Bursa Malaysia',reg:'FBM KLCI index stage',eg:'e.g. MAYBANK, 1155 or Tenaga',ccy:'RM',close:'Bursa close (prices in RM)'},
   china:{dir:'china/',title:'MMS China Screener',h1:'China A-share Screener',idx:'CSI 300',scan:'the CSI 300 (the 300 largest China A-shares on Shanghai and Shenzhen)',reg:'CSI 300 (ETF 510300) stage',eg:'e.g. 600519 or Moutai',ccy:'¥',close:'China close (prices in CNY)',note:' Short selling A-shares is restricted for most investors, so treat the downtrend list as stocks to avoid or exit.'},
+  watch:{dir:'watch/',title:'MMS Watchlist',h1:'Watchlist',idx:'watchlist',scan:'the US stocks on your watchlist (watchlist.txt in the repo)',reg:'S&amp;P 500 (SPY) stage',eg:'e.g. TEM or Tempus',ccy:'US$',note:' To add or remove a stock, edit watchlist.txt on GitHub — one ticker per line.'},
   crypto:{dir:'crypto/',title:'MMS Crypto Screener',h1:'Crypto Screener',idx:'top 100 coins',scan:'the top 100 coins by market cap (stablecoins and wrapped tokens removed)',reg:'Bitcoin (BTC) stage',eg:'e.g. SOL or Solana',ccy:'US$',close:'Daily close (UTC)'}};
 const mk=d=>MK[d.market]||MK.stocks;
-const NAV_BASE=document.getElementById('embedded-data')?null:(/\/(crypto|nasdaq|dow|bursa|china)\//.test(location.pathname)?'../':'./');
+const NAV_BASE=document.getElementById('embedded-data')?null:(/\/(crypto|nasdaq|dow|bursa|china|watch)\//.test(location.pathname)?'../':'./');
 function site(d){
   const c=d.market==='crypto',M=mk(d);
   document.title=M.title;
@@ -303,6 +315,9 @@ function site(d){
   $('#lkq').placeholder=M.eg;
   $('#lkhint').textContent=c?'The agents analyse every coin after each daily close. Pick one to see its trend direction, trade levels and why.':'The agents analyse every stock after each close. Pick one to see its trend direction, trade levels and why.';
   $('#liqrule').textContent=c?'50-day average USD volume must exceed US$1M a day.':`50-day average volume × price must exceed ${M.ccy}1M a day.`;
+  if(d.market==='watch'&&!location.hash)loadLookup().then(L=>{const h=$('#lkhint');if(!h||!h.isConnected)return;
+    h.innerHTML=`Your ${L.rows.length} stocks — pick one:<span class="chips" style="margin-top:8px">${L.rows.map(r=>`<button class="lkpick" type="button" data-t="${esc(r.t)}">${esc(r.t)} · ${esc(r.skip?'not analysed yet':r.head)}</button>`).join('')}</span>`;
+    h.querySelectorAll('.lkpick').forEach(b=>b.addEventListener('click',()=>{$('#lkq').value=b.dataset.t;analyse(b.dataset.t)}));}).catch(()=>{});
   const nav=$('#nav');
   if(!NAV_BASE){nav.hidden=true;}else{
     nav.querySelectorAll('a[data-m]').forEach(a=>{const m=a.dataset.m;a.href=NAV_BASE+MK[m].dir;if(m===(MK[d.market]?d.market:'stocks'))a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');});
@@ -330,6 +345,12 @@ function render(d){
     arr.forEach((p,i)=>box.appendChild(card(p,i,side)));
     const w=arr.filter(p=>p.tier==='watch').length;
     $(meta).textContent=w?`${arr.length-w} valid · ${w} on watch`:`${arr.length} valid setups`;
+    const ebox=$('#'+key+'E'),earr=d[key==='up'?'earlyUp':'earlyDown'],en=d[key==='up'?'earlyUpCount':'earlyDownCount'];
+    ebox.innerHTML='';
+    if(!earr){ebox.innerHTML='<div class="empty">Early alerts start with the next scan.</div>';$(key==='up'?'#upEmeta':'#dnEmeta').textContent='';}
+    else{if(!earr.length)ebox.innerHTML='<div class="empty">No early turns with a valid setup today.</div>';
+      earr.forEach((p,i)=>ebox.appendChild(card(p,i,side)));
+      $(key==='up'?'#upEmeta':'#dnEmeta').textContent=en>earr.length?`top ${earr.length} of ${en}`:`${earr.length} found`;}
   }
   $('#prov').textContent=`Data: ${d.provider==='massive'?'Massive (Polygon.io)':d.provider==='yahoo+coingecko'?'Yahoo Finance daily candles (UTC close), coin list from CoinGecko':'Yahoo Finance'} daily bars · generated ${d.generatedAt.slice(0,16).replace('T',' ')} UTC.`;
 }
@@ -340,7 +361,7 @@ async function loadLookup(){
   if(LK)return LK;
   if(!LKP)LKP=(async()=>{const e=document.getElementById('embedded-all');
     const d=e?JSON.parse(e.textContent):await (await fetch('data/all.json',{cache:'no-store'})).json();
-    LK=d;$('#lklist').innerHTML=d.rows.filter(r=>!r.skip).map(r=>`<option value="${esc(r.t)}">${esc(r.n||'')}</option>`).join('');return d;})();
+    LK=d;$('#lklist').innerHTML=d.rows.map(r=>`<option value="${esc(r.t)}">${esc(r.n||'')}</option>`).join('');return d;})();
   return LKP;
 }
 function lineSVG(r){
@@ -361,7 +382,7 @@ function lineSVG(r){
 let LKCUR=null;
 function showRecord(r){
   LKCUR=r;const out=$('#lkout');
-  if(r.skip){out.innerHTML=`<p class="lkmsg"><b>${esc(r.t)}</b> was skipped by the data agents: ${esc(r.skip)}.</p>`;return;}
+  if(r.skip){out.innerHTML=`<p class="lkmsg"><b>${esc(r.t)}</b>${r.n?' ('+esc(r.n)+')':''} is in the list but not analysed yet: ${esc(r.skip)}.</p>`;return;}
   const L=r.lv,long=r.side==='long',sc=r.score;
   const parts=sc?[['Stage',sc.stage,25],['Contraction',sc.vcp,30],['Trigger',sc.trigger,20],['Volume',sc.volume,15],['Rel. strength',sc.rs,10]]:[];
   const dist=L?Math.abs(long?L.e/r.close-1:1-L.e/r.close):null;
@@ -392,6 +413,7 @@ function howTo(r){
   const L=r.lv,long=r.side==="long",past=long?r.close>=L.e:r.close<=L.e,gap=Math.abs(L.e/r.close-1);
   const lv=`${long?'buy-stop':'sell-stop'} ${px(L.e)}, stop ${px(L.s)}, target ${px(L.tg)}`;
   const tail=` Stop ${px(L.s)}, target ${px(L.tg)}; move the stop to entry at ${px(L.be)} (1:1.5). First position ${L.size}% of capital.`;
+  if((r.st===1||r.st===3)&&r.early&&r.valid&&!['EXTENDED','BROKEN'].includes(r.status))return `Early alert: the stock is turning into Stage ${long?'2':'4'} and already has a valid ${long?'pullback':'rally'} pattern. ${long?'Buy when price trades above':'Short when price trades below'} ${px(L.e)} (${pct(gap)} away).`+tail+` Course-strict traders wait until the 150-day MA ${long?'rises':'falls'} (Stage ${long?'2':'4'}).`;
   if(r.st===1||r.st===3)return `No trade in Stage ${r.st}. If it turns Stage ${long?'2':'4'}, these are the levels from the latest ${long?'pullback':'rally'}: ${lv}.`;
   if(!r.valid)return `No trade yet — the contraction rules are not met. For reference only, the latest ${long?'pullback':'rally'} gives: ${lv}.`;
   if(r.status==='BROKEN')return `Price has already closed ${long?'below':'above'} the stop ${px(L.s)} — this setup failed. Wait for a new contraction.`;
@@ -405,7 +427,7 @@ async function analyse(q){
   let d;try{d=await loadLookup()}catch(e){out.innerHTML='<p class="lkmsg">The per-stock results are not available yet. They are created by the next scheduled scan.</p>';return;}
   const Q=q.toUpperCase(),rows=d.rows;
   let hit=rows.find(r=>r.t.toUpperCase()===Q||r.t.toUpperCase()===Q.replace('-','.'));
-  if(!hit){const m=rows.filter(r=>!r.skip&&(r.n||'').toUpperCase().includes(Q));
+  if(!hit){const m=rows.filter(r=>(r.n||'').toUpperCase().includes(Q));
     if(m.length===1)hit=m[0];
     else if(m.length>1){out.innerHTML=`<p class="lkmsg">Several matches for “${esc(q)}” — pick one:</p><div class="chips">${m.slice(0,12).map(r=>`<button class="lkpick" type="button" data-t="${esc(r.t)}">${esc(r.t)} · ${esc(r.n)}</button>`).join('')}</div>`;
       out.querySelectorAll('.lkpick').forEach(b=>b.addEventListener('click',()=>{$('#lkq').value=b.dataset.t;analyse(b.dataset.t)}));return;}}

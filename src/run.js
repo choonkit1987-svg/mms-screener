@@ -8,12 +8,12 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { analyzeTicker, rankAll, explain, stageAgent, computeIndicators, lookupTable, CONFIG } from './engine.js';
-import { loadUniverse, loadNasdaq100, loadDow30, cachedList, yahooHistory, massiveHistory } from './data.js';
+import { loadUniverse, loadNasdaq100, loadDow30, loadWatchlist, cachedList, yahooHistory, massiveHistory } from './data.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const log = (...a) => console.log(new Date().toISOString().slice(11, 19), ...a);
 
-export const MARKET_LABELS = { stocks: 'S&P 500', nasdaq: 'Nasdaq-100', dow: 'Dow Jones 30', bursa: 'FBM KLCI 30', china: 'CSI 300', crypto: 'Top 100 coins' };
+export const MARKET_LABELS = { stocks: 'S&P 500', nasdaq: 'Nasdaq-100', dow: 'Dow Jones 30', bursa: 'FBM KLCI 30', china: 'CSI 300', watch: 'My watchlist', crypto: 'Top 100 coins' };
 
 export function buildReport(universe, history, provider, { cfg = CONFIG, regimeTicker = 'SPY', market = 'stocks' } = {}) {
   const analyses = universe.map(u => analyzeTicker(u, history[u.ticker], cfg));
@@ -25,13 +25,13 @@ export function buildReport(universe, history, provider, { cfg = CONFIG, regimeT
     regime = { ticker: regimeTicker, stage: s.stage, slope150: s.slope, dist150: s.dist, close: spy[spy.length - 1].c };
   }
   const pack = (x, side) => {
-    const a = x.a, S = side === 'long' ? a.long : a.short;
+    const a = x.a, S = x.S || (side === 'long' ? a.long : a.short);
     return {
       ticker: a.ticker, name: a.name, sector: a.sector, tier: x.tier, score: x.s,
       stage: a.stage, close: a.close, asOf: a.asOf, slope150: a.slope150, dist150: a.dist150, ret126: a.ret126,
       status: S.setup.status, valid: S.setup.valid, reason: S.setup.reason, zone: S.setup.zone,
       contractions: (S.setup.contractions || []).map(c => ({ hi: c.hi, lo: c.lo, hiT: c.hiT, loT: c.loT, depth: c.depth, open: !!c.open })),
-      risk: S.risk, volume: S.vol, notes: explain(a, side), chart: a.chart,
+      risk: S.risk, volume: S.vol, notes: explain(a, side, S), chart: a.chart, ...(a.early ? { early: { from: a.early.from, favour: a.early.favour, against: a.early.against } } : {}),
     };
   };
   const asOf = analyses.filter(a => !a.skip).map(a => a.asOf).sort().pop();
@@ -43,6 +43,8 @@ export function buildReport(universe, history, provider, { cfg = CONFIG, regimeT
     stageCounts: ranked.stageCounts, regime,
     up: ranked.up.top.map(x => pack(x, 'long')), upPassed: ranked.up.passedCount, upCandidates: ranked.up.total,
     down: ranked.down.top.map(x => pack(x, 'short')), downPassed: ranked.down.passedCount, downCandidates: ranked.down.total,
+    earlyUp: ranked.up.early.map(x => pack(x, 'long')), earlyUpCount: ranked.up.earlyCount,
+    earlyDown: ranked.down.early.map(x => pack(x, 'short')), earlyDownCount: ranked.down.earlyCount,
     config: cfg,
   } };
 }
@@ -58,8 +60,12 @@ async function main() {
     try { lists[key] = await cachedList(path.join(root, `data/lists/${file}.json`), loader, log); log(`  ${MARKET_LABELS[key]}: ${lists[key].length} tickers`); }
     catch (e) { lists[key] = []; log(`  ${MARKET_LABELS[key]} list unavailable (${e.message}) — skipping that page today`); }
   }
+  // personal watchlist (watchlist.txt): names already in an index keep that index's name and sector
+  const known = new Map([...universe, ...lists.nasdaq, ...lists.dow].map(u => [u.ticker, u]));
+  lists.watch = loadWatchlist(path.join(root, 'watchlist.txt')).map(w => known.get(w.ticker) || w);
+  log(`  My watchlist: ${lists.watch.length} tickers`);
   // one download for every index (most Nasdaq-100 and all Dow names are also in the S&P 500)
-  const all = [...new Map([...universe, ...lists.nasdaq, ...lists.dow].map(u => [u.ticker, u])).values()];
+  const all = [...new Map([...universe, ...lists.nasdaq, ...lists.dow, ...lists.watch].map(u => [u.ticker, u])).values()];
   const extra = [{ ticker: 'SPY' }, { ticker: 'QQQ' }, { ticker: 'DIA' }];
   log(`Market-data agent: provider = ${provider}`);
   let history;
@@ -76,6 +82,7 @@ async function main() {
   log('Stage / Contraction / Volume / Risk agents: analysing');
   const pages = [['S&P 500', universe, 'docs/data', { regimeTicker: 'SPY', market: 'stocks' }]];
   if (lists.nasdaq.length) pages.push(['Nasdaq-100', lists.nasdaq, 'docs/nasdaq/data', { regimeTicker: 'QQQ', market: 'nasdaq' }]);
+  if (lists.watch.length) pages.push(['My watchlist', lists.watch, 'docs/watch/data', { regimeTicker: 'SPY', market: 'watch' }]);
   if (lists.dow.length) pages.push(['Dow Jones 30', lists.dow, 'docs/dow/data', { regimeTicker: 'DIA', market: 'dow' }]);
   for (const [label, uni, dir, opts] of pages) {
     const { report, lookup } = buildReport(uni, history, provider, opts);

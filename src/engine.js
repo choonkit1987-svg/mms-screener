@@ -15,7 +15,8 @@ export const CONFIG = {
   firstPositionPct: 6.25,    // first order = 6.25% of capital (L22)
   minDollarVolume: 1e6,      // 50-day avg volume x price > US$1M (L13); Bursa uses RM1M (cfg.currency = 'RM')
   triggerFreshBars: 5,       // a close above entry within this many bars = "triggered"
-  extendedPct: 0.05,         // more than 5% past entry = extended (do not chase)
+  extendedPct: 0.05,
+  earlyMinBigVol: 3,         // early alert: at least 3 big-volume days in the trend's direction since the turn         // more than 5% past entry = extended (do not chase)
 };
 
 // ---------- indicators ----------
@@ -292,10 +293,32 @@ export function dataQuality(bars) {
   return '';
 }
 
+// ---------- Agent: Early-turn agent ----------
+// The 150-day MA lags: after a long decline it can take 6-8 weeks to turn up, so a stock can build a
+// valid C1/C2 base while still officially in Stage 1. This agent flags those Stage 1 -> 2 turns early
+// (and Stage 3 -> 4 for shorts) when price, the 50 MA and volume already confirm the new direction.
+export function earlyTurnAgent(bars, ind, stage, cfg = CONFIG) {
+  const n = bars.length, m = ind.sma150, f = ind.sma50, k = cfg.stageSlopeBars, c = bars[n - 1].c;
+  if (m[n - 1 - 2 * k] == null || f[n - 11] == null) return null;
+  const slopeNow = (m[n - 1] - m[n - 1 - k]) / m[n - 1 - k], slopePrev = (m[n - 1 - k] - m[n - 1 - 2 * k]) / m[n - 1 - 2 * k];
+  let side = null;
+  if (stage === 1 && c > m[n - 1] && c > f[n - 1] && f[n - 1] > f[n - 11] && slopeNow > slopePrev) side = 'long';
+  if (stage === 3 && c < m[n - 1] && c < f[n - 1] && f[n - 1] < f[n - 11] && slopeNow < slopePrev) side = 'short';
+  if (!side) return null;
+  // demand / supply since the turn: count big-volume candles from the lowest low (long) or highest high (short) of the base window
+  let from = n - 1;
+  for (let i = n - 1; i >= Math.max(0, n - cfg.baseLookback); i--) if (side === 'long' ? bars[i].l < bars[from].l : bars[i].h > bars[from].h) from = i;
+  const vol = volumeAgent(bars, ind, from, side, cfg);
+  const favour = side === 'long' ? vol.upBig : vol.downBig, against = side === 'long' ? vol.downBig : vol.upBig;
+  if (favour < cfg.earlyMinBigVol || favour <= against) return null;
+  return { side, from: bars[from].t, favour, against, slopeNow, slopePrev };
+}
+
 export function analyzeTicker(meta, bars, cfg = CONFIG) {
-  if (!bars || bars.length < 220) return { ticker: meta.ticker, skip: 'less than 220 daily bars' };
+  if (!bars || !bars.length) return { ticker: meta.ticker, name: meta.name, skip: 'no price data found for this ticker' };
+  if (bars.length < 220) return { ticker: meta.ticker, name: meta.name, skip: `only ${bars.length} daily bars of history — the agents need about 220 (the 150- and 200-day MAs), so it is analysed once it has traded about ${220 - bars.length} more days` };
   const dq = dataQuality(bars.slice(-260));
-  if (dq) return { ticker: meta.ticker, skip: dq };
+  if (dq) return { ticker: meta.ticker, name: meta.name, skip: dq };
   const ind = computeIndicators(bars);
   const n = bars.length;
   const stage = stageAgent(bars, ind, cfg);
@@ -331,6 +354,8 @@ export function analyzeTicker(meta, bars, cfg = CONFIG) {
   if (stage.stage) {
     out.lean = stage.stage === 2 ? 'long' : stage.stage === 4 || stage.stage === 3 ? 'short' : (close >= ind.sma150[n - 1] ? 'long' : 'short');
     out.leanS = out.lean === 'long' ? (out.long || sideAnalysis('long')) : (out.short || sideAnalysis('short'));
+    const early = earlyTurnAgent(bars, ind, stage.stage, cfg);
+    if (early && early.side === out.lean) out.early = early;
   }
   out.chart = chartData(bars, ind, 180);
   return out;
@@ -395,9 +420,14 @@ export function rankAll(analyses, topN = 5) {
     }
     return { top, passedCount: passed.length, total: arr.length };
   };
+  // Early alerts: Stage 1 -> 2 (or 3 -> 4) turns with a valid, liquid contraction setup not yet run away
+  const early = side => ok.filter(a => a.early?.side === side && a.leanS?.setup.valid && a.leanS.vol.liquid && !['EXTENDED', 'BROKEN'].includes(a.leanS.setup.status))
+    .map(a => ({ a, S: a.leanS, s: scoreSide({ ...a, long: side === 'long' ? a.leanS : null, short: side === 'short' ? a.leanS : null }, side, side === 'long' ? pct.get(a.ticker) : 1 - pct.get(a.ticker)), tier: 'early' }))
+    .sort((x, y) => y.s.total - x.s.total);
   const stageCounts = { 1: 0, 2: 0, 3: 0, 4: 0 };
   ok.forEach(a => { if (a.stage) stageCounts[a.stage]++; });
-  return { up: pick(longs), down: pick(shorts), stageCounts, scanned: ok.length };
+  const eu = early('long'), ed = early('short');
+  return { up: { ...pick(longs), early: eu.slice(0, topN), earlyCount: eu.length }, down: { ...pick(shorts), early: ed.slice(0, topN), earlyCount: ed.length }, stageCounts, scanned: ok.length };
 }
 
 // Human-readable reasoning for a pick (what each agent concluded)
@@ -411,6 +441,7 @@ export function explain(a, side, S0) {
     notes.push(`Contraction agent: ${st.count} ${side === 'long' ? 'pullbacks' : 'rallies'} (${st.contractions.map((c, i) => 'C' + (i + 1) + ' ' + pct(c.depth)).join(' → ')}); ${st.valid ? 'valid buy-point structure' : 'not valid yet: ' + st.reason}. Breakout zone: ${st.zone}.`);
   } else notes.push(`Contraction agent: ${st.reason}.`);
   notes.push(`Volume agent: ${S.vol.upBig} big up-days vs ${S.vol.downBig} big down-days above the 50-day volume average; ${S.vol.ccy || '$'}${(S.vol.dollarVol / 1e6).toFixed(0)}M/day traded.`);
+  if (a.early && a.early.side === side) notes.push(`Early-turn agent: the 150-day MA is turning ${side === 'long' ? 'up' : 'down'} (20-day slope ${pct(a.early.slopePrev)} → ${pct(a.early.slopeNow)}), price is ${side === 'long' ? 'above' : 'below'} the 50 and 150 MAs and the 50 MA is ${side === 'long' ? 'rising' : 'falling'}; ${a.early.favour} big ${side === 'long' ? 'up' : 'down'}-volume days vs ${a.early.against} against since ${a.early.from}. Course-strict traders wait for Stage ${side === 'long' ? '2' : '4'}.`);
   if (S.risk) notes.push(`Risk agent: ${side === 'long' ? 'buy-stop' : 'sell-stop'} ${fmtPrice(S.risk.entry)}, stop ${fmtPrice(S.risk.stop)} (${pct(S.risk.riskPct)} risk), target ${fmtPrice(S.risk.target)} (1:2), move stop to entry at ${fmtPrice(S.risk.breakeven)}.`);
   return notes;
 }
@@ -428,13 +459,14 @@ export function scoreAny(a, rsPct) {
   return scoreSide({ ...a, long: a.lean === 'long' ? S : null, short: a.lean === 'short' ? S : null }, a.lean, a.lean === 'long' ? rsPct : 1 - rsPct);
 }
 export function lookupRecord(a, rsPct, k = 120) {
-  if (a.skip) return { t: a.ticker, skip: a.skip };
+  if (a.skip) return { t: a.ticker, n: a.name, skip: a.skip };
   const S = a.leanS, st = S?.setup || {}, side = a.lean;
   const [dir, head, why] = VERDICT[a.stage] || ['neutral', 'Not enough data', ''];
   let action;
   if (a.stage === 2 || a.stage === 4) action = st.valid && !['EXTENDED', 'BROKEN'].includes(st.status)
     ? (side === 'long' ? 'Valid buy setup' : 'Valid short setup')
     : `No valid ${side === 'long' ? 'buy' : 'short'} point yet${st.reason ? ': ' + st.reason : st.status === 'EXTENDED' ? ': price has run more than 5% past the trigger' : ''}`;
+  else if (a.early && st.valid && !['EXTENDED', 'BROKEN'].includes(st.status)) action = `Early ${side === 'long' ? 'buy' : 'short'} alert — turning into Stage ${side === 'long' ? '2' : '4'} with a valid contraction setup`;
   else action = `Levels below are for a ${side === 'long' ? 'breakout up' : 'breakdown'} only — the course trades Stage ${side === 'long' ? '2' : '4'}`;
   const r = x => (x == null ? null : +(+x).toPrecision(5));
   const r4 = x => (x == null ? null : +(+x).toPrecision(4));
@@ -443,7 +475,7 @@ export function lookupRecord(a, rsPct, k = 120) {
   const idx = t => a.chart.t.indexOf(t) - s0;
   return {
     t: a.ticker, n: a.name, sec: a.sector, st: a.stage, dir, side, head, why, action,
-    status: st.status || null, valid: !!st.valid, zone: st.zone || null,
+    status: st.status || null, valid: !!st.valid, zone: st.zone || null, early: a.early ? 1 : 0,
     close: r(a.close), asOf: a.asOf, slope150: +a.slope150.toFixed(4), dist150: +a.dist150.toFixed(4), ret126: +a.ret126.toFixed(4),
     lv: S?.risk ? { e: r(S.risk.entry), s: r(S.risk.stop), tg: r(S.risk.target), be: r(S.risk.breakeven), risk: +S.risk.riskPct.toFixed(4), size: S.risk.positionPct } : null,
     score: scoreAny(a, rsPct),

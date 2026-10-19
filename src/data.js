@@ -85,6 +85,24 @@ export async function loadCSI300() {
   if (out.length < 280) throw new Error(`CSI 300 table has only ${out.length} rows`);
   return [...new Map(out.map(u => [u.code, u])).values()];
 }
+// Personal watchlist: watchlist.txt in the repo root, "TICKER, optional name" per line, # for comments.
+export function parseWatchlist(text) {
+  const seen = new Set(), out = [];
+  for (const raw of text.split(/\r?\n/)) {
+    const line = raw.replace(/#.*/, '').trim();
+    if (!line) continue;
+    const [t, ...rest] = line.split(/[,;\t]/);
+    const ticker = t.trim().toUpperCase().replace(/\s+/g, '');
+    if (!/^[A-Z0-9.\-^]{1,12}$/.test(ticker) || seen.has(ticker)) continue;
+    seen.add(ticker);
+    out.push({ ticker, name: rest.join(',').trim() || ticker, sector: 'Watchlist' });
+  }
+  return out;
+}
+export function loadWatchlist(file) {
+  return fs.existsSync(file) ? parseWatchlist(fs.readFileSync(file, 'utf8')) : [];
+}
+
 // Runs a list loader; saves the result, or falls back to the last saved list if the loader fails.
 export async function cachedList(file, loader, log = console.log) {
   try {

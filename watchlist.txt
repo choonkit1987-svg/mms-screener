@@ -1,0 +1,5 @@
+# My watchlist — US stocks the agents scan every trading day on the "My watchlist" tab.
+# One stock per line: TICKER, optional company name. Lines starting with # are ignored.
+# Edit this file on GitHub (pencil icon), commit, and the next daily run picks it up.
+TEM, Tempus AI
+SPCX, SpaceX

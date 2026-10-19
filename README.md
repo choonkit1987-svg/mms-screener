@@ -10,6 +10,7 @@ A multi-agent screener that applies the **Market Maker Strategy (MMS) 2026** cou
 | `/bursa/` | FBM KLCI 30 (Bursa Malaysia) | KLCI index | 10:15 UTC Mon–Fri (6:15 pm MYT) |
 | `/china/` | CSI 300 (China A-shares, Shanghai + Shenzhen) | CSI 300 index | 08:15 UTC Mon–Fri (4:15 pm MYT) |
 | `/crypto/` | Top 100 coins | Bitcoin | 02:30 UTC daily (10:30 am MYT) |
+| `/watch/` | Your own US tickers (`watchlist.txt`) | SPY | same US run |
 
 For each market it picks:
 
@@ -45,6 +46,24 @@ Full rule mapping: [RULES.md](RULES.md).
 5. **Actions tab → Daily MMS scan → Run workflow** once. The first Massive run back-fills history and takes about 70 minutes because of the free 5-calls-per-minute limit; after that each daily run takes a minute or two.
 
 From then on it runs automatically at 22:30 UTC Monday–Friday (6:30 am Malaysia time) and the dashboard updates itself. Past days are kept in `docs/data/archive/` and appear in the History menu.
+
+## Early alerts (Stage 1 → 2 and Stage 3 → 4)
+
+The 150-day MA reacts slowly: after a long fall it can take 6–8 weeks to turn up, so a stock can already have a valid C1/C2 base while it is still officially Stage 1. Example: BBY had a valid two-contraction base with a buy-stop of 77.85 on 23–24 June 2026, but only became Stage 2 on 16 July, when it was at 84 and too extended to buy.
+
+Each page therefore has an **Early alerts** list under the main uptrend and downtrend lists. A stock appears there when **all** of these hold:
+
+- Stage 1 (for buys) or Stage 3 (for shorts);
+- price is above both the 50- and 150-day MAs and the 50-day MA is rising (mirrored for shorts);
+- the 150-day MA's 20-day slope is improving (turning up) compared with the 20 days before;
+- at least 3 big up-volume candles above the 50-day volume average since the low of the base, and more than big down-volume candles (mirrored for shorts);
+- the contraction agent finds a valid setup (C2–C6, tightening, last contraction under 10%), liquid, not broken and not more than 5% past the trigger.
+
+These entries come earlier and with less confirmation than the course's Stage 2 rule, so treat them as a heads-up: many traders wait for the stock to reach Stage 2, or use a smaller first position. Set `earlyMinBigVol` in `CONFIG` to change the volume requirement.
+
+## My watchlist
+
+`watchlist.txt` in the repo root lists extra US stocks to scan on the **My watchlist** tab — for example stocks that aren't in any index (Tempus AI) or new listings (SpaceX). One per line, `TICKER, optional name`; `#` starts a comment. Edit it on GitHub (pencil icon → commit) and the next US run picks it up. New listings are shown as "not analysed yet" until they have about 220 trading days of history.
 
 ## Analyse a stock (or coin)
 

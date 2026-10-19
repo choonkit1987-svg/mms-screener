@@ -70,14 +70,14 @@ assert.equal(res.down.top[0].a.ticker, 'BEAR');
 console.log('stage counts', res.stageCounts, '| VCP score', res.up.top[0].s, '| BEAR score', res.down.top[0].s);
 // 6) lookup records: every ticker gets a direction and levels
 import { lookupTable } from '../src/engine.js';
-const rows = lookupTable([a, b, analyzeTicker({ ticker: 'FLAT' }, flat), { ticker: 'SHORT', skip: 'less than 220 daily bars' }]);
+const rows = lookupTable([a, b, analyzeTicker({ ticker: 'FLAT' }, flat), { ticker: 'SHORT', skip: 'only 100 daily bars of history' }]);
 const [ru, rd, rf, rs] = rows;
 assert.equal(ru.dir, 'up'); assert.equal(ru.side, 'long'); assert.match(ru.action, /Valid buy setup/);
 assert.ok(ru.lv.e > ru.close && ru.lv.s < ru.close && ru.lv.tg > ru.lv.e, 'long levels: stop < price < buy-stop < target');
 assert.equal(rd.dir, 'down'); assert.equal(rd.side, 'short'); assert.match(rd.action, /Valid short setup/);
 assert.ok(rd.lv.e < rd.close && rd.lv.s > rd.close && rd.lv.tg < rd.lv.e, 'short levels: target < sell-stop < price < stop');
 assert.equal(rf.dir, 'neutral'); assert.ok(['long', 'short'].includes(rf.side));
-assert.equal(rs.skip, 'less than 220 daily bars');
+assert.match(rs.skip, /daily bars/);
 assert.equal(ru.ch.c.length, 120); assert.equal(ru.ch.d[0], 0);
 assert.ok(JSON.stringify(ru).length < 4500, 'lookup record stays compact: ' + JSON.stringify(ru).length);
 console.log('lookup:', ru.t, ru.head, ru.lv, '|', rd.t, rd.head, rd.lv, '|', rf.t, rf.head, rf.action);
@@ -98,4 +98,18 @@ assert.equal(rn.universe[0].name, 'Malayan Banking Berhad (1155)');
 assert.deepEqual(Object.keys(rn.history).sort(), ['9999', 'KLCI', 'MAYBANK']);
 import { tidyNames } from '../src/run-china.js';
 assert.deepEqual(tidyNames([{ ticker: '601059', name: 'CINDA SECURITIES' }, { ticker: '600519', name: 'Kweichow Moutai' }], { 601059: { longName: 'Cinda Securities Co., Ltd.' } }).map(u => u.name), ['Cinda Securities Co., Ltd.', 'Kweichow Moutai']);
+// 8) early-turn agent: BBY on 24 Jun 2026 (Stage 1, valid C1/C2) must be flagged before it turns Stage 2 on 16 Jul
+import fs from 'node:fs';
+import { rankAll as rankAll2 } from '../src/engine.js';
+const bbyBars = JSON.parse(fs.readFileSync(new URL('./fixtures/bby-2026.json', import.meta.url))).BBY.map(([t, o, h, l, c, v]) => ({ t, o, h, l, c, v }));
+const upTo = d => bbyBars.filter(b => b.t <= d);
+const bby = analyzeTicker({ ticker: 'BBY' }, upTo('2026-06-24'));
+assert.equal(bby.stage, 1); assert.equal(bby.early?.side, 'long'); assert.ok(bby.leanS.setup.valid);
+assert.ok(Math.abs(bby.leanS.risk.entry - 77.85) < 0.05, 'BBY buy-stop ' + bby.leanS.risk.entry);
+const rk = rankAll2([bby]);
+assert.equal(rk.up.early.length, 1); assert.equal(rk.up.early[0].tier, 'early'); assert.equal(rk.up.top.length, 0);
+assert.equal(analyzeTicker({ ticker: 'BBY' }, upTo('2026-05-27')).early, undefined, 'no alert while still in Stage 4');
+// 9) watchlist parser
+import { parseWatchlist } from '../src/data.js';
+assert.deepEqual(parseWatchlist('# my list\nTEM, Tempus AI\n spcx \nTEM\n\nbrk.b ; Berkshire\n').map(u => [u.ticker, u.name]), [['TEM', 'Tempus AI'], ['SPCX', 'SPCX'], ['BRK.B', 'Berkshire']]);
 console.log('ALL TESTS PASSED');
