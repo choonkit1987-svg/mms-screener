@@ -28,10 +28,11 @@ jobs:
           node src/run-crypto.js
           node src/build.js
       - name: Commit results
+        if: always()
         run: |
           git config user.name  "mms-screener-bot"
           git config user.email "mms-screener-bot@users.noreply.github.com"
-          git add docs
+          git add docs data
           git diff --cached --quiet || git commit -m "Daily crypto scan $(date -u +%F)"
           git pull --rebase
           git push
