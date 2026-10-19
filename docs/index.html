@@ -127,6 +127,15 @@ details ul{margin:8px 0 0;padding-left:18px;font-size:13.5px;display:flex;flex-d
 .lkhead h2{font-size:22px}
 .lkhead small{color:var(--muted)}
 .lkform{display:flex;gap:8px;flex-wrap:wrap}
+.wlitems{display:flex;flex-wrap:wrap;gap:6px}
+.wlitem{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--rule);border-radius:999px;padding:3px 4px 3px 10px;font-size:13px;background:var(--bg)}
+.wlitem button{font:inherit;border:0;background:var(--soft);color:var(--muted);border-radius:999px;width:22px;height:22px;cursor:pointer;line-height:1}
+.wlitem button:hover{color:var(--down)}
+.wlmsg{font-size:13px;color:var(--muted);margin:0}
+.wlmsg.ok{color:var(--up)} .wlmsg.err{color:var(--down)}
+details.wltok summary{cursor:pointer;font-size:13px;color:var(--accent);font-weight:600}
+details.wltok ol{font-size:13px;margin:6px 0 8px;padding-left:18px}
+.btn2{font:inherit;font-weight:600;padding:9px 14px;border-radius:8px;border:1px solid var(--rule);background:var(--soft);color:var(--ink);cursor:pointer}
 .lkform input{flex:1 1 220px;min-width:0;font:inherit;font-size:16px;padding:9px 12px;border:1px solid var(--rule);border-radius:8px;background:var(--bg);color:var(--ink)}
 .lkform input:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
 .lkform button,.lkpick{font:inherit;font-weight:600;padding:9px 18px;border-radius:8px;border:0;background:var(--accent);color:var(--surface);cursor:pointer}
@@ -173,6 +182,28 @@ details ul{margin:8px 0 0;padding-left:18px;font-size:13.5px;display:flex;flex-d
       <button type="submit" id="lkgo">Analyse</button>
     </form>
     <div id="lkout" aria-live="polite"><p class="lkmsg" id="lkhint">The agents analyse every stock after each close. Pick one to see its trend direction, trade levels and why.</p></div>
+  </section>
+
+  <section class="lookup" id="wlpanel" aria-labelledby="wlh" hidden>
+    <div class="lkhead"><h2 id="wlh">Manage watchlist</h2><small id="wlmeta">US stocks only (any NYSE / Nasdaq ticker)</small></div>
+    <div class="wlitems" id="wlitems"></div>
+    <form class="lkform" id="wlform" autocomplete="off">
+      <input id="wlt" placeholder="Ticker, e.g. PLTR" spellcheck="false" autocapitalize="characters" style="flex:0 1 160px" aria-label="Ticker">
+      <input id="wln" placeholder="Name (optional)" aria-label="Company name">
+      <button type="submit">Add</button>
+    </form>
+    <p class="wlmsg" id="wlmsg"></p>
+    <details class="wltok"><summary id="wltoks">Add and remove straight from this page (connect GitHub once)</summary>
+      <ol>
+        <li>On GitHub open <b>Settings → Developer settings → Personal access tokens → Fine-grained tokens → Generate new token</b>.</li>
+        <li>Repository access: <b>Only select repositories</b> → this repository. Permissions: <b>Contents: Read and write</b> and <b>Actions: Read and write</b>.</li>
+        <li>Paste the token here. It is kept only in this browser and sent only to GitHub.</li>
+      </ol>
+      <form class="lkform" id="wltokform" autocomplete="off">
+        <input id="wltok" type="password" placeholder="github_pat_…" aria-label="GitHub token">
+        <button type="submit">Connect</button><button type="button" class="btn2" id="wlforget">Forget token</button>
+      </form>
+    </details>
   </section>
 
   <div class="cols">
@@ -383,11 +414,73 @@ async function showStatus(d){
     if(st&&st.ok===false&&(!d.generatedAt||st.at>d.generatedAt)){bar.innerHTML=`<b>The last update failed</b> (${esc(st.at.slice(0,16).replace('T',' '))} UTC): ${esc(st.message||'data source error')} The results below are from ${esc(d.asOf)}.`;bar.hidden=false;}
   }catch(e){}
 }
+// ---------- Manage watchlist (watchlist tab on the live site) ----------
+// GitHub Pages is static, so changes are saved to watchlist.txt in the repo through the GitHub API with the
+// owner's own token (kept in this browser only). Without a token, "Add" opens GitHub's editor instead.
+const GH=(()=>{const m=location.hostname.match(/^([^.]+)\.github\.io$/);const seg=location.pathname.split('/').filter(Boolean);return m&&seg.length?{owner:m[1],repo:seg[0]}:null})();
+const tokGet=()=>{try{return localStorage.getItem('mms_gh_token')||''}catch(e){return ''}};
+const tokSet=v=>{try{v?localStorage.setItem('mms_gh_token',v):localStorage.removeItem('mms_gh_token')}catch(e){}};
+async function gh(path,opt={}){const r=await fetch('https://api.github.com/repos/'+GH.owner+'/'+GH.repo+path,{...opt,headers:{Accept:'application/vnd.github+json',Authorization:'Bearer '+tokGet(),...(opt.headers||{})}});
+  if(!r.ok){const t=await r.text();throw new Error(r.status===401?'GitHub rejected the token (check it has not expired)':r.status===403||r.status===404?'the token cannot write to this repository (check its permissions)':`GitHub error ${r.status}: ${t.slice(0,120)}`)}return r.status===204?null:r.json()}
+const b64d=s=>new TextDecoder().decode(Uint8Array.from(atob(s.replace(/\n/g,'')),c=>c.charCodeAt(0)));
+const b64e=s=>btoa(String.fromCharCode(...new TextEncoder().encode(s)));
+function wlParse(text){return text.split(/\r?\n/).map(l=>l.replace(/#.*/,'').trim()).filter(Boolean).map(l=>{const [t,...n]=l.split(/[,;\t]/);return {t:t.trim().toUpperCase(),n:n.join(',').trim()}})}
+let WL=null,GHBR='main';
+async function wlLoad(){
+  if(tokGet()){const f=await gh('/contents/watchlist.txt');WL={sha:f.sha,text:b64d(f.content)};}
+  else{const r=await fetch('https://raw.githubusercontent.com/'+GH.owner+'/'+GH.repo+'/HEAD/watchlist.txt',{cache:'no-store'});WL={sha:null,text:r.ok?await r.text():''};}
+  wlRender();
+}
+function wlMsg(t,cls=''){const m=$('#wlmsg');m.className='wlmsg '+cls;m.innerHTML=t}
+function wlRender(){
+  const items=wlParse(WL?WL.text:'');const box=$('#wlitems');
+  box.innerHTML=items.length?items.map(x=>`<span class="wlitem"><b>${esc(x.t)}</b>${x.n&&x.n!==x.t?' '+esc(x.n):''}<button type="button" data-t="${esc(x.t)}" aria-label="Remove ${esc(x.t)}" title="Remove">×</button></span>`).join(''):'<span class="wlmsg">Your watchlist is empty.</span>';
+  box.querySelectorAll('button[data-t]').forEach(b=>b.addEventListener('click',()=>wlChange('remove',b.dataset.t)));
+  $('#wltoks').textContent=tokGet()?'Connected to GitHub — changes save straight away':'Add and remove straight from this page (connect GitHub once)';
+}
+async function wlChange(op,t,n=''){
+  t=(t||'').trim().toUpperCase().replace(/\s+/g,'');
+  if(op==='add'&&!/^[A-Z][A-Z0-9.\-]{0,9}$/.test(t)){wlMsg('Type a US ticker such as PLTR or BRK.B.','err');return}
+  const line=n?`${t}, ${n}`:t;
+  if(!tokGet()){ // no token: open GitHub's editor with the line ready to paste
+    if(op==='add'){try{await navigator.clipboard.writeText(line)}catch(e){}
+      window.open(`https://github.com/${GH.owner}/${GH.repo}/edit/${GHBR}/watchlist.txt`,'_blank','noopener');
+      wlMsg(`GitHub's editor opened in a new tab. Paste <b>${esc(line)}</b> on a new line (it is on your clipboard), then press <b>Commit changes</b>. The stock appears after the next US scan.`);}
+    else{window.open(`https://github.com/${GH.owner}/${GH.repo}/edit/${GHBR}/watchlist.txt`,'_blank','noopener');wlMsg(`GitHub's editor opened: delete the <b>${esc(t)}</b> line and press <b>Commit changes</b>.`);}
+    return;
+  }
+  try{
+    wlMsg('Saving…');await wlLoad();
+    const lines=WL.text.split(/\r?\n/);let out;
+    if(op==='add'){if(wlParse(WL.text).some(x=>x.t===t)){wlMsg(`${esc(t)} is already on your watchlist.`);return}
+      out=(WL.text.replace(/\s*$/,'')+'\n'+line+'\n');}
+    else out=lines.filter(l=>{const k=l.replace(/#.*/,'').split(/[,;\t]/)[0].trim().toUpperCase();return k!==t}).join('\n');
+    await gh('/contents/watchlist.txt',{method:'PUT',body:JSON.stringify({message:`watchlist: ${op} ${t}`,content:b64e(out),sha:WL.sha})});
+    await wlLoad();
+    wlMsg(`${op==='add'?'Added':'Removed'} <b>${esc(t)}</b>. It ${op==='add'?'appears':'disappears'} after the next US scan. <button type="button" class="btn2" id="wlrun">Run the scan now</button>`,'ok');
+    $('#wlrun').addEventListener('click',wlRun);
+  }catch(e){wlMsg('Could not save: '+esc(e.message)+'.','err')}
+}
+async function wlRun(){
+  try{await gh('/actions/workflows/daily-scan.yml/dispatches',{method:'POST',body:JSON.stringify({ref:GHBR})});
+    wlMsg('Scan started on GitHub. This page updates in about 5–10 minutes (reload then).','ok');
+  }catch(e){wlMsg('Could not start the scan: '+esc(e.message)+'. You can start it from the Actions tab.','err')}
+}
+function wlInit(d){
+  const p=$('#wlpanel');if(!p)return;
+  if(d.market!=='watch'||!NAV_BASE||!GH){p.hidden=true;return}
+  p.hidden=false;if(p.dataset.ready)return;p.dataset.ready=1;
+  $('#wlform').addEventListener('submit',e=>{e.preventDefault();wlChange('add',$('#wlt').value,$('#wln').value.trim()).then(()=>{$('#wlt').value='';$('#wln').value=''})});
+  $('#wltokform').addEventListener('submit',e=>{e.preventDefault();const v=$('#wltok').value.trim();if(!v)return;tokSet(v);$('#wltok').value='';wlLoad().then(()=>wlMsg('Connected to GitHub.','ok')).catch(err=>{tokSet('');wlRender();wlMsg('Could not connect: '+esc(err.message)+'.','err')})});
+  $('#wlforget').addEventListener('click',()=>{tokSet('');wlRender();wlMsg('Token removed from this browser.')});
+  fetch('https://api.github.com/repos/'+GH.owner+'/'+GH.repo).then(r=>r.ok?r.json():null).then(j=>{if(j&&j.default_branch)GHBR=j.default_branch}).catch(()=>{});
+  wlLoad().catch(e=>wlMsg('Could not read the watchlist: '+esc(e.message)+'.','err'));
+}
 let CUR=null;
 function render(d){
   CUR=d;
   site(d);
-  renderScorecard(d.scorecard);showStatus(d);
+  renderScorecard(d.scorecard);showStatus(d);wlInit(d);
   $('#asof').textContent=d.asOf;
   const sc=d.stageCounts,tot=[1,2,3,4].reduce((a,k)=>a+(sc[k]||0),0)||1;
   const cols={1:'var(--ma50)',2:'var(--up)',3:'var(--warn)',4:'var(--down)'};

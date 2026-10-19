@@ -102,6 +102,8 @@ These entries come earlier and with less confirmation than the course's Stage 2 
 
 ## My watchlist
 
+You can add and remove stocks on the **My watchlist** tab itself (Manage watchlist panel). Without a token the Add button opens GitHub's editor with the line on your clipboard; after connecting a fine-grained GitHub token (this repository only, Contents and Actions: Read and write — stored only in your browser) changes save straight away and a "Run the scan now" button starts the US scan. Visitors without your token cannot change anything.
+
 `watchlist.txt` in the repo root lists extra US stocks to scan on the **My watchlist** tab — for example stocks that aren't in any index (Tempus AI) or new listings (SpaceX). One per line, `TICKER, optional name`; `#` starts a comment. Edit it on GitHub (pencil icon → commit) and the next US run picks it up. New listings are shown as "not analysed yet" until they have about 220 trading days of history.
 
 ## Analyse a stock (or coin)
