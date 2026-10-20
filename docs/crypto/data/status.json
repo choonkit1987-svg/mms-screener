@@ -1,13 +1,13 @@
 {
- "at": "2026-10-19T07:59:57.686Z",
+ "at": "2026-10-20T07:50:15.049Z",
  "ok": true,
- "asOf": "2026-10-18",
+ "asOf": "2026-10-19",
  "message": "",
  "coverage": {
-  "share": 0.99,
-  "fresh": 99,
+  "share": 0.98,
+  "fresh": 98,
   "total": 100,
-  "newest": "2026-10-18"
+  "newest": "2026-10-19"
  },
  "sources": {
   "binance": {
