@@ -1,32 +1,32 @@
 {
- "at": "2026-10-20T07:50:15.049Z",
+ "at": "2026-10-21T07:53:58.209Z",
  "ok": true,
- "asOf": "2026-10-19",
+ "asOf": "2026-10-20",
  "message": "",
  "coverage": {
-  "share": 0.98,
-  "fresh": 98,
+  "share": 1,
+  "fresh": 100,
   "total": 100,
-  "newest": "2026-10-19"
+  "newest": "2026-10-20"
  },
  "sources": {
   "binance": {
-   "ok": 70,
-   "fail": 30,
+   "ok": 71,
+   "fail": 29,
    "off": false,
    "lastError": "HTTP 400"
   },
-  "yahoo": {
-   "ok": 23,
-   "fail": 1,
-   "off": false,
-   "lastError": "no data or blocked"
-  },
   "okx": {
    "ok": 9,
-   "fail": 21,
+   "fail": 20,
    "off": false,
    "lastError": "Instrument ID, Instrument ID code, or Spread ID doesn't exist."
+  },
+  "yahoo": {
+   "ok": 23,
+   "fail": 0,
+   "off": false,
+   "lastError": ""
   }
  }
 }
