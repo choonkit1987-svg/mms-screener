@@ -1,5 +1,5 @@
 {
- "at": "2026-10-23T02:38:12.615Z",
+ "at": "2026-10-23T07:49:06.027Z",
  "ok": true,
  "asOf": "2026-10-22",
  "message": "",
@@ -16,17 +16,17 @@
    "off": false,
    "lastError": "HTTP 400"
   },
-  "okx": {
-   "ok": 9,
-   "fail": 21,
-   "off": false,
-   "lastError": "Instrument ID, Instrument ID code, or Spread ID doesn't exist."
-  },
   "yahoo": {
    "ok": 23,
    "fail": 1,
    "off": false,
    "lastError": "no data or blocked"
+  },
+  "okx": {
+   "ok": 9,
+   "fail": 21,
+   "off": false,
+   "lastError": "Instrument ID, Instrument ID code, or Spread ID doesn't exist."
   }
  }
 }
