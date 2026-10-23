@@ -34,6 +34,11 @@ async function main() {
   log(`Ranking agent: ${report.upPassed} valid long setups, ${report.downPassed} valid short setups (as of ${report.asOf})`);
   writeOutputs(dataDir, report, lookup, history, check);
   for (const [label, arr] of [['UP', report.up], ['DOWN', report.down]]) log(`Top ${label}: ` + arr.map(p => `${p.ticker}(${p.score.total}${p.tier === 'watch' ? ',watch' : ''})`).join(' '));
+  // Agent Desk for coins (no financial reports, so the decoder step is skipped)
+  try {
+    const { runDesk } = await import('./desk/run-desk.js');
+    await runDesk({ market: 'crypto', universe, history, benchTicker: 'BTC', log });
+  } catch (e) { log('Agent Desk failed: ' + (e.stack || e.message)); }
 }
 
 main().catch(e => { console.error(e); process.exit(1); });

@@ -102,6 +102,14 @@ async function main() {
       log(`  Top ${side}: ` + arr.map(p => `${p.ticker}(${p.score.total}${p.tier === 'watch' ? ',watch' : ''})`).join(' '));
     }
   }
+
+  // Agent Desk: filter -> SEC report decoder -> 2-week technical call -> bull/bear -> risk -> portfolio manager.
+  // Runs after the MMS pages so it can show each name's MMS stage; a failure here never blocks the screener.
+  try {
+    const { runDesk } = await import('./desk/run-desk.js');
+    const deskUni = [...new Map([...universe, ...lists.nasdaq, ...lists.watch].map(u => [u.ticker, u])).values()];
+    await runDesk({ market: 'us', universe: deskUni, history, benchTicker: 'SPY', log });
+  } catch (e) { log('Agent Desk failed: ' + (e.stack || e.message)); }
 }
 
 // tickers with a scorecard entry still waiting for its buy-stop or still open

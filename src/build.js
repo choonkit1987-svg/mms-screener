@@ -28,4 +28,19 @@ for (const [dir, t, snap] of MARKETS) {
   const all = fs.existsSync(allFile) ? `<script type="application/json" id="embedded-all">${esc(allFile)}</script>\n` : '';
   fs.writeFileSync(path.join(root, `dist/${snap}-snapshot.html`), b.slice(0, b.indexOf('<script>')) + `<script type="application/json" id="embedded-data">${esc(latest)}</script>\n` + all + b.slice(b.indexOf('<script>')));
 }
-console.log('built docs/{,nasdaq/,dow/,bursa/,china/,watch/,crypto/}index.html and snapshots');
+// Agent Desk page (docs/agents/) + a single-file snapshot with both markets embedded
+{
+  const deskBody = fs.readFileSync(path.join(root, 'src/desk/dashboard.html'), 'utf8');
+  const [dt, drest] = [deskBody.slice(0, deskBody.indexOf('</title>') + 8), deskBody.slice(deskBody.indexOf('</title>') + 8)];
+  const dEnd = drest.indexOf('</style>') + 8;
+  const out = path.join(root, 'docs/agents');
+  fs.mkdirSync(out, { recursive: true });
+  fs.writeFileSync(path.join(out, 'index.html'), `${head}${dt}${drest.slice(0, dEnd)}</head><body>${drest.slice(dEnd)}</body></html>\n`);
+  const emb = ['us', 'crypto'].map(m => path.join(out, `data/${m}.json`)).filter(f => fs.existsSync(f))
+    .map(f => `<script type="application/json" id="embedded-${path.basename(f, '.json')}">${fs.readFileSync(f, 'utf8').replace(/</g, '\\u003c')}</script>\n`).join('');
+  if (emb) {
+    fs.mkdirSync(path.join(root, 'dist'), { recursive: true });
+    fs.writeFileSync(path.join(root, 'dist/agents-snapshot.html'), deskBody.slice(0, deskBody.indexOf('<script>')) + emb + deskBody.slice(deskBody.indexOf('<script>')));
+  }
+}
+console.log('built docs/{,nasdaq/,dow/,bursa/,china/,watch/,crypto/,agents/}index.html and snapshots');

@@ -1,0 +1,438 @@
+<title>Agent Desk</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+:root{
+  --bg:#F2F4F1;--surface:#FFFFFF;--ink:#15201C;--muted:#5D6A64;--rule:#D6DDD8;--soft:#E8EDE9;
+  --accent:#0E6B66;--accent-soft:#D5EAE7;--up:#1E7F46;--up-soft:#DDF0E3;--down:#B8322A;--down-soft:#F6DEDB;--warn:#9A6A12;--warn-soft:#F4E9CF;
+  --display:"IBM Plex Sans Condensed","Arial Narrow",Arial,sans-serif;--body:"IBM Plex Sans",-apple-system,"Segoe UI",Roboto,sans-serif;--mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#0D1311;--surface:#141C19;--ink:#E2E9E5;--muted:#93A19A;--rule:#26322D;--soft:#1B2521;--accent:#4FC2B8;--accent-soft:#16332F;--up:#4CC47E;--up-soft:#143020;--down:#F0766C;--down-soft:#3A1917;--warn:#E0B458;--warn-soft:#352A12;}}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#0D1311;--surface:#141C19;--ink:#E2E9E5;--muted:#93A19A;--rule:#26322D;--soft:#1B2521;--accent:#4FC2B8;--accent-soft:#16332F;--up:#4CC47E;--up-soft:#143020;--down:#F0766C;--down-soft:#3A1917;--warn:#E0B458;--warn-soft:#352A12;}
+*{box-sizing:border-box}[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font:15px/1.5 var(--body);margin:0}
+.wrap{max-width:1320px;margin:0 auto;padding:24px 20px 56px;display:flex;flex-direction:column;gap:22px}
+h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance}
+.mono,.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.label{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);font-weight:600}
+a{color:var(--accent)}
+.top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px 24px;border-bottom:2px solid var(--ink);padding-bottom:14px}
+.top h1{font-size:34px;font-weight:700;line-height:1}.top h1 span{color:var(--accent)}
+.top p{margin:6px 0 0;color:var(--muted);max-width:70ch}
+.nav{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px}
+.nav a,.nav button{font:inherit;font-size:13px;font-weight:600;text-decoration:none;padding:4px 12px;border-radius:999px;border:1px solid var(--rule);color:var(--muted);background:none;cursor:pointer}
+.nav [aria-current=page]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.asof .date{font-family:var(--mono);font-size:22px}
+.pipe{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:12.5px;color:var(--muted)}
+.pipe b{font-weight:600;color:var(--ink);background:var(--surface);border:1px solid var(--rule);border-radius:999px;padding:2px 10px}
+.panel{background:var(--surface);border:1px solid var(--rule);border-radius:10px;padding:16px 18px;display:flex;flex-direction:column;gap:12px}
+.phead{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
+.phead h2{font-size:22px}.phead small{color:var(--muted)}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:8px}
+.tiles>div{border:1px solid var(--rule);border-radius:8px;padding:10px 14px;display:flex;flex-direction:column;gap:3px;background:var(--bg)}
+.tiles .v{font-family:var(--mono);font-size:20px}
+.note{font-size:13px;color:var(--muted);margin:0}
+.warnbox{border:1px solid var(--warn);background:var(--warn-soft);border-radius:8px;padding:10px 14px;font-size:13.5px}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:22px;align-items:start}
+@media (max-width:980px){.cols{grid-template-columns:1fr}}
+.colhead{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap;padding-bottom:6px;border-bottom:1px solid var(--rule);margin-bottom:8px}
+.colhead h2{font-size:22px}.colhead.up h2{color:var(--up)}.colhead.down h2{color:var(--down)}.colhead small{color:var(--muted)}
+.list{display:flex;flex-direction:column;gap:6px}
+.row{display:grid;grid-template-columns:24px minmax(0,1fr) 92px auto;gap:4px 12px;align-items:center;background:var(--surface);border:1px solid var(--rule);border-radius:8px;padding:8px 12px;cursor:pointer;text-align:left;font:inherit;color:inherit;width:100%}
+.row:hover{border-color:var(--accent)}
+.row .rk{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.row .tk{font-family:var(--display);font-weight:700;font-size:19px;line-height:1.1}
+.row .nm{display:block;font-size:12.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .pp{text-align:right}.row .pp .n{font-family:var(--mono);font-size:19px}
+.spark{width:92px;height:30px;display:block}
+.chips{display:flex;gap:5px;flex-wrap:wrap}
+.chip{font-size:11.5px;font-weight:600;padding:2px 8px;border-radius:999px;background:var(--soft);color:var(--muted);white-space:nowrap}
+.r-Buy,.c-up,.g-A,.l-Low{background:var(--up-soft);color:var(--up)}
+.r-Overweight,.g-B{background:var(--accent-soft);color:var(--accent)}
+.r-Hold,.c-none,.g-C,.l-Medium{background:var(--warn-soft);color:var(--warn)}
+.r-Underweight,.r-Sell,.c-down,.g-D,.g-F,.l-High{background:var(--down-soft);color:var(--down)}
+.up-t{color:var(--up)}.down-t{color:var(--down)}.warn-t{color:var(--warn)}
+/* search + detail */
+.form{display:flex;gap:8px;flex-wrap:wrap}
+.form input,.form select{font:inherit;font-size:15px;padding:8px 11px;border:1px solid var(--rule);border-radius:8px;background:var(--bg);color:var(--ink)}
+.form input{flex:1 1 200px;min-width:0}
+button.btn{font:inherit;font-weight:600;padding:8px 16px;border-radius:8px;border:0;background:var(--accent);color:var(--surface);cursor:pointer}
+button.btn2{font:inherit;font-weight:600;padding:7px 13px;border-radius:8px;border:1px solid var(--rule);background:var(--soft);color:var(--ink);cursor:pointer}
+button:disabled{opacity:.55;cursor:default}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.dhead{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:flex-end}
+.dhead .tk{font-family:var(--display);font-size:34px;font-weight:700;line-height:1}
+.dhead .nm{color:var(--muted)}
+.verdict{border-radius:8px;padding:12px 14px;border-left:4px solid var(--warn);background:var(--warn-soft);display:flex;flex-direction:column;gap:4px}
+.verdict.up{border-color:var(--up);background:var(--up-soft)}.verdict.down{border-color:var(--down);background:var(--down-soft)}
+.verdict .big{font-family:var(--display);font-size:26px;font-weight:700;line-height:1.1}
+.verdict p{margin:0;font-size:14px}
+.agents{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:12px}
+.agent{border:1px solid var(--rule);border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;background:var(--bg)}
+.agent h3{font-size:17px;display:flex;gap:8px;align-items:baseline}
+.agent h3 i{font-style:normal;font-family:var(--mono);font-size:12px;color:var(--muted)}
+.agent ul{margin:0;padding-left:18px;font-size:13.5px;display:flex;flex-direction:column;gap:4px}
+.agent p{margin:0;font-size:13.5px}
+.kv{display:flex;flex-wrap:wrap;gap:1px;background:var(--rule);border:1px solid var(--rule);border-radius:6px;overflow:hidden}
+.kv>div{flex:1 1 110px;background:var(--surface);padding:6px 10px}.kv .v{font-family:var(--mono);font-size:14.5px;white-space:nowrap}
+.meter{height:6px;background:var(--soft);border-radius:3px;overflow:hidden}.meter i{display:block;height:100%}
+.views{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+@media (max-width:520px){.views{grid-template-columns:1fr}}
+.views div{border:1px solid var(--rule);border-radius:6px;padding:6px 9px;font-size:12.5px;background:var(--surface)}
+.views b{display:block;font-size:12px;text-transform:uppercase;letter-spacing:.06em}
+/* table */
+.tablewrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px;min-width:860px}
+th{text-align:left;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600;padding:6px 8px;border-bottom:1px solid var(--rule);cursor:pointer;white-space:nowrap;user-select:none}
+td{padding:6px 8px;border-bottom:1px solid var(--rule);font-variant-numeric:tabular-nums}
+td.num{font-family:var(--mono);text-align:right}
+tbody tr{cursor:pointer}tbody tr:hover{background:var(--soft)}
+/* chat */
+.chat{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:900px){.chat{grid-template-columns:1fr}}
+.msgs{display:flex;flex-direction:column;gap:10px;max-height:620px;overflow-y:auto;padding-right:4px}
+.msg{border-radius:10px;padding:10px 14px;font-size:14.5px;max-width:100%;overflow-x:auto}
+.msg.user{background:var(--accent-soft);align-self:flex-end;max-width:85%}
+.msg.ai{background:var(--bg);border:1px solid var(--rule)}
+.msg.ai h1,.msg.ai h2,.msg.ai h3,.msg.ai h4{font-size:16px;margin:10px 0 4px}
+.msg.ai p{margin:6px 0}.msg.ai ul,.msg.ai ol{margin:6px 0;padding-left:20px}
+.msg.ai table{min-width:0;font-size:12.5px;margin:6px 0}.msg.ai td,.msg.ai th{border:1px solid var(--rule);cursor:default}
+.msg .who{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:2px}
+.msg.err{background:var(--down-soft);color:var(--ink)}
+textarea{font:inherit;font-size:15px;width:100%;min-height:76px;padding:9px 12px;border:1px solid var(--rule);border-radius:8px;background:var(--bg);color:var(--ink);resize:vertical}
+.prompts{display:flex;flex-direction:column;gap:10px}
+.prompts h3{font-size:15px;margin-top:4px}
+.pbtn{display:block;width:100%;text-align:left;font:inherit;font-size:13.5px;padding:7px 10px;border:1px solid var(--rule);border-radius:8px;background:var(--bg);color:var(--ink);cursor:pointer}
+.pbtn:hover{border-color:var(--accent)}
+.keyrow{display:flex;gap:8px;flex-wrap:wrap;align-items:center;font-size:13px}
+.keyrow input{flex:1 1 220px;font:inherit;font-family:var(--mono);font-size:13px;padding:7px 10px;border:1px solid var(--rule);border-radius:8px;background:var(--bg);color:var(--ink)}
+.debate{display:flex;flex-direction:column;gap:10px}
+.foot{color:var(--muted);font-size:12.5px;max-width:95ch}
+.empty{padding:22px;border:1px dashed var(--rule);border-radius:10px;color:var(--muted)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div>
+      <nav class="nav" id="nav"><a id="back" href="../">← MMS screener</a><button data-m="us">US stocks</button><button data-m="crypto">Crypto</button></nav>
+      <h1>Agent <span>Desk</span></h1>
+      <p id="sub">Six agents read every stock and coin each day and make a 2-week call: which names are likely to trend up (beat the market) or down (lag it) over the next 2 weeks?</p>
+    </div>
+    <div class="asof"><span class="label">Prices as of</span><div class="date" id="asof">—</div></div>
+  </header>
+
+  <div class="pipe" aria-label="Agent pipeline"><b>1 Filter</b>→<b>2 Financial-report decoder</b>→<b>3 Technical (2-week call)</b>→<b>4 Bull vs Bear</b>→<b>5 Risk team</b>→<b>6 Portfolio manager</b>→<b>Ask the agents (AI)</b></div>
+
+  <div id="status" class="warnbox" hidden></div>
+
+  <section class="panel" id="trust">
+    <div class="phead"><h2>How often was the 2-week call right?</h2><small id="trustsub"></small></div>
+    <div class="tiles" id="trusttiles"></div>
+    <p class="note" id="trustnote"></p>
+  </section>
+
+  <section class="cols">
+    <div><div class="colhead up"><h2>Uptrend calls: likely to beat the market</h2><small id="upn"></small></div><div class="list" id="uplist"></div></div>
+    <div><div class="colhead down"><h2>Downtrend calls: likely to lag or fall</h2><small id="downn"></small></div><div class="list" id="downlist"></div></div>
+  </section>
+
+  <section class="panel" id="lookup">
+    <div class="phead"><h2>Look up any name</h2><small id="lksub"></small></div>
+    <form class="form" id="lkform" autocomplete="off"><input id="lkq" list="tickers" placeholder="Ticker or company, e.g. NVDA" aria-label="Ticker or company"><datalist id="tickers"></datalist><button class="btn">Show agents</button></form>
+    <div id="detail"></div>
+  </section>
+
+  <section class="panel" id="screen">
+    <div class="phead"><h2>Screener</h2><small id="scsub"></small></div>
+    <div class="form" id="scfilters">
+      <select id="f-call" aria-label="2-week call"><option value="">Any 2-week call</option><option>Uptrend</option><option>Downtrend</option><option>No clear trend</option></select>
+      <select id="f-rating" aria-label="Rating"><option value="">Any rating</option><option>Buy</option><option>Overweight</option><option>Hold</option><option>Underweight</option><option>Sell</option></select>
+      <select id="f-grade" aria-label="Fundamentals"><option value="">Any fundamentals</option><option value="AB">Grade A or B</option><option value="ABC">C or better</option><option value="DF">D or F</option></select>
+      <select id="f-risk" aria-label="Risk"><option value="">Any risk</option><option value="Low">Low risk</option><option value="LowMedium">Low or medium</option><option value="High">High risk</option></select>
+      <select id="f-sector" aria-label="Sector"><option value="">Any sector</option></select>
+      <label class="note" style="display:flex;gap:6px;align-items:center"><input type="checkbox" id="f-passed" checked> Passed filter only</label>
+    </div>
+    <div class="tablewrap"><table><thead><tr id="schead"></tr></thead><tbody id="scbody"></tbody></table></div>
+    <p class="note" id="scnote"></p>
+  </section>
+
+  <section class="panel" id="ask">
+    <div class="phead"><h2>Ask the agents</h2><small>AI answers built only on the agents' data above</small></div>
+    <div class="chat">
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div class="keyrow">
+          <label for="apikey" class="label">Anthropic API key</label>
+          <input id="apikey" type="password" placeholder="sk-ant-… (stays in this browser)" autocomplete="off">
+          <select id="model" aria-label="Model"><option value="claude-sonnet-5-5">Sonnet 5.5 (balanced)</option><option value="claude-haiku-5-5">Haiku 5.5 (cheapest)</option><option value="claude-opus-5-5">Opus 5.5 (deepest)</option></select>
+          <button class="btn2" id="savekey" type="button">Save</button>
+        </div>
+        <p class="note" id="keynote">Your key is stored only in this browser (localStorage) and sent only to api.anthropic.com. Each question sends roughly 10–15k tokens of agent data (more as a conversation grows); you can watch the cost at console.anthropic.com.</p>
+        <div class="msgs" id="msgs"><div class="empty">Pick a suggested prompt on the right, or type a question. Name tickers (e.g. NVDA, BTC) so the agents' full reports are attached.</div></div>
+        <textarea id="q" placeholder="e.g. Which 3 Buy-rated stocks with Low risk have the best fundamentals?"></textarea>
+        <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" id="send" type="button">Ask</button><button class="btn2" id="clear" type="button">New conversation</button></div>
+      </div>
+      <aside class="prompts" id="prompts"></aside>
+    </div>
+  </section>
+
+  <section class="panel" id="model-panel">
+    <div class="phead"><h2>What the 2-week model looks at</h2><small id="mdsub"></small></div>
+    <p class="note">Weights learned from history. Positive = pushes the call towards "rise", negative = towards "fall". Re-trained every Sunday.</p>
+    <div id="weights"></div>
+  </section>
+
+  <p class="foot">Agent Desk is a research tool, not financial advice. Its calls are probabilities learned from past prices and SEC filings; the test results above show how often they were right before, which does not guarantee the future. Fundamentals come from companies' 10-Q/10-K filings at data.sec.gov (Q4 is derived from the annual report); the next-report date is estimated as about 3 months after the last filing. Crypto has no financial reports, so coins are judged on price action and risk only.</p>
+</div>
+
+<script>
+const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const pct=(x,d=1)=>x==null||!isFinite(x)?'n/a':(x>=0?'+':'')+(x*100).toFixed(d)+'%';
+const pc=(x,d=0)=>x==null||!isFinite(x)?'n/a':(x*100).toFixed(d)+'%';
+const fp=x=>x==null?'n/a':x>=100?x.toFixed(2):x>=1?x.toFixed(3):(+x).toPrecision(4);
+const money=x=>{if(x==null)return'n/a';const a=Math.abs(x),s=x<0?'-':'';return a>=1e9?`${s}$${(a/1e9).toFixed(1)}B`:a>=1e6?`${s}$${(a/1e6).toFixed(0)}M`:`${s}$${a.toFixed(0)}`};
+const store={get:k=>{try{return localStorage.getItem(k)}catch(e){return null}},set:(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}}};
+const S={market:(location.hash.match(/m=(us|crypto)/)||[])[1]||store.get('desk-market')||'us',data:{},cur:null,sort:{k:'p',dir:-1},chat:[]};
+const callCls=c=>c==='Uptrend'?'c-up':c==='Downtrend'?'c-down':'c-none';
+const unit=()=>S.market==='us'?'stock':'coin';
+
+function spark(arr,up){if(!arr||arr.length<2)return'';const mn=Math.min(...arr),mx=Math.max(...arr),w=92,h=30;
+  const pts=arr.map((v,i)=>`${(i/(arr.length-1)*w).toFixed(1)},${(h-2-(v-mn)/((mx-mn)||1)*(h-4)).toFixed(1)}`).join(' ');
+  return `<svg class="spark" viewBox="0 0 ${w} ${h}" aria-hidden="true"><polyline fill="none" stroke="var(--${up?'up':'down'})" stroke-width="1.6" points="${pts}"/></svg>`}
+
+async function load(m){
+  if(S.data[m])return S.data[m];
+  const emb=document.getElementById('embedded-'+m);
+  const d=emb?JSON.parse(emb.textContent):await fetch(`data/${m}.json`,{cache:'no-cache'}).then(r=>{if(!r.ok)throw new Error(r.status);return r.json()});
+  d.by=new Map(d.rows.map(r=>[r.t,r]));return S.data[m]=d;
+}
+async function show(m){
+  S.market=m;store.set('desk-market',m);history.replaceState(null,'','#m='+m+(S.cur?'&t='+encodeURIComponent(S.cur):''));
+  document.querySelectorAll('#nav [data-m]').forEach(b=>b.toggleAttribute('aria-current',b.dataset.m===m));
+  let d;try{d=await load(m)}catch(e){$('#status').hidden=false;$('#status').innerHTML=`<b>No ${m==='us'?'stock':'crypto'} results yet.</b> They appear after the next scheduled scan (stocks Mon–Fri 6:30 am, crypto daily 10:30 am Malaysia time), or run the workflow from the GitHub Actions tab.`;return}
+  $('#status').hidden=true;
+  $('#asof').textContent=d.asOf;
+  $('#sub').textContent=`Six agents read ${d.rank.total} ${m==='us'?'US stocks (S&P 500, Nasdaq-100 and your watchlist)':'top coins'} and make a 2-week call (${d.horizonLabel}): which are likely to trend up (beat the average ${unit()}) or down (lag it)?`;
+  trust(d);lists(d);fillLookup(d);screen(d);weights(d);prompts(d);
+  const t=(location.hash.match(/t=([^&]+)/)||[])[1];detail(t&&d.by.has(decodeURIComponent(t))?decodeURIComponent(t):d.rank.up[0]||d.rows[0]?.t,false);
+}
+
+function trust(d){
+  const t=d.model.test||{},F=d.model.folds||[t],A=d.model.abs?.test,prov=d.model.provisional,u=unit();
+  const rng=(k,f=x=>pc(x,1))=>{const v=F.map(x=>x[k]).filter(x=>x!=null);return v.length?(v.length>1?`${f(Math.min(...v))} – ${f(Math.max(...v))}`:f(v[0])):'n/a'};
+  $('#trustsub').textContent=`${F.length} test period${F.length>1?'s':''} the model never trained on, ${F[0]?.from} → ${t.to}`;
+  $('#trusttiles').innerHTML=[
+    ['Uptrend calls beat the average '+u,rng('upCallHit'),`coin flip = 50% · ${F.reduce((a,x)=>a+(x.upCalls||0),0).toLocaleString()} past calls`],
+    ['Downtrend calls lagged the average '+u,rng('downCallHit'),`${F.reduce((a,x)=>a+(x.downCalls||0),0).toLocaleString()} past calls`],
+    ['Top 10% ranked vs average',rng('topDecileEx',x=>pct(x,2)),`their 2-week return minus the average ${u}'s`],
+    ['Bottom 10% ranked vs average',rng('bottomDecileEx',x=>pct(x,2)),'negative = lagged, as called'],
+    ['Plain "price higher?" model',A?pc(A.accuracyAll,1)+' right':'n/a',A?`vs ${pc(Math.max(A.baseUp,1-A.baseUp),1)} for always guessing "${A.baseUp>=.5?'up':'down'}"`:''],
+  ].map(([l,v,s])=>`<div><span class="label">${l}</span><span class="v">${v}</span><span class="note">${s}</span></div>`).join('');
+  const wins=F.filter(x=>x.upCallHit>0.5&&(x.topDecileEx??0)>(x.bottomDecileEx??0)).length,weak=wins/F.length<0.5;
+  let msg=`Ranges show the worst and best of the test periods. Trained on ${(d.model.trainedOn||0).toLocaleString()} past ${u}-days (${d.model.from} → ${d.model.to}), re-trained ${String(d.model.trainedAt||'').slice(0,10)}. `;
+  if(prov)msg+='This is a provisional model trained on short history; the Sunday job replaces it with a 5-year model. ';
+  msg+=weak?`The ranking held up in only ${wins} of ${F.length} test periods, so treat these ${u} calls as unreliable: the portfolio manager has cut their conviction (most ratings stay at Hold). Use the risk team's levels and volatility figures, not the direction call.`
+    :`The ranking held up in ${wins} of ${F.length} test period${F.length>1?'s':''}. That is a modest statistical edge in picking which ${u}s do better than others, not a forecast of the whole market's direction — the second number on each ${u} ("chance its price is higher") is closer to a coin flip. Size positions small and always use the stop.`;
+  if(d.model.source)msg+=' Data: '+d.model.source+'.';
+  $('#trustnote').textContent=msg;
+  $('#trust').style.borderColor=weak?'var(--warn)':'';
+}
+
+function rowBtn(r,i,side){const up=side==='up';return `<button class="row" data-t="${esc(r.t)}"><span class="rk">${i+1}</span><span><span class="tk">${esc(r.t)}</span><span class="nm">${esc(r.n||'')}</span><span class="chips" style="margin-top:3px"><span class="chip r-${r.pm.rating}">${r.pm.rating}</span><span class="chip l-${r.risk.level}">${r.risk.level} risk</span>${r.fund?.ok?`<span class="chip g-${r.fund.grade}">Fund. ${r.fund.grade}</span>`:''}${r.risk.eventRisk?'<span class="chip c-none">Earnings soon</span>':''}</span></span>${spark(r.spark,up)}<span class="pp"><span class="n ${up?'up-t':'down-t'}">${Math.round((up?r.tech.p:1-r.tech.p)*100)}%</span><span class="label" style="display:block">${up?'beats':'lags'} avg</span>${r.tech.pAbs!=null?`<span class="note" style="display:block;font-size:11.5px">${Math.round(r.tech.pAbs*100)}% price up</span>`:''}</span></button>`}
+function lists(d){
+  for(const side of['up','down']){const arr=d.rank[side].map(t=>d.by.get(t));
+    $(`#${side}list`).innerHTML=arr.length?arr.map((r,i)=>rowBtn(r,i,side)).join(''):`<div class="empty">No ${side==='up'?'uptrend':'downtrend'} calls passed the filter today.</div>`;
+    $(`#${side}n`).textContent=`top ${arr.length} of ${d.rank.calls[side]} ${side==='up'?'uptrend':'downtrend'} calls`;}
+}
+
+function fillLookup(d){$('#tickers').innerHTML=d.rows.map(r=>`<option value="${esc(r.t)}">${esc(r.n||'')}</option>`).join('');$('#lksub').textContent=`${d.rows.length} names`;}
+function find(q){const d=S.data[S.market];q=q.trim();if(!q)return null;const u=q.toUpperCase().replace(/^\$/,'');if(d.by.has(u))return u;const hit=d.rows.find(r=>(r.n||'').toLowerCase().includes(q.toLowerCase()));return hit?.t||null}
+
+function detail(t,scroll=true){
+  const d=S.data[S.market],r=d.by.get(t),el=$('#detail');if(!r){el.innerHTML='';return}
+  S.cur=t;history.replaceState(null,'','#m='+S.market+'&t='+encodeURIComponent(t));
+  if(r.skip){el.innerHTML=`<div class="empty"><b>${esc(t)}</b>: ${esc(r.skip)}.</div>`;return}
+  const T=r.tech,R=r.risk,F=r.fund,B=r.research,P=r.pm,dir=T.call==='Uptrend'?'up':T.call==='Downtrend'?'down':'';
+  const plan=R.plan;
+  el.innerHTML=`
+  <div class="dhead"><div><div class="tk">${esc(r.t)}</div><div class="nm">${esc(r.n||'')}${r.sec?' · '+esc(r.sec):''}</div></div>
+    <div class="mono" style="text-align:right"><div style="font-size:24px">${fp(r.close)}</div><div class="note">1 week ${pct(r.chg5)} · 1 month ${pct(r.chg21)} · ${esc(r.asOf)}</div></div></div>
+  <div class="verdict ${dir}"><span class="label">6 · Portfolio manager</span><span class="big">${P.rating}</span><p>${esc(P.why)}</p><p><b>${esc(P.action)}</b></p></div>
+  <div class="agents">
+    <div class="agent"><h3><i>1</i>Filter</h3>${r.filter.passed?`<p class="up-t">Passed: liquid enough (${money(r.filter.dollarVol)} traded a day) with enough history.</p>`:`<p class="down-t">Did not pass:</p><ul>${r.filter.reasons.map(x=>`<li>${esc(x)}</li>`).join('')}</ul><p class="note">Shown for reference only; it is left out of the top lists.</p>`}</div>
+    <div class="agent"><h3><i>2</i>Financial-report decoder</h3>${!F?`<p class="note">Crypto has no financial reports, so this agent is skipped. The other agents judge the coin on price action and risk.</p>`:!F.ok?`<p class="note">${esc(F.note||'No report data.')}</p>`:`
+      <p><span class="chip g-${F.grade}">Grade ${F.grade}</span> <b>${F.score}/100</b> · latest quarter ended ${esc(F.periodEnd||'n/a')}${F.filing?` · ${esc(F.filing.lastForm)} filed ${esc(F.filing.lastFiled)}`:''}</p>
+      ${F.lagging?`<p class="note warn-t">The SEC has not yet published the figures from the report for the period ending ${esc(F.filing.reportDate)} in machine-readable form, so these numbers are one quarter older.</p>`:''}
+      <div class="kv"><div><span class="label">Sales (12 mo)</span><div class="v">${money(F.m.revenueTTM)}</div></div><div><span class="label">Sales growth</span><div class="v">${pct(F.m.revenueGrowth)}</div></div><div><span class="label">Net margin</span><div class="v">${pc(F.m.netMargin,1)}</div></div><div><span class="label">EPS growth</span><div class="v">${pct(F.m.epsGrowth)}</div></div><div><span class="label">Free cash flow</span><div class="v">${money(F.m.fcfTTM)}</div></div><div><span class="label">Debt / equity</span><div class="v">${F.m.debtToEquity==null?'n/a':F.m.debtToEquity.toFixed(2)}</div></div></div>
+      <ul>${F.checks.map(c=>`<li class="${c.score>=.6?'':c.score<=.35?'down-t':'warn-t'}">${esc(c.text)}</li>`).join('')}</ul>`}</div>
+    <div class="agent"><h3><i>3</i>Technical · 2-week call</h3>
+      <p><span class="chip ${callCls(T.call)}">${T.call}</span> <b class="mono">${Math.round(T.p*100)}%</b> chance to beat the average ${unit()} over ${d.horizonLabel}${T.pAbs!=null?`; <b class="mono">${Math.round(T.pAbs*100)}%</b> chance its price is higher`:''}. Typical 2-week range ${fp(T.low)} – ${fp(T.high)} (±${pc(T.move,1)}).</p>
+      <div class="meter" aria-hidden="true"><i style="width:${Math.round(T.p*100)}%;background:var(--${T.p>=.5?'up':'down'})"></i></div>
+      <ul>${T.readings.map(([n,dd,txt])=>`<li><b>${n}:</b> ${esc(txt)}</li>`).join('')}</ul>
+      <p class="note">Biggest drivers today: ${T.drivers.map(x=>`${esc(x.label)} (${x.dir==='up'?'↑':'↓'})`).join(', ')}.</p>
+      ${r.mms?`<p class="note">MMS screener: ${esc(r.mms.head||'')} — ${esc(r.mms.status||'')}${r.mms.valid?' (valid setup)':''}.</p>`:''}</div>
+    <div class="agent"><h3><i>4</i>Bull vs Bear researchers</h3>
+      <p><b>${esc(B.verdict)}</b> (evidence weight: bull ${(+B.bullWeight).toFixed(1)} vs bear ${(+B.bearWeight).toFixed(1)})</p>
+      <div><span class="label up-t">Bull case</span><ul>${B.bull.map(x=>`<li>${esc(x.text)}</li>`).join('')||'<li>None found.</li>'}</ul></div>
+      <div><span class="label down-t">Bear case</span><ul>${B.bear.map(x=>`<li>${esc(x.text)}</li>`).join('')||'<li>None found.</li>'}</ul></div></div>
+    <div class="agent"><h3><i>5</i>Risk team</h3>
+      <p><span class="chip l-${R.level}">${R.level} risk</span> <b>${R.score}/100</b></p>
+      <div class="kv"><div><span class="label">Volatility / yr</span><div class="v">${pc(R.annVol)}</div></div><div><span class="label">Worst drop (1 yr)</span><div class="v">${pct(R.maxDD,0)}</div></div><div><span class="label">Beta vs ${S.market==='us'?'SPY':'BTC'}</span><div class="v">${R.beta==null?'n/a':R.beta.toFixed(2)}</div></div><div><span class="label">Next report (est.)</span><div class="v">${R.nextReport?esc(R.nextReport):'n/a'}</div></div></div>
+      ${R.flags.length?`<ul>${R.flags.map(x=>`<li class="warn-t">${esc(x)}</li>`).join('')}</ul>`:'<p class="note">No special risk flags.</p>'}
+      ${plan?`<div class="kv"><div><span class="label">${plan.side==='long'?'Buy at':'Short at'}</span><div class="v">${fp(plan.entry)}</div></div><div><span class="label">Stop</span><div class="v down-t">${fp(plan.stop)}</div></div><div><span class="label">Target (1:2)</span><div class="v up-t">${fp(plan.target)}</div></div><div><span class="label">Breakeven at</span><div class="v">${fp(plan.breakeven)}</div></div></div>
+      <p class="note">${esc(plan.source)}; stop is ${pc(plan.stopPct,1)} away.${plan.triggered?' MMS status: '+esc(plan.triggered)+'.':''}</p>
+      <div class="views">${['aggressive','neutral','conservative'].map(w=>{const v=plan.views[w];return `<div><b class="${v.take?'up-t':'warn-t'}">${w}</b>${esc(v.why)}</div>`}).join('')}</div>`:'<p class="note">No trade plan: the 2-week call is not clear enough.</p>'}</div>
+  </div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn2" type="button" id="askthis">Ask the AI about ${esc(r.t)}</button><button class="btn2" type="button" id="debatebtn">Run AI debate on ${esc(r.t)} (≈7 calls)</button></div>
+  <div class="debate" id="debate"></div>`;
+  $('#askthis').onclick=()=>{$('#q').value=`Explain the agents' view on ${r.t} in plain English: the 2-week call, what the financial reports say, the main risks, and the exact plan for my risk profile.`;$('#ask').scrollIntoView({behavior:'smooth'});$('#q').focus()};
+  $('#debatebtn').onclick=()=>runDebate(r);
+  prompts(d); // suggested prompts follow the name that is open
+  if(scroll)el.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+const COLS=[['t','Ticker'],['n','Name'],['call','2-wk call'],['p','Beats avg'],['pa','Price up'],['rating','Rating'],['grade','Fund.'],['risk','Risk'],['chg21','1 month'],['vol','Vol / yr'],['mms','MMS stage']];
+const val=(r,k)=>({t:r.t,n:r.n||'',call:r.tech?.call||'',p:r.tech?.p??-1,pa:r.tech?.pAbs??-1,rating:['Sell','Underweight','Hold','Overweight','Buy'].indexOf(r.pm?.rating),grade:r.fund?.ok?r.fund.score:-1,risk:r.risk?.score??999,chg21:r.chg21??-9,vol:r.risk?.annVol??9,mms:r.mms?.st??0})[k];
+function screen(d){
+  const secs=[...new Set(d.rows.map(r=>r.sec).filter(Boolean))].sort();
+  $('#f-sector').innerHTML='<option value="">Any sector</option>'+secs.map(s=>`<option>${esc(s)}</option>`).join('');
+  $('#f-grade').disabled=d.market!=='us';
+  $('#schead').innerHTML=COLS.map(([k,l])=>`<th data-k="${k}" aria-sort="${S.sort.k===k?(S.sort.dir>0?'ascending':'descending'):'none'}">${l}${S.sort.k===k?(S.sort.dir>0?' ▲':' ▼'):''}</th>`).join('');
+  const f={call:$('#f-call').value,rating:$('#f-rating').value,grade:$('#f-grade').value,risk:$('#f-risk').value,sec:$('#f-sector').value,passed:$('#f-passed').checked};
+  let rows=d.rows.filter(r=>!r.skip&&(!f.passed||r.filter.passed)&&(!f.call||r.tech.call===f.call)&&(!f.rating||r.pm.rating===f.rating)&&(!f.grade||(r.fund?.ok&&f.grade.includes(r.fund.grade)))&&(!f.risk||f.risk.includes(r.risk.level))&&(!f.sec||r.sec===f.sec));
+  rows.sort((a,b)=>{const x=val(a,S.sort.k),y=val(b,S.sort.k);return(x>y?1:x<y?-1:0)*S.sort.dir});
+  $('#scsub').textContent=`${rows.length} of ${d.rows.length} match`;
+  $('#scbody').innerHTML=rows.slice(0,300).map(r=>`<tr data-t="${esc(r.t)}"><td><b>${esc(r.t)}</b></td><td>${esc((r.n||'').slice(0,34))}</td><td><span class="chip ${callCls(r.tech.call)}">${r.tech.call}</span></td><td class="num">${Math.round(r.tech.p*100)}%</td><td class="num">${r.tech.pAbs==null?'—':Math.round(r.tech.pAbs*100)+'%'}</td><td><span class="chip r-${r.pm.rating}">${r.pm.rating}</span></td><td>${r.fund?.ok?`<span class="chip g-${r.fund.grade}">${r.fund.grade}</span>`:'—'}</td><td><span class="chip l-${r.risk.level}">${r.risk.level}</span></td><td class="num">${pct(r.chg21)}</td><td class="num">${pc(r.risk.annVol)}</td><td class="num">${r.mms?.st??'—'}</td></tr>`).join('');
+  $('#scnote').textContent=rows.length>300?'Showing the first 300; narrow the filters to see the rest.':'Click a row to open its agent reports. Click a column title to sort.';
+}
+function weights(d){const w=d.model.weights||[],mx=Math.max(...w.map(x=>Math.abs(x.w)),0.001);
+  $('#mdsub').textContent=`${w.length} inputs`;
+  $('#weights').innerHTML=`<div style="display:grid;grid-template-columns:minmax(150px,240px) 1fr 60px;gap:4px 10px;align-items:center;font-size:13px">${w.map(x=>`<span>${esc(x.label)}</span><span class="meter"><i style="width:${Math.abs(x.w)/mx*100}%;background:var(--${x.w>=0?'up':'down'})"></i></span><span class="mono" style="text-align:right">${x.w>=0?'+':''}${x.w.toFixed(2)}</span>`).join('')}</div>`}
+
+// ---------- suggested prompts ----------
+function prompts(d){
+  const up=d.rank.up[0]||(S.market==='us'?'NVDA':'BTC'),dn=d.rank.down[0]||(S.market==='us'?'TSLA':'ETH'),c=S.cur||up;
+  const us=S.market==='us';
+  const P=[
+    ['Find opportunities',[
+      us?`Which 5 stocks have an Uptrend call AND fundamentals grade A or B? Rank them and give one line on why each.`:`Which 5 coins have an Uptrend call with Low or Medium risk? Rank them and explain why.`,
+      `List every name rated Buy or Overweight with Low or Medium risk, grouped by ${us?'sector':'theme'}, with both chances for each.`,
+      `Which ${us?'stocks':'coins'} have a Downtrend call and High risk? Give the short plan (entry, stop, target) for the top 3.`]],
+    ['Understand one name',[
+      us?`Decode ${c}'s latest financial report in plain English: is the business getting stronger or weaker, and why?`:`What do the agents say about ${c}? Explain the 2-week call and what could prove it wrong.`,
+      `Give me the bull case and the bear case for ${c} from the agents, then say which side the evidence favours and why.`,
+      `What could make the 2-week call on ${c} wrong? List the biggest risks and the exact stop level.`]],
+    ['Plan a trade',[
+      `I have $10,000 and a conservative risk profile. How much ${c} should I buy (or should I skip it), where is my stop, and what is my maximum loss?`,
+      `Compare ${up} and ${dn} across all six agents in a table, then tell me which is the better 2-week trade.`,
+      us?'Which stocks have an earnings report inside the next 2 weeks? Should I avoid them or size down?':'Which coins move the most with Bitcoin (highest beta)? What does that mean for my position size?']],
+    ['Check the system',[
+      'How reliable is the 2-week call? Explain the test results for each test period in simple terms and how I should use them.',
+      `Why is ${c} rated ${d.by.get(c)?.pm?.rating||'the way it is'} even though some indicators disagree? Walk through each agent's input.`,
+      'Which model inputs matter most right now, and what is the overall market regime telling us?']],
+  ];
+  $('#prompts').innerHTML='<span class="label">Suggested prompts (click to use)</span>'+P.map(([h,list])=>`<h3>${h}</h3>${list.map(p=>`<button class="pbtn" type="button">${esc(p)}</button>`).join('')}`).join('')+
+  `<p class="note"><b>Tips for best answers:</b> name the tickers; say your capital and risk profile (aggressive / neutral / conservative); ask for a table when comparing; ask "what would change your mind?" to surface the risks; and ask it to quote numbers from the agents rather than general knowledge.</p>`;
+  $('#prompts').querySelectorAll('.pbtn').forEach(b=>b.onclick=()=>{$('#q').value=b.textContent;$('#q').focus()});
+}
+
+// ---------- AI (Anthropic Messages API, called straight from this browser) ----------
+const SYS=`You are the "Ask the agents" assistant on Agent Desk, a research dashboard. Six rule-based agents analysed every name: (1) Filter (liquidity/history), (2) Financial-report decoder (SEC 10-Q/10-K figures, grade A-F; stocks only), (3) Technical agent (logistic-regression model on indicators: 50/200-day averages, 10-day EMA, MACD, RSI, Bollinger %B, ATR, VWMA, volume, MMS stage, strength vs market; gives p = probability the name beats the average name (stock/coin) over the horizon, which drives call = Uptrend / Downtrend / No clear trend via a confidence margin; and pAbs = probability its price is simply higher, which is close to a coin flip in tests), (4) Bull & Bear researchers + research manager, (5) Risk team (volatility, worst drawdown, beta, estimated earnings date, flags; trade plan with entry/stop/1:2 target/breakeven and position size for aggressive, neutral and conservative profiles), (6) Portfolio manager (Buy / Overweight / Hold / Underweight / Sell).
+Rules: answer ONLY from the JSON data provided in this conversation; quote the agents' numbers; if something is not in the data (news, events, prices after the as-of date, names not covered), say so plainly instead of guessing. Always state the chances and the test results honestly: the ranking gives a modest statistical edge in which names do better than others (see MODEL TEST folds), not certainty, and it does not predict the whole market's direction. Prefer short paragraphs, bullet points and markdown tables. When the user gives capital and a risk profile, compute position size = capital x size from the risk team's plan, and the maximum loss = position x stop distance. End trading answers with one line: "Research tool, not financial advice."`;
+function slim(r){if(!r||r.skip)return r;const{spark,...x}=r;return x}
+function context(q){
+  const d=S.data[S.market];
+  const words=new Set((q.toUpperCase().match(/\$?[A-Z][A-Z0-9.\-]{0,9}/g)||[]).map(w=>w.replace(/^\$/,'')));
+  let names=[...words].filter(w=>d.by.has(w));
+  const ql=q.toLowerCase();
+  for(const r of d.rows){const n=(r.n||'').toLowerCase().replace(/,? (inc|corp|corporation|company|co|plc|ltd|holdings|group)\.?$/,'');if(n.length>3&&ql.includes(n)&&!names.includes(r.t))names.push(r.t)}
+  if(!names.length&&S.cur)names=[S.cur];
+  names=names.slice(0,6);
+  const table=d.rows.filter(r=>!r.skip).map(r=>[r.t,(r.n||'').slice(0,28),r.sec||'',r.filter.passed?1:0,r.tech.call[0],Math.round(r.tech.p*100),r.tech.pAbs==null?'-':Math.round(r.tech.pAbs*100),r.pm.rating,r.fund?.ok?r.fund.grade:'-',r.risk.level[0],r.risk.eventRisk?1:0,Math.round((r.chg21||0)*1000)/10,r.mms?.st??'-'].join('|')).join('\n');
+  return `DATA (as of ${d.asOf}, market=${d.market==='us'?'US stocks':'crypto'}, horizon=${d.horizonLabel}).
+MODEL TESTS on unseen periods (ranking model, per period): ${JSON.stringify(d.model.folds||[d.model.test])}; plain price-direction model: ${JSON.stringify(d.model.abs?.test||null)}; confidence margin ${d.model.margin}; provisional=${d.model.provisional}.
+MARKET REGIME: ${JSON.stringify(d.regime)}
+TOP UPTREND CALLS: ${d.rank.up.join(', ')} | TOP DOWNTREND CALLS: ${d.rank.down.join(', ')} | counts ${JSON.stringify(d.rank.calls)}
+RISK SETTINGS: ${JSON.stringify({risk:d.config.risk,cap:d.config.cap,stopAtr:d.config.stopAtr,rr:d.config.rr})}
+ALL NAMES (ticker|name|sector|passedFilter|call U/D/N|chanceBeatsAvg%|chancePriceUp%|rating|fundGrade|risk L/M/H|earningsSoon|1-month%|MMS stage):
+${table}
+FULL AGENT REPORTS for ${names.join(', ')||'(none named)'}:
+${names.map(t=>JSON.stringify(slim(d.by.get(t)))).join('\n')}`;
+}
+function md(s){
+  s=esc(s);
+  const lines=s.split('\n'),out=[];let inList=null,inTable=false;
+  const inline=t=>t.replace(/\*\*(.+?)\*\*/g,'<b>$1</b>').replace(/`([^`]+)`/g,'<code>$1</code>').replace(/(^|\W)\*(?!\s)(.+?)\*(?=\W|$)/g,'$1<i>$2</i>');
+  const close=()=>{if(inList){out.push(`</${inList}>`);inList=null}if(inTable){out.push('</tbody></table>');inTable=false}};
+  for(let i=0;i<lines.length;i++){const l=lines[i];
+    if(/^\s*\|.*\|\s*$/.test(l)){const cells=l.trim().slice(1,-1).split('|').map(c=>inline(c.trim()));
+      if(!inTable){close();out.push('<table><thead><tr>'+cells.map(c=>`<th>${c}</th>`).join('')+'</tr></thead><tbody>');inTable=true;if(/^\s*\|[\s:\-|]+\|\s*$/.test(lines[i+1]||''))i++;continue}
+      out.push('<tr>'+cells.map(c=>`<td>${c}</td>`).join('')+'</tr>');continue}
+    let m;
+    if((m=l.match(/^(#{1,4})\s+(.*)/))){close();out.push(`<h${m[1].length+1}>${inline(m[2])}</h${m[1].length+1}>`);continue}
+    if((m=l.match(/^\s*[-*•]\s+(.*)/))){if(inList!=='ul'){close();out.push('<ul>');inList='ul'}out.push(`<li>${inline(m[1])}</li>`);continue}
+    if((m=l.match(/^\s*\d+[.)]\s+(.*)/))){if(inList!=='ol'){close();out.push('<ol>');inList='ol'}out.push(`<li>${inline(m[1])}</li>`);continue}
+    close();if(l.trim())out.push(`<p>${inline(l)}</p>`)}
+  close();return out.join('');
+}
+async function claude(messages,system,onText,maxTokens=1800){
+  const key=$('#apikey').value.trim()||store.get('desk-key');
+  if(!key)throw new Error('Add your Anthropic API key above first (console.anthropic.com → API keys).');
+  const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'content-type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+    body:JSON.stringify({model:$('#model').value,max_tokens:maxTokens,system,messages,stream:true})});
+  if(!res.ok){let m=res.status+'';try{m+=': '+(await res.json()).error.message}catch(e){}throw new Error('Anthropic API error '+m)}
+  const rd=res.body.getReader(),dec=new TextDecoder();let buf='',text='';
+  for(;;){const{done,value}=await rd.read();if(done)break;buf+=dec.decode(value,{stream:true});let i;
+    while((i=buf.indexOf('\n'))>=0){const line=buf.slice(0,i).trim();buf=buf.slice(i+1);
+      if(!line.startsWith('data:'))continue;try{const ev=JSON.parse(line.slice(5));if(ev.type==='content_block_delta'&&ev.delta?.text){text+=ev.delta.text;onText(text)}if(ev.type==='error')throw new Error(ev.error?.message)}catch(e){if(e.message&&!/JSON/.test(e.message))throw e}}}
+  return text;
+}
+function bubble(cls,who,html){const b=document.createElement('div');b.className='msg '+cls;b.innerHTML=`<div class="who">${who}</div><div class="body">${html}</div>`;const m=$('#msgs');m.querySelector('.empty')?.remove();m.appendChild(b);m.scrollTop=m.scrollHeight;return b.querySelector('.body')}
+async function ask(){
+  const q=$('#q').value.trim();if(!q)return;
+  $('#send').disabled=true;$('#q').value='';
+  bubble('user','You',esc(q));
+  // first turn of a conversation carries the data; follow-ups add reports for newly named tickers
+  const ctx=context(q),first=!S.chat.length;
+  S.chat.push({role:'user',content:(first?ctx:'Additional data:\n'+ctx.split('FULL AGENT REPORTS')[1].replace(/^/,'FULL AGENT REPORTS'))+'\n\nQUESTION: '+q});
+  const body=bubble('ai','Agent Desk AI','<span class="note">Thinking…</span>');
+  try{const t=await claude(S.chat,SYS,txt=>{body.innerHTML=md(txt);$('#msgs').scrollTop=$('#msgs').scrollHeight});S.chat.push({role:'assistant',content:t})}
+  catch(e){body.parentElement.classList.add('err');body.textContent=e.message;S.chat.pop()}
+  $('#send').disabled=false;
+}
+// The same multi-agent debate as the reference TradingAgents app, grounded on this desk's data.
+async function runDebate(r){
+  const box=$('#debate');box.innerHTML='';const d=S.data[S.market];
+  const data=`DATA for ${r.t} (${r.n}), as of ${d.asOf}, horizon ${d.horizonLabel}. tech.p = chance to beat the average name; tech.pAbs = chance the price is higher.\n${JSON.stringify(slim(r))}\nMODEL TESTS: ${JSON.stringify(d.model.folds||[d.model.test])}\nMARKET REGIME: ${JSON.stringify(d.regime)}`;
+  const base='You are one agent in a trading research team. Use ONLY the data given; quote its numbers; no outside facts. Be concise (120-200 words), markdown bullets allowed.';
+  const steps=[
+    ['Bull researcher','Argue the strongest evidence-based case FOR a long position over the horizon. Address the main bear points directly.'],
+    ['Bear researcher','Argue the strongest evidence-based case AGAINST a long position (or for a short). Rebut the bull points above.'],
+    ['Research manager','Weigh the bull and bear arguments above. State which is stronger and why, and give an investment plan (Buy/Overweight/Hold/Underweight/Sell) in 3-5 bullets.'],
+    ['Trader','Turn the research plan into a concrete trade: direction, entry, stop, target, breakeven move, and when to exit if nothing happens within the horizon. Use the risk team\'s levels where they exist.'],
+    ['Risk analysts','Speak as three analysts in turn — Aggressive, Neutral, Conservative — each in 2-4 bullets: would they take the trader\'s plan, at what size (use the plan\'s views), and what worries them.'],
+    ['Portfolio manager','Make the final decision. Start with "Rating: X" (Buy/Overweight/Hold/Underweight/Sell), then the reasoning in 4-6 bullets, the position size for each risk profile, and the single biggest thing that would change the decision. End with: Research tool, not financial advice.'],
+  ];
+  let transcript='';
+  for(const[name,task]of steps){
+    const body=bubble('ai',name,'<span class="note">Working…</span>');box.appendChild(body.parentElement);
+    try{const t=await claude([{role:'user',content:`${data}\n\nDISCUSSION SO FAR:\n${transcript||'(none)'}\n\nYOUR ROLE: ${name}. ${task}`}],base,txt=>{body.innerHTML=md(txt)},900);transcript+=`\n### ${name}\n${t}\n`}
+    catch(e){body.parentElement.classList.add('err');body.textContent=e.message;return}
+  }
+}
+
+// ---------- wiring ----------
+document.querySelectorAll('#nav [data-m]').forEach(b=>b.onclick=()=>{S.cur=null;S.chat=[];show(b.dataset.m)});
+document.addEventListener('click',e=>{const b=e.target.closest('.row[data-t],tbody tr[data-t]');if(b)detail(b.dataset.t)});
+$('#lkform').onsubmit=e=>{e.preventDefault();const t=find($('#lkq').value);if(t)detail(t);else $('#detail').innerHTML=`<div class="empty">No ${unit()} called "${esc($('#lkq').value)}" in today's list.</div>`};
+['#f-call','#f-rating','#f-grade','#f-risk','#f-sector','#f-passed'].forEach(s=>$(s).onchange=()=>screen(S.data[S.market]));
+$('#schead').onclick=e=>{const k=e.target.closest('th')?.dataset.k;if(!k)return;S.sort=S.sort.k===k?{k,dir:-S.sort.dir}:{k,dir:k==='t'||k==='n'||k==='risk'||k==='vol'?1:-1};screen(S.data[S.market])};
+$('#apikey').value=store.get('desk-key')||'';$('#model').value=store.get('desk-model')||'claude-sonnet-5-5';
+$('#savekey').onclick=()=>{store.set('desk-key',$('#apikey').value.trim());store.set('desk-model',$('#model').value);$('#keynote').textContent='Saved in this browser.'};
+$('#model').onchange=()=>store.set('desk-model',$('#model').value);
+$('#send').onclick=ask;$('#q').addEventListener('keydown',e=>{if(e.key==='Enter'&&(e.metaKey||e.ctrlKey))ask()});
+$('#clear').onclick=()=>{S.chat=[];$('#msgs').innerHTML='<div class="empty">New conversation started.</div>'};
+if(document.getElementById('embedded-us')||document.getElementById('embedded-crypto'))$('#back').hidden=true;
+show(S.market);
+</script>

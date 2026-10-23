@@ -144,6 +144,49 @@ Every daily run analyses every name and saves the results in each page's `data/a
 
 Crypto pullbacks are often deeper than the course's 10% buying-contraction limit, so on many days few coins pass every rule; the rest of the list is then filled with liquid "Watch" names showing why they fail.
 
+## Agent Desk (`docs/agents/`) — six agents and a 2-week call
+
+A second page, linked as **Agent Desk →** from every screener page, runs a multi-agent
+pipeline modelled on the TradingAgents framework (analysts → bull/bear debate → trader →
+risk debate → portfolio manager), but with rule-based, testable agents:
+
+| # | Agent | What it does |
+|---|---|---|
+| 1 | Filter | Keeps names with enough history, price ≥ $5 and ≥ $20M traded a day (coins: ≥ $10M) |
+| 2 | Financial-report decoder | Reads each company's 10-Q/10-K figures from SEC EDGAR, rebuilds clean quarters (Q4 = annual − 9 months), and grades sales growth, profit margin, EPS growth, free cash flow, debt, short-term safety and dilution in plain English (A–F). Banks/insurers skip the cash-flow and debt checks. Stocks only |
+| 3 | Technical | 50/200-day averages, 10-day EMA, MACD, RSI, Bollinger %B, ATR, VWMA, volume, MMS stage and strength vs the market → two logistic models: chance to **beat the average name** over 2 weeks (drives the Uptrend / Downtrend call) and chance the **price is higher** |
+| 4 | Bull & Bear researchers | Collect the evidence on each side; a research manager weighs it |
+| 5 | Risk team | Volatility, worst 1-year drop, beta, estimated next earnings date, red flags; a trade plan (MMS levels when its setup agrees, else 1.5×ATR stop and 1:2 target) sized for aggressive (2% risk), neutral (1%) and conservative (0.5%, long only) accounts |
+| 6 | Portfolio manager | Buy / Overweight / Hold / Underweight / Sell, scaled down for high risk, earnings inside the window, and models that failed their own tests |
+
+**How good is the 2-week call?** The models are trained on 5 years of data and tested on
+4 separate 6-month periods they never saw. For US stocks, Uptrend calls beat the average
+stock 52–56% of the time in every period, and the top-ranked 10% beat the bottom 10% in
+all four — a modest, consistent edge. Downtrend calls were near a coin flip (49–55%), so
+the portfolio manager damps bearish ratings. The plain "will the price be higher?" model
+was barely better than always guessing "up", so it is shown only as a second number.
+The crypto model held up in just 1 of 4 periods, so crypto ratings are pulled towards
+Hold and the page says so. The page always shows the latest test results.
+
+**Ask the agents.** A chat box sends your question plus the agents' data to Claude using
+*your* Anthropic API key (stored only in your browser, sent only to api.anthropic.com).
+**Run AI debate** replays the bull/bear/trader/risk/portfolio-manager discussion for one
+name. See [PROMPTS.md](PROMPTS.md) for prompts that get the best answers.
+
+**Set up (once):**
+1. Repo **Settings → Secrets and variables → Actions → Variables → New repository variable**:
+   name `SEC_USER_AGENT`, value your name and e-mail, e.g. `CK Chan you@example.com`.
+   The SEC requires this to download filings; without it the decoder is skipped.
+2. **Actions → Agent Desk weekly model training → Run workflow** once (about 20–40 min).
+   After that it re-trains every Sunday. Models ship pre-trained, so this step is optional.
+3. Get an API key at console.anthropic.com → API keys, and paste it into the page's
+   **Ask the agents** box (only needed for the AI chat and debate).
+
+Files: `src/desk/` (agents, indicators, forecast model, SEC decoder, page),
+`data/desk/` (trained models + decoded filings), `docs/agents/data/{us,crypto}.json`
+(daily output), `.github/workflows/desk-train.yml` (weekly training).
+Test: `node test/desk.test.js`.
+
 ## Run it on your own computer
 
 Needs Node.js 18 or newer, no packages to install.
