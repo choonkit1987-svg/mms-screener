@@ -25,8 +25,11 @@ jobs:
         env:
           MASSIVE_API_KEY: ${{ secrets.MASSIVE_API_KEY }}
           DATA_PROVIDER: ${{ vars.DATA_PROVIDER }}
+          # Agent Desk financial-report decoder: the SEC asks for "Your Name your@email" (repo Settings -> Variables)
+          SEC_USER_AGENT: ${{ vars.SEC_USER_AGENT }}
         run: |
           node test/engine.test.js
+          node test/desk.test.js
           node src/run.js
           node src/build.js
       - name: Commit results
@@ -36,4 +39,5 @@ jobs:
           git config user.email "mms-screener-bot@users.noreply.github.com"
           git add docs data || true
           git diff --cached --quiet || git commit -m "Daily scan $(date -u +%F)"
+          git pull --rebase
           git push
