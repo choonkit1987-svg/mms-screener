@@ -1,0 +1,43 @@
+name: Agent Desk weekly model training
+
+# Re-fits the Agent Desk 2-week models on 5 years of stock data and ~800 days of crypto data,
+# tests them on 4 recent 6-month periods they did not train on, and saves the weights and
+# test results to data/desk/. The daily scans then use these weights.
+on:
+  schedule:
+    # 01:17 UTC Sunday = 9:17 am Sunday Malaysia time (markets closed)
+    - cron: "17 1 * * 0"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: desk-train
+  cancel-in-progress: false
+
+jobs:
+  train:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+      - name: Train stock model (5 years)
+        run: |
+          node test/desk.test.js
+          node --max-old-space-size=6144 src/desk/train.js us
+      - name: Train crypto model
+        if: always()
+        run: node --max-old-space-size=6144 src/desk/train.js crypto
+      - name: Commit models
+        if: always()
+        run: |
+          git config user.name  "mms-screener-bot"
+          git config user.email "mms-screener-bot@users.noreply.github.com"
+          git add data/desk || true
+          git diff --cached --quiet || git commit -m "Agent Desk models $(date -u +%F)"
+          git pull --rebase
+          git push
