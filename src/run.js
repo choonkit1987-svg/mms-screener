@@ -32,7 +32,7 @@ export function buildReport(universe, history, provider, { cfg = CONFIG, regimeT
     return {
       ticker: a.ticker, name: a.name, sector: a.sector, tier: x.tier, score: x.s,
       stage: a.stage, close: a.close, asOf: a.asOf, slope150: a.slope150, dist150: a.dist150, ret126: a.ret126,
-      status: S.setup.status, valid: S.setup.valid, reason: S.setup.reason, zone: S.setup.zone,
+      status: S.setup.status, valid: S.setup.valid, reason: S.setup.reason, zone: S.setup.zone, base: S.setup.base ?? null,
       contractions: (S.setup.contractions || []).map(c => ({ hi: c.hi, lo: c.lo, hiT: c.hiT, loT: c.loT, depth: c.depth, open: !!c.open })),
       risk: S.risk, volume: S.vol, notes: explain(a, side, S), chart: a.chart, ...(a.early ? { early: { from: a.early.from, favour: a.early.favour, against: a.early.against } } : {}),
     };

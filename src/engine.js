@@ -16,7 +16,12 @@ export const CONFIG = {
   minDollarVolume: 1e6,      // 50-day avg volume x price > US$1M (L13); Bursa uses RM1M (cfg.currency = 'RM')
   triggerFreshBars: 5,       // a close above entry within this many bars = "triggered"
   extendedPct: 0.05,
-  earlyMinBigVol: 3,         // early alert: at least 3 big-volume days in the trend's direction since the turn         // more than 5% past entry = extended (do not chase)
+  earlyMinBigVol: 3,         // early alert: at least 3 big-volume days in the trend's direction since the turn
+  // --- 2026 student-portal rules (SCV: Stage, Contraction, Volume) ---
+  rules: 'scv',              // 'scv' = 2026 portal rules; 'classic' = the original 22-video rules (kept for comparison)
+  minDownRun: 3,             // a contraction needs >= 3 consecutive down or indecision candles after its high
+  c1MaTouch: 0.005,          // C1 must pull back to the 50 MA or below (0.5% tolerance)
+  maxBase: 3,                // only the 1st to 3rd base of a trend is traded
 };
 
 // ---------- indicators ----------
@@ -84,6 +89,49 @@ export function invertBars(bars) {
   return bars.map(b => ({ t: b.t, o: 1 / b.o, h: 1 / b.l, l: 1 / b.h, c: 1 / b.c, v: b.v }));
 }
 
+// Candle type (L8 + 2026 contraction lesson): a real up/down candle has a body larger than both wicks
+// together; otherwise it is an indecision candle.
+export function candleType(b) {
+  const body = Math.abs(b.c - b.o), wicks = (b.h - Math.max(b.c, b.o)) + (Math.min(b.c, b.o) - b.l);
+  if (body <= wicks) return 'doji';
+  return b.c > b.o ? 'up' : 'down';
+}
+// Longest run of consecutive non-up (down or indecision) candles in bars[from..to].
+export function downRun(bars, from, to) {
+  let best = 0, run = 0;
+  for (let i = Math.max(0, from); i <= Math.min(to, bars.length - 1); i++) {
+    if (candleType(bars[i]) === 'up') run = 0; else best = Math.max(best, ++run);
+  }
+  return best;
+}
+// Moving-average alignment: bullish = 50 > 150 > 200, bearish = 50 < 150 < 200.
+export function alignedAt(ind, i, up = true) {
+  const a = ind.sma50[i], b = ind.sma150[i], c = ind.sma200[i];
+  if (a == null || b == null || c == null) return false;
+  return up ? a > b && b > c : a < b && b < c;
+}
+// Bar where the latest alignment run began (-1 if the MAs never lined up).
+export function lastAlignment(ind, up = true) {
+  let i = ind.sma50.length - 1;
+  while (i >= 0 && !alignedAt(ind, i, up)) i--;
+  if (i < 0) return -1;
+  while (i > 0 && alignedAt(ind, i - 1, up)) i--;
+  return i;
+}
+// Which base of the trend price is in: a base starts when price pulls back to the 50 MA after a run,
+// and is completed when price closes above the high it pulled back from. 0 = no pullback to the 50 MA yet.
+export function baseCount(bars, ind, from) {
+  let done = 0, hi = -Infinity, inBase = false, baseHi = 0;
+  for (let i = Math.max(0, from); i < bars.length; i++) {
+    const m = ind.sma50[i];
+    if (!inBase) {
+      hi = Math.max(hi, bars[i].h);
+      if (m != null && bars[i].l <= m) { inBase = true; baseHi = hi; }
+    } else if (bars[i].c > baseHi) { done++; inBase = false; hi = bars[i].h; }
+  }
+  return inBase ? done + 1 : done;
+}
+
 export function computeIndicators(bars) {
   const c = bars.map(b => b.c), v = bars.map(b => b.v);
   return { sma50: sma(c, 50), sma150: sma(c, 150), sma200: sma(c, 200), vol50: sma(v, 50) };
@@ -121,8 +169,9 @@ export function stageAgent(bars, ind, cfg = CONFIG) {
 
 // ---------- Agent 2: Contraction agent (L9-L12, L17) ----------
 // Works on "long" bars; for shorts it is fed inverted bars.
-export function contractionAgent(bars, ind, crossIdx, cfg = CONFIG) {
-  const n = bars.length;
+export function contractionAgent(bars, ind, crossIdx, cfg = CONFIG, opts = {}) {
+  const n = bars.length, scv = cfg.rules !== 'classic';
+  if (scv && opts.requireAlign && crossIdx < 0) return { valid: false, reason: '50/150/200 MAs have not lined up (50 above 150 above 200)', contractions: [] };
   const start = Math.max(crossIdx ?? 0, n - 1 - 260, 0);
   const seg = bars.slice(start);
   const th = Math.min(0.06, Math.max(0.025, 1.5 * atrPct(bars)));
@@ -138,7 +187,7 @@ export function contractionAgent(bars, ind, crossIdx, cfg = CONFIG) {
 
   // Build H->L contractions from C1 onward
   const after = P.filter(p => p.i >= c1.i);
-  const cs = [];
+  let cs = [];
   for (let j = 0; j < after.length; j++) {
     if (after[j].type !== 'H') continue;
     const h = after[j];
@@ -156,8 +205,25 @@ export function contractionAgent(bars, ind, crossIdx, cfg = CONFIG) {
     const prevH = P.filter(p => p.type === 'H').pop();
     if (prevH && prevH.i > cs[cs.length - 1].loI) cs.push({ hiI: prevH.i, hi: prevH.p, loI: lastExt.i, lo: lastExt.p, open: true });
   }
+  // 2026 rule: a pullback only counts as a contraction if, after its high, there are >= 3 consecutive
+  // down or indecision candles. Smaller dips are folded into the next swing; a newest dip that has not
+  // qualified yet is kept aside as "pending" (the SCV signal waits for a new qualified C).
+  let pending = null;
+  if (scv) {
+    const merged = [];
+    let carry = null;
+    for (const c of cs) {
+      let cur = c;
+      if (carry) cur = carry.hi >= c.hi ? { hiI: carry.hiI, hi: carry.hi, ...(carry.lo <= c.lo ? { loI: carry.loI, lo: carry.lo } : { loI: c.loI, lo: c.lo }), open: c.open } : c;
+      cur.run = downRun(bars, cur.hiI + 1, cur.loI);
+      if (cur.run >= cfg.minDownRun) { merged.push(cur); carry = null; } else carry = cur;
+    }
+    if (carry) pending = carry;
+    cs = merged;
+  }
   cs.forEach(c => { c.depth = (c.hi - c.lo) / c.hi; c.hiT = bars[c.hiI].t; c.loT = bars[c.loI].t; });
-  if (!cs.length) return { valid: false, reason: 'no completed contraction yet', contractions: [] };
+  if (pending) { pending.depth = (pending.hi - pending.lo) / pending.hi; pending.hiT = bars[pending.hiI].t; pending.loT = bars[pending.loI].t; }
+  if (!cs.length) return { valid: false, reason: scv ? 'no qualified contraction yet (needs 3+ consecutive down or indecision candles)' : 'no completed contraction yet', contractions: [], pending };
 
   const used = cs.slice(0, cfg.maxContractions);
   const C1 = used[0], CL = used[used.length - 1];
@@ -167,9 +233,10 @@ export function contractionAgent(bars, ind, crossIdx, cfg = CONFIG) {
   let risingLows = 0;
   for (let j = 1; j < used.length; j++) if (used[j].lo >= used[j - 1].lo * 0.995) risingLows++;
 
-  // C1 established when price pulled back to the 50 MA (L17)
+  // C1 established when price pulled back to the 50 MA (L17; 2026: must reach the 50 MA or below)
   const m50 = ind.sma50[C1.loI];
-  const c1Established = m50 != null && C1.lo <= m50 * 1.03;
+  const c1Established = m50 != null && C1.lo <= m50 * (1 + (scv ? cfg.c1MaTouch : 0.03));
+  const base = scv ? baseCount(bars, ind, Math.max(crossIdx ?? 0, 0)) : null;
   // Base established: >= 2 contractions (L12)
   const baseOk = used.length >= 2;
   // Breakout zone inside C1's range (L17)
@@ -188,18 +255,21 @@ export function contractionAgent(bars, ind, crossIdx, cfg = CONFIG) {
   const tooMany = cs.length > cfg.maxContractions;
   // L11: "bands get smaller and smaller, bottoms get higher and higher"
   const tightening = tighteningCheck(used);
-  const valid = baseOk && CL.depth < cfg.maxBuyContraction && tightening.ok && status !== 'BROKEN' && !tooMany;
+  const c1Fail = scv && !c1Established, baseFail = scv && base > cfg.maxBase;
+  const valid = baseOk && CL.depth < cfg.maxBuyContraction && tightening.ok && status !== 'BROKEN' && !tooMany && !c1Fail && !baseFail;
   let reason = '';
-  if (!baseOk) reason = 'only 1 contraction (needs C2-C6)';
+  if (c1Fail) reason = 'C1 did not pull back to the 50-day MA';
+  else if (!baseOk) reason = 'only 1 contraction (needs C2-C6)';
   else if (CL.depth >= cfg.maxBuyContraction) reason = `latest contraction ${(CL.depth * 100).toFixed(1)}% is not < 10%`;
   else if (!tightening.ok) reason = tightening.reason;
   else if (status === 'BROKEN') reason = 'price closed below the contraction stop';
   else if (tooMany) reason = 'more than 6 contractions — base too long';
+  else if (baseFail) reason = `base ${base} of this trend — only the 1st to 3rd base is traded`;
 
   return {
     valid, reason, contractions: used, count: used.length, increases, risingLows,
     c1Established, baseOk, zone, zonePos: pos, entry, stop, status,
-    distToEntry: entry / close - 1, zigzagThreshold: th,
+    distToEntry: entry / close - 1, zigzagThreshold: th, base, pending, rules: scv ? 'scv' : 'classic',
   };
 }
 
@@ -227,7 +297,8 @@ function validCandle(b) {
 }
 export function volumeAgent(bars, ind, fromIdx, side = 'long', cfg = CONFIG) {
   const n = bars.length;
-  let up = 0, down = 0;
+  let up = 0, down = 0, upVol = 0, downVol = 0;
+  for (let i = Math.max(fromIdx, 0); i < n; i++) { if (bars[i].c > bars[i].o) upVol += bars[i].v; else if (bars[i].c < bars[i].o) downVol += bars[i].v; }
   for (let i = Math.max(fromIdx, 50); i < n; i++) {
     const vm = ind.vol50[i];
     if (vm == null || bars[i].v <= vm || !validCandle(bars[i])) continue; // below the orange line is ignored
@@ -238,7 +309,9 @@ export function volumeAgent(bars, ind, fromIdx, side = 'long', cfg = CONFIG) {
   const ratio = favour + against ? favour / (favour + against) : 0.5;
   // stocks report volume in shares; crypto feeds report it already in USD
   const dollarVol = (ind.vol50[n - 1] || 0) * (cfg.volumeInQuote ? 1 : bars[n - 1].c);
-  return { upBig: up, downBig: down, ratio, dollarVol, liquid: dollarVol >= cfg.minDollarVolume, ...(cfg.currency ? { ccy: cfg.currency } : {}) };
+  // SCV "V" check: total volume on up candles beats total volume on down candles (in the trade's direction)
+  const volOk = side === 'long' ? upVol > downVol : downVol > upVol;
+  return { upBig: up, downBig: down, ratio, upVol, downVol, volOk, dollarVol, liquid: dollarVol >= cfg.minDollarVolume, ...(cfg.currency ? { ccy: cfg.currency } : {}) };
 }
 
 // ---------- Agent 4: Risk agent (L14-L22) ----------
@@ -338,21 +411,45 @@ export function analyzeTicker(meta, bars, cfg = CONFIG) {
 
   const out = { ...base, long: null, short: null };
 
+  const scv = cfg.rules !== 'classic';
+  // 2026 SCV "S" check: price above all three MAs and the 150 MA above the 200 MA (mirrored for shorts)
+  const S = {
+    long: close > ind.sma50[n - 1] && close > ind.sma150[n - 1] && close > ind.sma200[n - 1] && ind.sma150[n - 1] > ind.sma200[n - 1],
+    short: close < ind.sma50[n - 1] && close < ind.sma150[n - 1] && close < ind.sma200[n - 1] && ind.sma150[n - 1] < ind.sma200[n - 1],
+  };
+  // Course-strict checks apply in the trend stage (2 for longs, 4 for shorts); early-turn alerts in Stage 1/3
+  // look ahead of the MA alignment and are labelled as such.
+  const gate = (side, setup, vol) => {
+    const strict = side === 'long' ? stage.stage === 2 : stage.stage === 4;
+    if (!scv || !strict || !setup.valid) return;
+    if (!S[side]) { setup.valid = false; setup.reason = side === 'long' ? 'price is not above all three MAs with the 150 above the 200 (S check)' : 'price is not below all three MAs with the 150 below the 200 (S check)'; }
+    else if (!vol.volOk) { setup.valid = false; setup.reason = side === 'long' ? 'down-candle volume outweighs up-candle volume since C1 (V check)' : 'up-candle volume outweighs down-candle volume since C1 (V check)'; }
+  };
+  const anchor = (up) => {
+    if (scv) { const a = lastAlignment(ind, up); if (a >= 0) return a; if (up ? stage.stage === 2 : stage.stage === 4) return -1; }
+    return (up ? ind.sma150[n - 1] > ind.sma200[n - 1] : ind.sma150[n - 1] < ind.sma200[n - 1]) ? lastCross(ind.sma150, ind.sma200, up) : n - 60;
+  };
+
   const sideAnalysis = (side) => {
+    const requireAlign = side === 'long' ? stage.stage === 2 : stage.stage === 4;
     if (side === 'long') {
-      const cross = ind.sma150[n - 1] > ind.sma200[n - 1] ? lastCross(ind.sma150, ind.sma200, true) : n - 60;
-      const setup = contractionAgent(bars, ind, cross, cfg);
+      const cross = anchor(true);
+      const setup = contractionAgent(bars, ind, cross, cfg, { requireAlign });
       const vol = volumeAgent(bars, ind, setup.contractions?.[0]?.hiI ?? n - 130, 'long', cfg);
-      return { setup, vol, risk: setup.entry ? riskAgent('long', setup, cfg) : null, ma150above200: ind.sma150[n - 1] > ind.sma200[n - 1] };
+      gate('long', setup, vol);
+      return { setup, vol, risk: setup.entry ? riskAgent('long', setup, cfg) : null, ma150above200: ind.sma150[n - 1] > ind.sma200[n - 1], S: S.long, aligned: alignedAt(ind, n - 1, true) };
     }
     const inv = invertBars(bars);
     const indInv = computeIndicators(inv);
-    const cross = ind.sma150[n - 1] < ind.sma200[n - 1] ? lastCross(ind.sma150, ind.sma200, false) : n - 60;
-    const setup = contractionAgent(inv, indInv, cross, cfg);
+    const cross = anchor(false);
+    const setup = contractionAgent(inv, indInv, cross, cfg, { requireAlign });
     // express contractions back in real prices (rallies inside the downtrend)
-    setup.contractions = (setup.contractions || []).map(c => ({ ...c, lo: 1 / c.hi, hi: 1 / c.lo, loT: c.hiT, hiT: c.loT, loI: c.hiI, hiI: c.loI }));
+    const back = c => ({ ...c, lo: 1 / c.hi, hi: 1 / c.lo, loT: c.hiT, hiT: c.loT, loI: c.hiI, hiI: c.loI });
+    setup.contractions = (setup.contractions || []).map(back);
+    if (setup.pending) setup.pending = back(setup.pending);
     const vol = volumeAgent(bars, ind, setup.contractions?.[0]?.loI ?? n - 130, 'short', cfg);
-    return { setup, vol, risk: setup.entry ? riskAgent('short', setup, cfg) : null, ma150below200: ind.sma150[n - 1] < ind.sma200[n - 1] };
+    gate('short', setup, vol);
+    return { setup, vol, risk: setup.entry ? riskAgent('short', setup, cfg) : null, ma150below200: ind.sma150[n - 1] < ind.sma200[n - 1], S: S.short, aligned: alignedAt(ind, n - 1, false) };
   };
 
   if (stage.stage === 2) out.long = sideAnalysis('long');
@@ -475,9 +572,9 @@ export function explain(a, side, S0) {
   const notes = [];
   notes.push(`Stage agent: Stage ${a.stage} — 150-day MA ${a.slope150 >= 0 ? 'rising' : 'falling'} ${pct(Math.abs(a.slope150))} over 20 days; price ${pct(Math.abs(a.dist150))} ${a.dist150 >= 0 ? 'above' : 'below'} it.`);
   if (st.contractions?.length) {
-    notes.push(`Contraction agent: ${st.count} ${side === 'long' ? 'pullbacks' : 'rallies'} (${st.contractions.map((c, i) => 'C' + (i + 1) + ' ' + pct(c.depth)).join(' → ')}); ${st.valid ? 'valid buy-point structure' : 'not valid yet: ' + st.reason}. Breakout zone: ${st.zone}.`);
+    notes.push(`Contraction agent: ${st.count} ${side === 'long' ? 'pullbacks' : 'rallies'} (${st.contractions.map((c, i) => 'C' + (i + 1) + ' ' + pct(c.depth)).join(' → ')}); ${st.valid ? 'valid buy-point structure' : 'not valid yet: ' + st.reason}. Breakout zone: ${st.zone}${st.base ? `; base ${st.base} of the trend` : ''}.`);
   } else notes.push(`Contraction agent: ${st.reason}.`);
-  notes.push(`Volume agent: ${S.vol.upBig} big up-days vs ${S.vol.downBig} big down-days above the 50-day volume average; ${S.vol.ccy || '$'}${(S.vol.dollarVol / 1e6).toFixed(0)}M/day traded.`);
+  notes.push(`Volume agent: ${S.vol.upBig} big up-days vs ${S.vol.downBig} big down-days above the 50-day volume average${S.vol.upVol != null ? `; up-candle volume ${S.vol.volOk ? 'beats' : 'trails'} down-candle volume since C1` : ''}; ${S.vol.ccy || '$'}${(S.vol.dollarVol / 1e6).toFixed(0)}M/day traded.`);
   if (a.early && a.early.side === side) notes.push(`Early-turn agent: the 150-day MA is turning ${side === 'long' ? 'up' : 'down'} (20-day slope ${pct(a.early.slopePrev)} → ${pct(a.early.slopeNow)}), price is ${side === 'long' ? 'above' : 'below'} the 50 and 150 MAs and the 50 MA is ${side === 'long' ? 'rising' : 'falling'}; ${a.early.favour} big ${side === 'long' ? 'up' : 'down'}-volume days vs ${a.early.against} against since ${a.early.from}. Course-strict traders wait for Stage ${side === 'long' ? '2' : '4'}.`);
   if (S.risk) notes.push(`Risk agent: ${side === 'long' ? 'buy-stop' : 'sell-stop'} ${fmtPrice(S.risk.entry)}, stop ${fmtPrice(S.risk.stop)} (${pct(S.risk.riskPct)} risk), target ${fmtPrice(S.risk.target)} (1:2), move stop to entry at ${fmtPrice(S.risk.breakeven)}.`);
   return notes;

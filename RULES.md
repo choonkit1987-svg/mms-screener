@@ -1,81 +1,47 @@
-# MMS course rules used by the agents (extracted from the 22 course videos)
+# Rules the agents apply
 
-## L2 TradingView setting
-- Indicators on chart: "3ma" = SMA 50, SMA 150, SMA 200 (close); Volume with 50 MA.
+Short summaries of the MMS / SCV method (Stage, Contraction, Volume) as coded in `src/engine.js`,
+updated for the 2026 student portal. These are paraphrased rule summaries for the code, not course material.
 
-## L3 Stage setting
-- Always use DAILY time frame.
-- Stage is judged ONLY with the 150-day moving average (set as a thick green line; hide 50 & 200 for stage reading).
+## Chart set-up
+- Daily chart with 50, 150 and 200-day simple MAs and a 50-day volume average.
 
-## L4 Stage 1
-- 150 MA flattening/flat (visually level, like a horizontal line).
-- Price flat, sitting ABOVE / around the 150 MA.
-- Volume sluggish: volume below its 50-day volume MA.
-- Sideways (range between obvious high and obvious low) for at least HALF A YEAR (example: 286 days).
+## Stage (S)
+- Stage is read from the 150-day MA only.
+- Stage 1: 150 MA flat, price moving sideways around it, quiet volume.
+- Stage 2 (buy): 150 MA rising, price above it.
+- Stage 3: 150 MA flattening after a rise, price slipping below it.
+- Stage 4 (short): 150 MA falling, price below it.
+- Before a buy: price above all three MAs and the 150 MA above the 200 MA (mirrored for shorts).
 
-## L5 Stage 2 (uptrend — BUY stage)
-1. 150 MA trending UP (趋上).
-2. Volume amplification: white/up-candle volume bars exceed the 50-day volume MA.
-3. Strength (强度) = volume + speed: price above the 150 MA; the further price is above the MA, the stronger & more persistent the Stage 2.
+## Candles
+- Up or down candle: body bigger than both wicks together. Otherwise it is an indecision candle.
 
-## L6 Stage 3 (top)
-- After Stage 2, 150 MA flattens again.
-- Price falls BELOW the 150 MA.
-- Down (black) candle volume starts expanding; more and more down candles.
+## Contraction (C)
+- Look for contractions only after the MAs line up: 50 above 150 above 200 (reverse order for shorts).
+- A contraction is a clear high, then at least 3 down or indecision candles in a row, then a clear low. Shorter dips do not count.
+- C1 must pull back to the 50-day MA or below.
+- C2 to C6: each one shallower than the one before, each low higher.
+- Base: C1's high broken and at least 2 contractions. Only the 1st to 3rd base of a trend is traded.
+- Breakout zone: where the buying contraction sits inside C1's range (top third Pivot, middle Cheat, bottom Low Cheat).
 
-## L7 Stage 4 (downtrend — SHORT stage)
-- 150 MA starts sloping DOWN → Stage 4. Price keeps falling, trend continuity strong.
-- "We start shorting in Stage 4." Ends when the 150 MA levels off again (cycle repeats → Stage 1).
+## Volume (V)
+- Up-candle volume must outweigh down-candle volume since C1 (reverse for shorts).
+- Big-volume candles (above the 50-day volume average) count in favour; bars below the average are ignored.
+- Liquidity: 50-day average volume × price above US$1M a day (RM1M on Bursa).
 
-## L8 Candles
-- Valid white (up) candle: body > sum of both wicks (e.g. body 70%, wicks 30%). Same for black (down) candle.
-- 变盘线 "change line" (reversal/indecision candle): wicks larger than body (doji, hammer, etc.).
+## Entry
+- Buy only when the latest contraction is under 10% deep.
+- Buy-stop at that contraction's high plus a buffer: 1% on the daily chart, 0.5% hourly, 0.25% on minute charts.
 
-## L9 Contraction settings
-- Re-enable all 3 MAs: 50 (gray), 150 (cyan/green), 200 (red). Used on every timeframe.
+## Exits
+- Stop loss: that contraction's low minus the same buffer.
+- Breakeven: with a 1:2 target, move the stop to entry once price reaches 1:1.5. Also when the 50-day MA rises above entry.
+- Active profit: fixed target at 1:2 (or 1:1.5).
+- Passive profit: trail the stop at the 50-day MA minus 1%.
 
-## L10 Finding contractions (no subtitles; from chart frames)
-- Mark a vertical line where the 150 MA crosses above the 200 MA (Stage 2 start).
-- C1 = measured from the highest high after that to the subsequent lowest low (e.g. −15.52%).
-- C2 = next swing high to low, smaller (−11.46%); C3 smaller again (−7.43%). = VCP: each contraction shallower.
+## Position size
+- First trade 6.25% of capital, then 12.5% and 25% after winning trades.
 
-## L11 Contraction buy point
-- Contractions get smaller ("bands shrink") and lows get higher (e.g. C1 17%, C2 8%, C3 5%).
-- Buy point appears between C2 and C6.
-- The contraction you buy on must be < 10% deep.
-- Place a pending (buy-stop) order at the HIGHEST point of that contraction (e.g. C2 = 8.47% → order at C2 high). If missed, can place at C3 high (5.56%).
-
-## L12 Base
-- Base established when (1) the C1 high is broken (a close/high above C1 high), and (2) the base contains ≥ 2 contractions (C1, C2 ...).
-
-## L13 Volume
-1. Up-candle volume large: in the C1–C6 window, up-day volume bars exceeding the 50-day volume MA (orange line) = good; many large down-volume bars = worse. Bars below the line are ignored.
-2. Liquidity: 50-day avg volume × price > US$1 million per day.
-
-## L14–15 Buy trigger — buffer (stocks & crypto)
-- Buy only when contraction < 10%; do not enter directly at the high — add a buffer (avoid retail noise).
-- Daily chart: entry = contraction HIGH × 1.01; stop = contraction LOW × 0.99. (Hourly 0.5%, minute 0.25%.)
-- Use TradingView long-position tool; profit target at least 1:2 reward:risk.
-- (L16 = forex/other markets buffer — not applicable.)
-
-## L17 Breakout zone
-- C1 "established" when price pulls back to the 50 MA.
-- Split C1 range into thirds: top = Pivot area (highest certainty), middle = Cheat area (certainty + cost advantage), bottom = Low Cheat area (cost advantage only).
-- Classify the buying contraction's breakout by which third of C1 it sits in.
-
-## L18 Sell trigger / cut loss
-- 3 parts: cut loss, break-even, take profit (active & passive).
-- Long entry = C high + 1% (daily); stop = lowest low of the buying C − 1%.
-
-## L19 Break-even
-- If take-profit target = 1:2 → when price reaches 1:1.5, move stop to entry. (If target 1:1.5 → move at 1:1.)
-- Alternative: when the 50 MA rises above the entry price, move stop to entry.
-
-## L20 Active profit (主动套利)
-- Fixed take-profit order at R multiple (1:1.5 or 1:2).
-
-## L21 Passive profit (被动套利) (from sampled frames)
-- Trailing exit: stop trails the latest 50-day MA minus 1% buffer; exit when price loses the 50 MA (momentum gone).
-
-## L22 Position size (Amount)
-- First trade 6.25% of capital; after a winning trade step up to 12.5%, then 25% ("push one step further after profit"). (Reset after a loss — implied.)
+## Crypto signal (portal SCV Signal, for reference)
+- The portal's live crypto signal runs on the 1-hour chart, long only, for liquid USDT perpetuals (turnover of at least 1M USDT), and requires daily Stage 2 as well. This screener runs crypto on the daily chart.

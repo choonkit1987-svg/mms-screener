@@ -25,13 +25,13 @@ Results are published as a web dashboard (GitHub Pages) with candlestick charts,
 |---|---|---|
 | Universe agent | – | Downloads the current index members (S&P 500 from GitHub datasets; Nasdaq-100, Dow 30, FBM KLCI and CSI 300 from Wikipedia) |
 | Market-data agent | – | Daily OHLCV, 2 years (Massive/Polygon grouped-daily with a free key, or Yahoo) |
-| Stage agent | Ch.1 Stage 1–4 | 150-day MA slope + price position → Stage 1/2/3/4 and strength |
-| Contraction agent | Ch.2 Contraction, Base | Finds C1…C6 from the highest high since the 150/200 cross; checks tightening, rising lows, last contraction < 10%, breakout zone |
-| Volume agent | Ch.3 Volume | Big up vs big down candles above the 50-day volume average; US$1M/day liquidity |
+| Stage agent | Ch.1 Stage 1–4 | 150-day MA slope + price position → Stage 1/2/3/4 and strength; SCV "S" check (price above all three MAs, 150 above 200) |
+| Contraction agent | Ch.2 Contraction, Base | Finds C1…C6 after the 50/150/200 MAs line up; each C needs 3+ down or indecision candles in a row, C1 must reach the 50 MA; checks tightening, rising lows, last contraction < 10%, 1st–3rd base only, breakout zone |
+| Volume agent | Ch.3 Volume | SCV "V" check (up-candle volume beats down-candle volume since C1); big up vs big down candles above the 50-day volume average; US$1M/day liquidity |
 | Risk agent | Ch.4–6 Buffer, Stop, Breakeven, Amount | Entry = C high +1%, stop = C low −1%, target 1:2, breakeven at 1:1.5, size 6.25% |
 | Ranking agent | – | Scores 0–100 (MMS score v3, a profile per market, see below) and picks the top 5 each side |
 
-Full rule mapping: [RULES.md](RULES.md).
+Full rule mapping: [RULES.md](RULES.md). The rules follow the 2026 student portal (SCV: Stage, Contraction, Volume). The original rule set is still available for comparison by setting `rules: 'classic'` in `CONFIG` (`src/engine.js`).
 
 ## Set up (about 10 minutes, free)
 

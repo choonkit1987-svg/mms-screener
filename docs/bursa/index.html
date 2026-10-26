@@ -234,15 +234,19 @@ details.wltok ol{font-size:13px;margin:6px 0 8px;padding-left:18px}
     <div><h3>1 · Stage agent</h3><ul>
       <li>Daily chart, 150-day moving average only.</li>
       <li>Stage 2: 150 MA rising, price above it. Further above = stronger.</li>
+      <li>A buy also needs price above all three MAs with the 150 above the 200 (mirrored for shorts).</li>
       <li>Stage 4: 150 MA falling, price below it — the shorting stage.</li>
       <li>Stage 1 / 3: 150 MA flat (base / top).</li>
       <li>Early alert: Stage 1 turning up (150 MA slope improving, price above a rising 50 MA, 3+ big up-volume days since the low) with a valid contraction setup. Mirrored for Stage 3 → 4.</li></ul><div class="src">Course ch.1 · Stage 1–4</div></div>
     <div><h3>2 · Contraction agent</h3><ul>
-      <li>Counts pullbacks (C1, C2 …) from the highest high since the 150 MA crossed the 200 MA.</li>
-      <li>Each contraction must be shallower, each low higher.</li>
+      <li>Starts counting only after the 50, 150 and 200 MAs line up (50 on top, 200 at the bottom).</li>
+      <li>A pullback counts as a contraction (C) only with 3+ down or indecision candles in a row after its high.</li>
+      <li>C1 must dip to the 50 MA or below. Each later C is shallower, each low higher.</li>
       <li>Buy point in C2–C6, and the buying contraction must be under 10%.</li>
-      <li>Breakout zone inside C1: Pivot, Cheat or Low Cheat third.</li></ul><div class="src">Course ch.2 · Contraction, Base, Breakout zone</div></div>
+      <li>Only the 1st to 3rd base of a trend is traded.</li>
+      <li>Breakout zone inside C1: Pivot, Cheat or Low Cheat third.</li></ul><div class="src">2026 portal · Contraction, Base, Breakout zone</div></div>
     <div><h3>3 · Volume agent</h3><ul>
+      <li>Up-candle volume must outweigh down-candle volume since C1 (reversed for shorts).</li>
       <li>Counts valid candles (body bigger than both wicks) whose volume beats the 50-day volume average.</li>
       <li>More big up-days than big down-days favours a long; the reverse favours a short.</li>
       <li id="liqrule">50-day average volume × price must exceed US$1M a day.</li></ul><div class="src">Course ch.3 · Volume</div></div>
@@ -336,7 +340,7 @@ function card(p,i,side){
       <span class="chip ${p.tier==='watch'?'watch':'setup'}">${p.tier==='watch'?'Watch':p.tier==='early'?'Early alert · Stage '+p.stage+'→'+(side==='long'?2:4):'Valid setup'}</span>
       <span class="chip ${trig?'trig':''}">${STATUS[p.status]||p.status}${p.risk&&p.status==='SETUP'?' · '+pct(Math.abs(side==='long'?p.risk.entry/p.close-1:1-p.risk.entry/p.close))+' away':''}</span>
       <span class="chip">Stage ${p.stage}</span>
-      ${p.zone?`<span class="chip">${esc(p.zone)} zone</span>`:''}
+      ${p.zone?`<span class="chip">${esc(p.zone)} zone</span>`:''}${p.base?`<span class="chip">Base ${p.base}</span>`:''}
       <span class="chip">6-mo ${p.ret126>=0?'+':''}${pct(p.ret126,0)}</span>
     </div>
     ${p.tier==='watch'&&p.reason?`<div class="why">Not a valid setup yet: ${esc(p.reason)}.</div>`:''}

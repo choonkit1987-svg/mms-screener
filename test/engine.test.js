@@ -4,11 +4,11 @@ import { analyzeTicker, rankAll, sma, zigzag, invertBars } from '../src/engine.j
 // deterministic pseudo-random
 let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
 function day(i) { const d = new Date(Date.UTC(2025, 0, 1)); d.setUTCDate(d.getUTCDate() + i); return d.toISOString().slice(0, 10); }
-function fromPath(path, vol = 2e6) {
+function fromPath(path, vol = 2e6, favourUp = true) {
   return path.map((c, i) => {
     const prev = i ? path[i - 1] : c;
     const o = prev, h = Math.max(o, c) * (1 + 0.004 * rnd()), l = Math.min(o, c) * (1 - 0.004 * rnd());
-    return { t: day(i), o, h, l, c, v: vol * (0.7 + 0.6 * rnd()) * (c > o ? 1.4 : 0.8) };
+    return { t: day(i), o, h, l, c, v: vol * (0.7 + 0.6 * rnd()) * ((c > o) === favourUp ? 1.4 : 0.8) };
   });
 }
 // piecewise-linear price path through waypoints
@@ -40,7 +40,7 @@ assert.ok(Math.abs(r.stop - st.contractions[st.count - 1].lo * 0.99) < 1e-9, 'st
 assert.ok(Math.abs((r.target - r.entry) - 2 * (r.entry - r.stop)) < 1e-9, 'target 1:2');
 
 // 3) Stage 4 downtrend with tightening rallies (bear VCP)
-const dn = fromPath(path([[0, 100], [200, 98], [300, 50], [320, 60], [345, 52], [360, 56.5], [380, 53], [392, 55], [400, 53.5]]));
+const dn = fromPath(path([[0, 100], [200, 98], [300, 50], [320, 60], [345, 52], [360, 56.5], [380, 53], [392, 55], [400, 53.5]]), 2e6, false);
 const b = analyzeTicker({ ticker: 'BEAR', name: 'Test Bear', sector: 'Test' }, dn);
 assert.equal(b.stage, 4, 'downtrend should be Stage 4');
 const sb = b.short.setup;
@@ -103,12 +103,43 @@ import fs from 'node:fs';
 import { rankAll as rankAll2 } from '../src/engine.js';
 const bbyBars = JSON.parse(fs.readFileSync(new URL('./fixtures/bby-2026.json', import.meta.url))).BBY.map(([t, o, h, l, c, v]) => ({ t, o, h, l, c, v }));
 const upTo = d => bbyBars.filter(b => b.t <= d);
-const bby = analyzeTicker({ ticker: 'BBY' }, upTo('2026-06-24'));
+import { CONFIG } from '../src/engine.js';
+const classic = { ...CONFIG, rules: 'classic' };
+const bby = analyzeTicker({ ticker: 'BBY' }, upTo('2026-06-24'), classic);
 assert.equal(bby.stage, 1); assert.equal(bby.early?.side, 'long'); assert.ok(bby.leanS.setup.valid);
 assert.ok(Math.abs(bby.leanS.risk.entry - 77.85) < 0.05, 'BBY buy-stop ' + bby.leanS.risk.entry);
 const rk = rankAll2([bby]);
 assert.equal(rk.up.early.length, 1); assert.equal(rk.up.early[0].tier, 'early'); assert.equal(rk.up.top.length, 0);
-assert.equal(analyzeTicker({ ticker: 'BBY' }, upTo('2026-05-27')).early, undefined, 'no alert while still in Stage 4');
+assert.equal(analyzeTicker({ ticker: 'BBY' }, upTo('2026-05-27'), classic).early, undefined, 'no alert while still in Stage 4');
+// 2026 rules: BBY's June dips lasted only 2 candles, so they are not qualified contractions yet
+const bby2 = analyzeTicker({ ticker: 'BBY' }, upTo('2026-06-24'));
+assert.equal(bby2.leanS.setup.valid, false); assert.match(bby2.leanS.setup.reason, /qualified contraction/);
+assert.equal(rankAll2([bby2]).up.early.length, 0);
+// 8b) 2026 contraction building blocks
+import { candleType, downRun, alignedAt, lastAlignment, baseCount, contractionAgent, computeIndicators } from '../src/engine.js';
+assert.equal(candleType({ o: 10, h: 11.1, l: 9.9, c: 11 }), 'up');
+assert.equal(candleType({ o: 11, h: 11.1, l: 9.9, c: 10 }), 'down');
+assert.equal(candleType({ o: 10, h: 11, l: 9, c: 10.2 }), 'doji', 'wicks larger than body = indecision');
+const cb = (o, c, w = 0.05) => ({ o, c, h: Math.max(o, c) + w, l: Math.min(o, c) - w });
+assert.equal(downRun([cb(10, 11), cb(11, 10), cb(10, 9), cb(9, 10), cb(10, 9), cb(9, 8.95, 0.5), cb(8.9, 8.5)], 0, 6), 3, 'down, indecision and down in a row = 3; an up candle resets the run');
+const ind3 = { sma50: [3, 3, 1, 3, 3], sma150: [2, 2, 2, 2, 2], sma200: [1, 1, 1, 1, 1] };
+assert.equal(alignedAt(ind3, 0), true); assert.equal(alignedAt(ind3, 2), false); assert.equal(lastAlignment(ind3), 3);
+assert.equal(lastAlignment({ sma50: [1, 1], sma150: [2, 2], sma200: [3, 3] }), -1);
+assert.equal(lastAlignment({ sma50: [1, 1], sma150: [2, 2], sma200: [3, 3] }, false), 0);
+// base counting: run up, pull back to the 50 MA (base 1), break out, pull back again (base 2)
+const bc = [14, 15, 11, 16, 17, 12.5].map((c, i) => ({ t: String(i), o: c, h: c, l: c, c }));
+assert.equal(baseCount(bc, { sma50: Array(6).fill(13) }, 0), 2);
+assert.equal(baseCount(bc.slice(0, 2), { sma50: [10, 10] }, 0), 0, 'no pullback to the 50 MA yet');
+// the VCP fixture still passes the 2026 rules: it lines up, C1 reaches the 50 MA, each pullback has 3+ down candles
+assert.equal(a.long.setup.rules, 'scv'); assert.ok(a.long.setup.contractions.every(c => c.run >= 3)); assert.equal(a.long.setup.base, 1);
+assert.equal(a.long.S, true); assert.equal(a.long.vol.volOk, true);
+// a 2-candle dip is folded into the next swing instead of counting as its own contraction
+const dip = fromPath(path([[0, 50], [200, 52], [300, 100], [320, 82], [345, 97], [347, 95], [349, 97.5], [362, 88.3], [380, 95], [392, 91.2], [400, 94]]));
+const dipA = analyzeTicker({ ticker: 'DIP' }, dip);
+assert.ok(!dipA.long.setup.contractions.some(c => c.hiT === dip[345].t && c.loT === dip[347].t), 'the 2-candle dip is not a contraction');
+// MAs never lined up -> no Stage 2 setup under the 2026 rules
+const noAlign = contractionAgent(up, computeIndicators(up), -1, CONFIG, { requireAlign: true });
+assert.equal(noAlign.valid, false); assert.match(noAlign.reason, /lined up/);
 // 9) watchlist parser
 import { parseWatchlist } from '../src/data.js';
 assert.deepEqual(parseWatchlist('# my list\nTEM, Tempus AI\n spcx \nTEM\n\nbrk.b ; Berkshire\n').map(u => [u.ticker, u.name]), [['TEM', 'Tempus AI'], ['SPCX', 'SPCX'], ['BRK.B', 'Berkshire']]);
