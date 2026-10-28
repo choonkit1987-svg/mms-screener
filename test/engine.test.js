@@ -195,4 +195,22 @@ const tc = parseTencent({ data: { sh600519: { qfqday: [['2026-10-15', '1286.000'
 assert.deepEqual(tc[0], em[0]);
 const cov = coverage([{ ticker: 'A' }, { ticker: 'B' }, { ticker: 'C' }], { A: [{ t: '2026-10-16' }], B: [{ t: '2026-09-01' }] });
 assert.equal(cov.fresh, 1); assert.equal(cov.total, 3);
+// 13) US Stocks = S&P 500 + Nasdaq-100 + Dow 30, each stock once with its indices
+import { combineUS, mergeLegacyScorecards } from '../src/run.js';
+const usu = combineUS([{ ticker: 'AAPL', name: 'Apple', sector: 'Information Technology' }, { ticker: 'JPM', name: 'JPMorgan', sector: 'Financials' }],
+  [{ ticker: 'AAPL', name: 'Apple Inc.', sector: 'Technology' }, { ticker: 'ASML', name: 'ASML', sector: 'Technology' }], [{ ticker: 'AAPL' }, { ticker: 'JPM' }]);
+assert.deepEqual(usu.map(u => [u.ticker, u.idx.join('+')]), [['AAPL', 'S&P 500+Nasdaq-100+Dow 30'], ['JPM', 'S&P 500+Dow 30'], ['ASML', 'Nasdaq-100']]);
+assert.equal(usu[0].sector, 'Information Technology', 'S&P sector wins');
+const ua = analyzeTicker({ ticker: 'VCP', idx: ['Nasdaq-100'] }, up);
+assert.deepEqual(lookupTable([ua])[0].ix, ['Nasdaq-100']);
+// old Nasdaq/Dow scorecards fold into the US one exactly once
+import nodePath from 'node:path';
+const sd = fs.mkdtempSync(os.tmpdir() + '/us-'), nd = fs.mkdtempSync(os.tmpdir() + '/nq-');
+fs.writeFileSync(nodePath.join(sd, 'scorecard.json'), JSON.stringify({ market: 'stocks', entries: [{ id: '2026-10-16:AAPL:long', d: '2026-10-16', t: 'AAPL', side: 'long', status: 'open' }] }));
+fs.writeFileSync(nodePath.join(nd, 'scorecard.json'), JSON.stringify({ market: 'nasdaq', entries: [{ id: '2026-10-16:AAPL:long', d: '2026-10-16', t: 'AAPL', side: 'long', status: 'open' }, { id: '2026-10-16:FAST:long', d: '2026-10-16', t: 'FAST', side: 'long', status: 'waiting' }] }));
+mergeLegacyScorecards(sd, [[nd, 'Nasdaq-100']], () => {});
+mergeLegacyScorecards(sd, [[nd, 'Nasdaq-100']], () => {});
+const merged = JSON.parse(fs.readFileSync(nodePath.join(sd, 'scorecard.json'), 'utf8')).entries;
+assert.deepEqual(merged.map(e => e.t), ['AAPL', 'FAST']); assert.equal(merged[1].from, 'Nasdaq-100');
+assert.ok(fs.existsSync(nodePath.join(nd, 'scorecard.merged.json')) && !fs.existsSync(nodePath.join(nd, 'scorecard.json')));
 console.log('ALL TESTS PASSED');

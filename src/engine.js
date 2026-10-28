@@ -403,7 +403,7 @@ export function analyzeTicker(meta, bars, cfg = CONFIG) {
   const stage = stageAgent(bars, ind, cfg);
   const close = bars[n - 1].c;
   const ret126 = n > 127 ? close / bars[n - 127].c - 1 : 0;
-  const base = { ticker: meta.ticker, name: meta.name, sector: meta.sector, close, asOf: bars[n - 1].t,
+  const base = { ticker: meta.ticker, name: meta.name, sector: meta.sector, ...(meta.idx ? { idx: meta.idx } : {}), close, asOf: bars[n - 1].t,
     stage: stage.stage, slope150: stage.slope, dist150: stage.dist, ret126,
     sma50: ind.sma50[n - 1], sma150: ind.sma150[n - 1], sma200: ind.sma200[n - 1],
     dist50: close / ind.sma50[n - 1] - 1, ret21: n > 22 ? close / bars[n - 22].c - 1 : 0, ...hiLo(bars, close),
@@ -608,7 +608,7 @@ export function lookupRecord(a, rsPct, k = 120) {
   const day = t => Math.round((Date.parse(t) - Date.parse(t0)) / 864e5);
   const idx = t => a.chart.t.indexOf(t) - s0;
   return {
-    t: a.ticker, n: a.name, sec: a.sector, st: a.stage, dir, side, head, why, action,
+    t: a.ticker, n: a.name, sec: a.sector, ...(a.idx ? { ix: a.idx } : {}), st: a.stage, dir, side, head, why, action,
     status: st.status || null, valid: !!st.valid, zone: st.zone || null, early: a.early ? 1 : 0,
     close: r(a.close), asOf: a.asOf, slope150: +a.slope150.toFixed(4), dist150: +a.dist150.toFixed(4), ret126: +a.ret126.toFixed(4),
     lv: S?.risk ? { e: r(S.risk.entry), s: r(S.risk.stop), tg: r(S.risk.target), be: r(S.risk.breakeven), risk: +S.risk.riskPct.toFixed(4), size: S.risk.positionPct } : null,

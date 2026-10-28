@@ -110,6 +110,36 @@ textarea{font:inherit;font-size:15px;width:100%;min-height:76px;padding:9px 12px
 .debate{display:flex;flex-direction:column;gap:10px}
 .foot{color:var(--muted);font-size:12.5px;max-width:95ch}
 .empty{padding:22px;border:1px dashed var(--rule);border-radius:10px;color:var(--muted)}
+/* sidebar layout */
+.shell{display:grid;grid-template-columns:252px minmax(0,1fr);gap:24px;align-items:start}
+.shell>*{min-width:0}
+.side{position:sticky;top:16px;display:flex;flex-direction:column;gap:6px;background:var(--surface);border:1px solid var(--rule);border-radius:12px;padding:12px 10px}
+.sidelabel{padding:2px 10px 4px}
+.menu{display:flex;flex-direction:column;gap:2px}
+.menu button{display:flex;align-items:center;gap:10px;width:100%;text-align:left;font:600 14.5px/1.25 var(--body);padding:10px;border-radius:8px;border:0;background:none;color:var(--ink);cursor:pointer;min-height:44px}
+.menu button svg{width:18px;height:18px;flex:none;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;color:var(--muted)}
+.menu button .mt{flex:1;white-space:nowrap}
+.menu button:hover{background:var(--soft)}
+.menu button[aria-current=page]{background:var(--ink);color:var(--bg)}
+.menu button[aria-current=page] svg{color:var(--bg)}
+.cnt{font-family:var(--mono);font-size:11.5px;font-weight:500;padding:1px 7px;border-radius:999px;background:var(--soft);color:var(--muted);white-space:nowrap}
+.cnt.up{background:var(--up-soft);color:var(--up)}.cnt.down{background:var(--down-soft);color:var(--down)}
+.menu button[aria-current=page] .cnt{background:rgba(127,127,127,.28);color:var(--bg)}
+.sidefoot{font-size:12px;color:var(--muted);padding:8px 10px 2px;border-top:1px solid var(--rule);display:flex;flex-direction:column;gap:2px}
+.sidefoot b{font-family:var(--mono);font-weight:500;color:var(--ink)}
+.main{display:flex;flex-direction:column;gap:18px;min-width:0}
+.view{display:flex;flex-direction:column;gap:12px;min-width:0}
+.view .list{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,440px),1fr));gap:8px}
+@media (max-width:900px){
+  .shell{grid-template-columns:1fr;gap:14px}
+  .side{position:sticky;top:0;z-index:20;flex-direction:row;padding:6px;border-radius:10px;box-shadow:0 2px 10px rgba(0,0,0,.06);min-width:0;max-width:100%}
+  .sidelabel,.sidefoot{display:none}
+  .menu{flex-direction:row;overflow-x:auto;scrollbar-width:none;gap:4px;width:100%;min-width:0}
+  .menu::-webkit-scrollbar{display:none}
+  .menu button{width:auto;flex:none;white-space:nowrap;padding:8px 12px;min-height:40px;font-size:14px}
+  #trust{order:1}.main>.foot{order:2}
+}
+@media (max-width:520px){.wrap{padding-inline:16px}.top h1{font-size:28px}.menu button svg{display:none}.pipe{display:none}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 
@@ -125,42 +155,65 @@ textarea{font:inherit;font-size:15px;width:100%;min-height:76px;padding:9px 12px
 
   <div class="pipe" aria-label="Agent pipeline"><b>1 Filter</b>→<b>2 Financial-report decoder</b>→<b>3 Technical (2-week call)</b>→<b>4 Bull vs Bear</b>→<b>5 Risk team</b>→<b>6 Portfolio manager</b>→<b>Ask the agents (AI)</b></div>
 
-  <div id="status" class="warnbox" hidden></div>
+  <div class="shell">
+    <aside class="side" aria-label="Agent Desk menu">
+      <span class="label sidelabel">Menu</span>
+      <nav class="menu" id="menu">
+        <button type="button" data-v="analysis"><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="8.5" cy="8.5" r="5.5"/><path d="M13 13l4.5 4.5"/></svg><span class="mt" id="mt-analysis">Analysis of Stock</span></button>
+        <button type="button" data-v="up"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M2.5 14.5l5-5 3.5 3.5 6.5-6.5"/><path d="M12.5 6.5h5v5"/></svg><span class="mt">Uptrend calls</span><span class="cnt" id="cnt-up"></span></button>
+        <button type="button" data-v="down"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M2.5 5.5l5 5 3.5-3.5 6.5 6.5"/><path d="M12.5 13.5h5v-5"/></svg><span class="mt">Downtrend calls</span><span class="cnt" id="cnt-down"></span></button>
+        <button type="button" data-v="screener"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 4.5h14l-5.5 6.5v5l-3-1.5V11z"/></svg><span class="mt">Screener</span><span class="cnt" id="cnt-sc"></span></button>
+        <button type="button" data-v="ask"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3.5 4.5h13v9h-7l-4 3v-3h-2z"/></svg><span class="mt">Ask the agents</span></button>
+      </nav>
+      <div class="sidefoot" id="sidefoot"></div>
+    </aside>
 
-  <section class="panel" id="trust">
-    <div class="phead"><h2>How often was the 2-week call right?</h2><small id="trustsub"></small></div>
-    <div class="tiles" id="trusttiles"></div>
-    <p class="note" id="trustnote"></p>
-  </section>
+    <main class="main" id="main">
+      <div id="status" class="warnbox" hidden></div>
 
-  <section class="cols">
-    <div><div class="colhead up"><h2>Uptrend calls: likely to beat the market</h2><small id="upn"></small></div><div class="list" id="uplist"></div></div>
-    <div><div class="colhead down"><h2>Downtrend calls: likely to lag or fall</h2><small id="downn"></small></div><div class="list" id="downlist"></div></div>
-  </section>
+      <section class="panel" id="trust" hidden>
+        <div class="phead"><h2>How often was the 2-week call right?</h2><small id="trustsub"></small></div>
+        <div class="tiles" id="trusttiles"></div>
+        <p class="note" id="trustnote"></p>
+      </section>
 
-  <section class="panel" id="lookup">
-    <div class="phead"><h2>Look up any name</h2><small id="lksub"></small></div>
-    <form class="form" id="lkform" autocomplete="off"><input id="lkq" list="tickers" placeholder="Ticker or company, e.g. NVDA" aria-label="Ticker or company"><datalist id="tickers"></datalist><button class="btn">Show agents</button></form>
-    <div id="detail"></div>
-  </section>
+      <section class="view" data-view="up" hidden>
+        <div class="colhead up"><h2>Uptrend calls: likely to beat the market</h2><small id="upn"></small></div><div class="list" id="uplist"></div>
+      </section>
+      <section class="view" data-view="down" hidden>
+        <div class="colhead down"><h2>Downtrend calls: likely to lag or fall</h2><small id="downn"></small></div><div class="list" id="downlist"></div>
+      </section>
 
-  <section class="panel" id="screen">
-    <div class="phead"><h2>Screener</h2><small id="scsub"></small></div>
-    <div class="form" id="scfilters">
-      <select id="f-call" aria-label="2-week call"><option value="">Any 2-week call</option><option>Uptrend</option><option>Downtrend</option><option>No clear trend</option></select>
-      <select id="f-rating" aria-label="Rating"><option value="">Any rating</option><option>Buy</option><option>Overweight</option><option>Hold</option><option>Underweight</option><option>Sell</option></select>
-      <select id="f-grade" aria-label="Fundamentals"><option value="">Any fundamentals</option><option value="AB">Grade A or B</option><option value="ABC">C or better</option><option value="DF">D or F</option></select>
-      <select id="f-risk" aria-label="Risk"><option value="">Any risk</option><option value="Low">Low risk</option><option value="LowMedium">Low or medium</option><option value="High">High risk</option></select>
-      <select id="f-sector" aria-label="Sector"><option value="">Any sector</option></select>
-      <label class="note" style="display:flex;gap:6px;align-items:center"><input type="checkbox" id="f-passed" checked> Passed filter only</label>
-    </div>
-    <div class="tablewrap"><table><thead><tr id="schead"></tr></thead><tbody id="scbody"></tbody></table></div>
-    <p class="note" id="scnote"></p>
-  </section>
+      <section class="panel view" id="lookup" data-view="analysis">
+        <div class="phead"><h2 id="lkh">Analysis of Stock</h2><small id="lksub"></small></div>
+        <form class="form" id="lkform" autocomplete="off"><input id="lkq" list="tickers" placeholder="Ticker or company, e.g. NVDA" aria-label="Ticker or company"><datalist id="tickers"></datalist><button class="btn">Show agents</button></form>
+        <div id="detail"></div>
+      </section>
 
-  <section class="panel" id="ask">
-    <div class="phead"><h2>Ask the agents</h2><small>AI answers built only on the agents' data above</small></div>
-    <div class="chat">
+      <div class="view" data-view="screener" hidden>
+      <section class="panel" id="screen">
+        <div class="phead"><h2>Screener</h2><small id="scsub"></small></div>
+        <div class="form" id="scfilters">
+          <select id="f-call" aria-label="2-week call"><option value="">Any 2-week call</option><option>Uptrend</option><option>Downtrend</option><option>No clear trend</option></select>
+          <select id="f-rating" aria-label="Rating"><option value="">Any rating</option><option>Buy</option><option>Overweight</option><option>Hold</option><option>Underweight</option><option>Sell</option></select>
+          <select id="f-grade" aria-label="Fundamentals"><option value="">Any fundamentals</option><option value="AB">Grade A or B</option><option value="ABC">C or better</option><option value="DF">D or F</option></select>
+          <select id="f-risk" aria-label="Risk"><option value="">Any risk</option><option value="Low">Low risk</option><option value="LowMedium">Low or medium</option><option value="High">High risk</option></select>
+          <select id="f-sector" aria-label="Sector"><option value="">Any sector</option></select>
+          <label class="note" style="display:flex;gap:6px;align-items:center"><input type="checkbox" id="f-passed" checked> Passed filter only</label>
+        </div>
+        <div class="tablewrap"><table><thead><tr id="schead"></tr></thead><tbody id="scbody"></tbody></table></div>
+        <p class="note" id="scnote"></p>
+      </section>
+      <section class="panel" id="model-panel">
+        <div class="phead"><h2>What the 2-week model looks at</h2><small id="mdsub"></small></div>
+        <p class="note">Weights learned from history. Positive = pushes the call towards "rise", negative = towards "fall". Re-trained every Sunday.</p>
+        <div id="weights"></div>
+      </section>
+      </div>
+
+      <section class="panel view" id="ask" data-view="ask" hidden>
+        <div class="phead"><h2>Ask the agents</h2><small>AI answers built only on the agents' data</small></div>
+        <div class="chat">
       <div style="display:flex;flex-direction:column;gap:10px">
         <div class="keyrow">
           <label for="apikey" class="label">Anthropic API key</label>
@@ -174,16 +227,12 @@ textarea{font:inherit;font-size:15px;width:100%;min-height:76px;padding:9px 12px
         <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" id="send" type="button">Ask</button><button class="btn2" id="clear" type="button">New conversation</button></div>
       </div>
       <aside class="prompts" id="prompts"></aside>
-    </div>
-  </section>
+        </div>
+      </section>
 
-  <section class="panel" id="model-panel">
-    <div class="phead"><h2>What the 2-week model looks at</h2><small id="mdsub"></small></div>
-    <p class="note">Weights learned from history. Positive = pushes the call towards "rise", negative = towards "fall". Re-trained every Sunday.</p>
-    <div id="weights"></div>
-  </section>
-
-  <p class="foot">Agent Desk is a research tool, not financial advice. Its calls are probabilities learned from past prices and SEC filings; the test results above show how often they were right before, which does not guarantee the future. Fundamentals come from companies' 10-Q/10-K filings at data.sec.gov (Q4 is derived from the annual report); the next-report date is estimated as about 3 months after the last filing. Crypto has no financial reports, so coins are judged on price action and risk only.</p>
+      <p class="foot">Agent Desk is a research tool, not financial advice. Its calls are probabilities learned from past prices and SEC filings; the test results above show how often they were right before, which does not guarantee the future. Fundamentals come from companies' 10-Q/10-K filings at data.sec.gov (Q4 is derived from the annual report); the next-report date is estimated as about 3 months after the last filing. Crypto has no financial reports, so coins are judged on price action and risk only.</p>
+    </main>
+  </div>
 </div>
 
 <script>
@@ -193,7 +242,19 @@ const pc=(x,d=0)=>x==null||!isFinite(x)?'n/a':(x*100).toFixed(d)+'%';
 const fp=x=>x==null?'n/a':x>=100?x.toFixed(2):x>=1?x.toFixed(3):(+x).toPrecision(4);
 const money=x=>{if(x==null)return'n/a';const a=Math.abs(x),s=x<0?'-':'';return a>=1e9?`${s}$${(a/1e9).toFixed(1)}B`:a>=1e6?`${s}$${(a/1e6).toFixed(0)}M`:`${s}$${a.toFixed(0)}`};
 const store={get:k=>{try{return localStorage.getItem(k)}catch(e){return null}},set:(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}}};
-const S={market:(location.hash.match(/m=(us|crypto)/)||[])[1]||store.get('desk-market')||'us',data:{},cur:null,sort:{k:'p',dir:-1},chat:[]};
+const VIEWS=['analysis','up','down','screener','ask'];
+const S={market:(location.hash.match(/m=(us|crypto)/)||[])[1]||store.get('desk-market')||'us',view:(location.hash.match(/v=(\w+)/)||[])[1]||'analysis',data:{},cur:null,sort:{k:'p',dir:-1},chat:[]};
+const hashOf=()=>'#m='+S.market+(S.view!=='analysis'?'&v='+S.view:'')+(S.cur?'&t='+encodeURIComponent(S.cur):'');
+// left menu: one view at a time
+function setView(v,push=true){
+  if(!VIEWS.includes(v))v='analysis';S.view=v;
+  document.querySelectorAll('.view').forEach(x=>x.hidden=x.dataset.view!==v);
+  document.querySelectorAll('#menu button').forEach(b=>{if(b.dataset.v===v)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current')});
+  $('#trust').hidden=!(v==='up'||v==='down')||!S.data[S.market];
+  const cur=document.querySelector(`#menu button[data-v="${v}"]`);if(cur&&matchMedia('(max-width:900px)').matches)cur.scrollIntoView({block:'nearest',inline:'center'});
+  try{push?history.pushState(null,'',hashOf()):history.replaceState(null,'',hashOf())}catch(e){}
+  const m=$('#main');if(m.getBoundingClientRect().top<0)m.scrollIntoView({block:'start'});
+}
 const callCls=c=>c==='Uptrend'?'c-up':c==='Downtrend'?'c-down':'c-none';
 const unit=()=>S.market==='us'?'stock':'coin';
 
@@ -208,14 +269,22 @@ async function load(m){
   d.by=new Map(d.rows.map(r=>[r.t,r]));return S.data[m]=d;
 }
 async function show(m){
-  S.market=m;store.set('desk-market',m);history.replaceState(null,'','#m='+m+(S.cur?'&t='+encodeURIComponent(S.cur):''));
+  const t=(location.hash.match(/t=([^&]+)/)||[])[1];
+  S.market=m;store.set('desk-market',m);try{history.replaceState(null,'',hashOf())}catch(e){}
   document.querySelectorAll('#nav [data-m]').forEach(b=>b.toggleAttribute('aria-current',b.dataset.m===m));
   let d;try{d=await load(m)}catch(e){$('#status').hidden=false;$('#status').innerHTML=`<b>No ${m==='us'?'stock':'crypto'} results yet.</b> They appear after the next scheduled scan (stocks Mon–Fri 6:30 am, crypto daily 10:30 am Malaysia time), or run the workflow from the GitHub Actions tab.`;return}
   $('#status').hidden=true;
   $('#asof').textContent=d.asOf;
-  $('#sub').textContent=`Six agents read ${d.rank.total} ${m==='us'?'US stocks (S&P 500, Nasdaq-100 and your watchlist)':'top coins'} and make a 2-week call (${d.horizonLabel}): which are likely to trend up (beat the average ${unit()}) or down (lag it)?`;
+  $('#sub').textContent=`Six agents read ${d.rank.total} ${m==='us'?'US stocks (S&P 500, Nasdaq-100, Dow 30 and your watchlist)':'top coins'} and make a 2-week call (${d.horizonLabel}): which are likely to trend up (beat the average ${unit()}) or down (lag it)?`;
   trust(d);lists(d);fillLookup(d);screen(d);weights(d);prompts(d);
-  const t=(location.hash.match(/t=([^&]+)/)||[])[1];detail(t&&d.by.has(decodeURIComponent(t))?decodeURIComponent(t):d.rank.up[0]||d.rows[0]?.t,false);
+  const c=m==='crypto';
+  $('#mt-analysis').textContent=$('#lkh').textContent=c?'Analysis of Coin':'Analysis of Stock';
+  $('#cnt-up').textContent=d.rank.calls.up;$('#cnt-up').className='cnt up';
+  $('#cnt-down').textContent=d.rank.calls.down;$('#cnt-down').className='cnt down';
+  $('#cnt-sc').textContent=d.rows.filter(r=>!r.skip).length;
+  $('#sidefoot').innerHTML=`<span>Prices as of <b>${esc(d.asOf)}</b></span><span>${d.rank.passed} of ${d.rank.total} ${c?'coins':'stocks'} passed the filter</span><span>2-week call held up in <b>${Math.round((d.model.reliability??0)*100)}%</b> of test periods</span>`;
+  detail(t&&d.by.has(decodeURIComponent(t))?decodeURIComponent(t):d.rank.up[0]||d.rows[0]?.t,false);
+  setView(S.view,false);
 }
 
 function trust(d){
@@ -251,7 +320,7 @@ function find(q){const d=S.data[S.market];q=q.trim();if(!q)return null;const u=q
 
 function detail(t,scroll=true){
   const d=S.data[S.market],r=d.by.get(t),el=$('#detail');if(!r){el.innerHTML='';return}
-  S.cur=t;history.replaceState(null,'','#m='+S.market+'&t='+encodeURIComponent(t));
+  S.cur=t;try{history.replaceState(null,'',hashOf())}catch(e){}
   if(r.skip){el.innerHTML=`<div class="empty"><b>${esc(t)}</b>: ${esc(r.skip)}.</div>`;return}
   const T=r.tech,R=r.risk,F=r.fund,B=r.research,P=r.pm,dir=T.call==='Uptrend'?'up':T.call==='Downtrend'?'down':'';
   const plan=R.plan;
@@ -286,7 +355,7 @@ function detail(t,scroll=true){
   </div>
   <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn2" type="button" id="askthis">Ask the AI about ${esc(r.t)}</button><button class="btn2" type="button" id="debatebtn">Run AI debate on ${esc(r.t)} (≈7 calls)</button></div>
   <div class="debate" id="debate"></div>`;
-  $('#askthis').onclick=()=>{$('#q').value=`Explain the agents' view on ${r.t} in plain English: the 2-week call, what the financial reports say, the main risks, and the exact plan for my risk profile.`;$('#ask').scrollIntoView({behavior:'smooth'});$('#q').focus()};
+  $('#askthis').onclick=()=>{$('#q').value=`Explain the agents' view on ${r.t} in plain English: the 2-week call, what the financial reports say, the main risks, and the exact plan for my risk profile.`;setView('ask');$('#q').focus()};
   $('#debatebtn').onclick=()=>runDebate(r);
   prompts(d); // suggested prompts follow the name that is open
   if(scroll)el.scrollIntoView({behavior:'smooth',block:'start'});
@@ -424,8 +493,11 @@ async function runDebate(r){
 
 // ---------- wiring ----------
 document.querySelectorAll('#nav [data-m]').forEach(b=>b.onclick=()=>{S.cur=null;S.chat=[];show(b.dataset.m)});
-document.addEventListener('click',e=>{const b=e.target.closest('.row[data-t],tbody tr[data-t]');if(b)detail(b.dataset.t)});
-$('#lkform').onsubmit=e=>{e.preventDefault();const t=find($('#lkq').value);if(t)detail(t);else $('#detail').innerHTML=`<div class="empty">No ${unit()} called "${esc($('#lkq').value)}" in today's list.</div>`};
+$('#menu').addEventListener('click',e=>{const b=e.target.closest('button[data-v]');if(b)setView(b.dataset.v)});
+// a row in Uptrend / Downtrend calls or the Screener opens that name in Analysis
+document.addEventListener('click',e=>{const b=e.target.closest('.row[data-t],tbody tr[data-t]');if(b){detail(b.dataset.t,false);setView('analysis')}});
+window.addEventListener('popstate',()=>{const t=(location.hash.match(/t=([^&]+)/)||[])[1];if(t&&S.data[S.market]?.by.has(decodeURIComponent(t))&&decodeURIComponent(t)!==S.cur)detail(decodeURIComponent(t),false);setView((location.hash.match(/v=(\w+)/)||[])[1]||'analysis',false)});
+$('#lkform').onsubmit=e=>{e.preventDefault();const t=find($('#lkq').value);if(t)detail(t,false);else $('#detail').innerHTML=`<div class="empty">No ${unit()} called "${esc($('#lkq').value)}" in today's list.</div>`};
 ['#f-call','#f-rating','#f-grade','#f-risk','#f-sector','#f-passed'].forEach(s=>$(s).onchange=()=>screen(S.data[S.market]));
 $('#schead').onclick=e=>{const k=e.target.closest('th')?.dataset.k;if(!k)return;S.sort=S.sort.k===k?{k,dir:-S.sort.dir}:{k,dir:k==='t'||k==='n'||k==='risk'||k==='vol'?1:-1};screen(S.data[S.market])};
 $('#apikey').value=store.get('desk-key')||'';$('#model').value=store.get('desk-model')||'claude-sonnet-5-5';

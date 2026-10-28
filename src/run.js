@@ -15,7 +15,7 @@ import { loadUniverse, loadNasdaq100, loadDow30, loadWatchlist, cachedList, yaho
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const log = (...a) => console.log(new Date().toISOString().slice(11, 19), ...a);
 
-export const MARKET_LABELS = { stocks: 'S&P 500', nasdaq: 'Nasdaq-100', dow: 'Dow Jones 30', bursa: 'FBM KLCI 30', china: 'CSI 300', watch: 'My watchlist', crypto: 'Top 100 coins' };
+export const MARKET_LABELS = { stocks: 'US Stocks (S&P 500 + Nasdaq-100 + Dow 30)', nasdaq: 'Nasdaq-100', dow: 'Dow Jones 30', bursa: 'FBM KLCI 30', china: 'CSI 300', watch: 'My watchlist', crypto: 'Top 100 coins' };
 
 export function buildReport(universe, history, provider, { cfg = CONFIG, regimeTicker = 'SPY', market = 'stocks' } = {}) {
   cfg = { ...cfg, scoreProfile: PROFILE_OF[market] || 'stocks' }; // which score v3 profile ranks this market
@@ -30,7 +30,7 @@ export function buildReport(universe, history, provider, { cfg = CONFIG, regimeT
   const pack = (x, side) => {
     const a = x.a, S = x.S || (side === 'long' ? a.long : a.short);
     return {
-      ticker: a.ticker, name: a.name, sector: a.sector, tier: x.tier, score: x.s,
+      ticker: a.ticker, name: a.name, sector: a.sector, ...(a.idx ? { idx: a.idx } : {}), tier: x.tier, score: x.s,
       stage: a.stage, close: a.close, asOf: a.asOf, slope150: a.slope150, dist150: a.dist150, ret126: a.ret126,
       status: S.setup.status, valid: S.setup.valid, reason: S.setup.reason, zone: S.setup.zone, base: S.setup.base ?? null,
       contractions: (S.setup.contractions || []).map(c => ({ hi: c.hi, lo: c.lo, hiT: c.hiT, loT: c.loT, depth: c.depth, open: !!c.open })),
@@ -88,10 +88,12 @@ async function main() {
   log(`  history for ${Object.keys(history).length} tickers`);
 
   log('Stage / Contraction / Volume / Risk agents: analysing');
-  const pages = [['S&P 500', universe, 'docs/data', { regimeTicker: 'SPY', market: 'stocks' }]];
-  if (lists.nasdaq.length) pages.push(['Nasdaq-100', lists.nasdaq, 'docs/nasdaq/data', { regimeTicker: 'QQQ', market: 'nasdaq' }]);
+  // US Stocks = S&P 500 + Nasdaq-100 + Dow 30 in one list (each stock once, tagged with the indices it belongs to)
+  const us = combineUS(universe, lists.nasdaq, lists.dow);
+  log(`  US Stocks: ${us.length} tickers (S&P 500 ${universe.length}, Nasdaq-100 ${lists.nasdaq.length}, Dow 30 ${lists.dow.length})`);
+  mergeLegacyScorecards(path.join(root, 'docs/data'), [['docs/nasdaq/data', 'Nasdaq-100'], ['docs/dow/data', 'Dow Jones 30']].map(([d, l]) => [path.join(root, d), l]), log);
+  const pages = [['US Stocks', us, 'docs/data', { regimeTicker: 'SPY', market: 'stocks' }]];
   if (lists.watch.length) pages.push(['My watchlist', lists.watch, 'docs/watch/data', { regimeTicker: 'SPY', market: 'watch' }]);
-  if (lists.dow.length) pages.push(['Dow Jones 30', lists.dow, 'docs/dow/data', { regimeTicker: 'DIA', market: 'dow' }]);
   for (const [label, uni, dir, opts] of pages) {
     const check = enoughData(label, uni, history, path.join(root, dir), health, log, opts.market === 'watch' ? 0.3 : 0.6);
     if (!check.ok) continue;
@@ -107,9 +109,41 @@ async function main() {
   // Runs after the MMS pages so it can show each name's MMS stage; a failure here never blocks the screener.
   try {
     const { runDesk } = await import('./desk/run-desk.js');
-    const deskUni = [...new Map([...universe, ...lists.nasdaq, ...lists.watch].map(u => [u.ticker, u])).values()];
+    const deskUni = [...new Map([...us, ...lists.watch].map(u => [u.ticker, u])).values()];
     await runDesk({ market: 'us', universe: deskUni, history, benchTicker: 'SPY', log });
   } catch (e) { log('Agent Desk failed: ' + (e.stack || e.message)); }
+}
+
+// One US list: S&P 500 names first (they carry the GICS sector), then Nasdaq-100 and Dow 30 names not
+// already in it. Every stock is listed once with `idx` = the indices it belongs to.
+export function combineUS(sp500 = [], nasdaq = [], dow = []) {
+  const map = new Map();
+  for (const [list, label] of [[sp500, 'S&P 500'], [nasdaq, 'Nasdaq-100'], [dow, 'Dow 30']]) {
+    for (const u of list) {
+      const cur = map.get(u.ticker);
+      if (cur) { if (!cur.idx.includes(label)) cur.idx.push(label); if (!cur.sector && u.sector) cur.sector = u.sector; }
+      else map.set(u.ticker, { ...u, idx: [label] });
+    }
+  }
+  return [...map.values()];
+}
+// The Nasdaq-100 and Dow pages were folded into US Stocks: move their scorecard records into the US
+// scorecard once (records already there are kept), then rename the old file so it is not merged again.
+export function mergeLegacyScorecards(dataDir, legacy, log = console.log) {
+  const file = path.join(dataDir, 'scorecard.json');
+  let book = null;
+  for (const [dir, label] of legacy) {
+    const f = path.join(dir, 'scorecard.json');
+    if (!fs.existsSync(f)) continue;
+    book ||= fs.existsSync(file) ? JSON.parse(fs.readFileSync(file, 'utf8')) : { market: 'stocks', entries: [] };
+    const old = JSON.parse(fs.readFileSync(f, 'utf8')).entries || [];
+    const have = new Set(book.entries.map(e => e.id)), busy = new Set(book.entries.map(e => e.t + e.side + e.d));
+    const add = old.filter(e => !have.has(e.id) && !busy.has(e.t + e.side + e.d)).map(e => ({ ...e, from: label }));
+    book.entries.push(...add);
+    fs.renameSync(f, path.join(dir, 'scorecard.merged.json'));
+    log(`  scorecard: moved ${add.length} ${label} records into US Stocks`);
+  }
+  if (book) { fs.mkdirSync(dataDir, { recursive: true }); fs.writeFileSync(file, JSON.stringify(book)); }
 }
 
 // tickers with a scorecard entry still waiting for its buy-stop or still open

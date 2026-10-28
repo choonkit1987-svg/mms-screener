@@ -1,4 +1,4 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>MMS Daily Screener</title>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>MMS US Stocks Screener</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
@@ -152,16 +152,62 @@ details.wltok ol{font-size:13px;margin:6px 0 8px;padding-left:18px}
 .verdict p{margin:0;font-size:13.5px}
 .lkside{display:flex;flex-direction:column;gap:10px}
 .lkmsg{color:var(--muted);font-size:14px}
+/* sidebar layout */
+.nav a.desk{border-color:var(--accent);color:var(--accent)}
+.shell{display:grid;grid-template-columns:252px minmax(0,1fr);gap:24px;align-items:start}
+.shell>*{min-width:0}
+.side{position:sticky;top:16px;display:flex;flex-direction:column;gap:6px;background:var(--surface);border:1px solid var(--rule);border-radius:12px;padding:12px 10px}
+.sidelabel{padding:2px 10px 4px}
+.menu{display:flex;flex-direction:column;gap:2px}
+.menu button{display:flex;align-items:center;gap:10px;width:100%;text-align:left;font:600 14.5px/1.25 var(--body);padding:10px 10px;border-radius:8px;border:0;background:none;color:var(--ink);cursor:pointer;min-height:44px}
+.menu button svg{width:18px;height:18px;flex:none;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;color:var(--muted)}
+.menu button .mt{flex:1;white-space:nowrap}
+.menu button:hover{background:var(--soft)}
+.menu button[aria-current=page]{background:var(--ink);color:var(--bg)}
+.menu button[aria-current=page] svg{color:var(--bg)}
+.menu button.minor{font-weight:500;font-size:13.5px;color:var(--muted);margin-top:6px;border-top:1px solid var(--rule);border-radius:0 0 8px 8px;padding-top:12px}
+.menu button.minor[aria-current=page]{color:var(--bg);border-radius:8px}
+.cnt{font-family:var(--mono);font-size:11.5px;font-weight:500;padding:1px 7px;border-radius:999px;background:var(--soft);color:var(--muted);white-space:nowrap}
+.cnt.up{background:var(--up-soft);color:var(--up)}.cnt.down{background:var(--down-soft);color:var(--down)}
+.menu button[aria-current=page] .cnt{background:rgba(127,127,127,.28);color:var(--bg)}
+.sidefoot{font-size:12px;color:var(--muted);padding:8px 10px 2px;border-top:1px solid var(--rule);display:flex;flex-direction:column;gap:2px}
+.sidefoot b{font-family:var(--mono);font-weight:500;color:var(--ink)}
+.main{display:flex;flex-direction:column;gap:18px;min-width:0}
+.view{display:flex;flex-direction:column;gap:14px;min-width:0}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,460px),1fr));gap:14px;align-items:start}
+.ixchips{display:inline-flex;gap:4px;flex-wrap:wrap;vertical-align:1px}
+.chip.ix{background:var(--accent-soft);color:var(--accent)}
+/* browse */
+.browse{display:flex;flex-direction:column;gap:8px;border-top:1px solid var(--rule);padding-top:10px}
+.brfilters{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.brfilters small{color:var(--muted);margin-left:auto}
+.brchk{display:flex;gap:6px;align-items:center;font-size:13px;color:var(--muted)}
+.brlist{display:flex;flex-wrap:wrap;gap:6px;max-height:212px;overflow-y:auto;padding:2px}
+.brlist .lkpick{display:inline-flex;gap:6px;align-items:center}
+.brlist .lkpick i{width:7px;height:7px;border-radius:50%;display:inline-block;background:var(--muted)}
+.brlist .lkpick i.up{background:var(--up)}.brlist .lkpick i.down{background:var(--down)}.brlist .lkpick i.neutral{background:var(--warn)}
+.brlist .lkpick b{font-weight:600}
+@media (max-width:900px){
+  .shell{grid-template-columns:1fr;gap:14px}
+  .side{position:sticky;top:0;z-index:20;flex-direction:row;padding:6px;border-radius:10px;box-shadow:0 2px 10px rgba(0,0,0,.06);min-width:0;max-width:100%}
+  .sidelabel,.sidefoot{display:none}
+  .menu{flex-direction:row;overflow-x:auto;scrollbar-width:none;gap:4px;width:100%;min-width:0}
+  .menu::-webkit-scrollbar{display:none}
+  .menu button{width:auto;flex:none;white-space:nowrap;padding:8px 12px;min-height:40px;font-size:14px}
+  .menu button.minor{margin-top:0;border-top:0;border-radius:8px;padding-top:8px}
+}
+@media (max-width:520px){.wrap{padding-inline:16px}.top h1{font-size:28px}.menu button svg{display:none}
+  .regime{grid-template-columns:1fr 1fr}.regime>div{padding:10px 12px}.regime>div:nth-child(2){grid-column:1/-1;grid-row:1}.regime .v{font-size:17px}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style></head><body>
 
 <div class="wrap">
   <header class="top">
     <div>
-      <nav class="nav" id="nav"><a data-m="stocks" href="#">S&amp;P 500</a><a data-m="nasdaq" href="#">Nasdaq-100</a><a data-m="dow" href="#">Dow Jones</a><a data-m="bursa" href="#">Bursa Malaysia</a><a data-m="china" href="#">China A-shares</a><a data-m="crypto" href="#">Crypto</a><a data-m="watch" href="#">My watchlist</a><a id="desklink" href="#" style="border-color:var(--accent);color:var(--accent)">Agent Desk →</a></nav>
+      <nav class="nav" id="nav" aria-label="Markets"><a data-m="stocks" href="#">US Stocks</a><a data-m="bursa" href="#">Bursa Malaysia</a><a data-m="china" href="#">China A-shares</a><a data-m="crypto" href="#">Crypto</a><a data-m="watch" href="#">My watchlist</a><a id="desklink" class="desk" href="#">Agent Desk →</a></nav>
       <div class="label">Market Maker Strategy · multi-agent scan</div>
-      <h1>MMS Daily <span id="h1b">Screener</span></h1>
-      <p id="intro">Every trading day the agents scan the S&amp;P 500 on the daily chart and pick the 5 strongest Stage 2 buy setups and the 5 strongest Stage 4 short setups, using the course rules for stage, contraction, volume and buy/sell triggers.</p>
+      <h1>MMS <span id="h1b">Screener</span></h1>
+      <p id="intro">Every trading day the agents scan the market on the daily chart and pick the 5 strongest Stage 2 buy setups and the 5 strongest Stage 4 short setups, using the course rules for stage, contraction, volume and buy/sell triggers.</p>
     </div>
     <div class="asof">
       <div><div class="label" id="asoflabel">Market close</div><div class="date" id="asof">—</div></div>
@@ -171,97 +217,125 @@ details.wltok ol{font-size:13px;margin:6px 0 8px;padding-left:18px}
 
   <div class="statusbar" id="statusbar" role="status" hidden></div>
 
-  <section class="regime" id="regime" aria-label="Market regime"></section>
+  <div class="shell">
+    <aside class="side" aria-label="Screener menu">
+      <span class="label sidelabel">Menu</span>
+      <nav class="menu" id="menu">
+        <button type="button" data-v="analysis"><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="8.5" cy="8.5" r="5.5"/><path d="M13 13l4.5 4.5"/></svg><span class="mt">Analysis of Stock</span></button>
+        <button type="button" data-v="up"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M2.5 14.5l5-5 3.5 3.5 6.5-6.5"/><path d="M12.5 6.5h5v5"/></svg><span class="mt">Uptrend Stocks</span><span class="cnt" id="cnt-up"></span></button>
+        <button type="button" data-v="down"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M2.5 5.5l5 5 3.5-3.5 6.5 6.5"/><path d="M12.5 13.5h5v-5"/></svg><span class="mt">Downtrend Stocks</span><span class="cnt" id="cnt-down"></span></button>
+        <button type="button" data-v="scorecard"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 16.5h14"/><path d="M5.5 13.5v-4M10 13.5v-8M14.5 13.5v-6"/></svg><span class="mt">Live Scorecard</span><span class="cnt" id="cnt-sc"></span></button>
+        <button type="button" data-v="watchlist" id="menu-wl" hidden><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 5.5h12M4 10h12M4 14.5h7"/></svg><span class="mt">Manage watchlist</span></button>
+        <button type="button" data-v="rules" class="minor"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 3.5h9.5L16 6v10.5H4z"/><path d="M7 9h6M7 12.5h6"/></svg><span class="mt">How the agents decide</span></button>
+      </nav>
+      <div class="sidefoot" id="sidefoot"></div>
+    </aside>
 
-  <section class="lookup" aria-labelledby="lkh">
-    <div class="lkhead"><h2 id="lkh">Analyse a stock</h2><small id="lkmeta">Type any S&amp;P 500 ticker or company name</small></div>
-    <form class="lkform" id="lkform" autocomplete="off">
-      <label class="label" for="lkq" hidden>Ticker or name</label>
-      <input id="lkq" list="lklist" placeholder="e.g. AAPL or Apple" spellcheck="false" autocapitalize="characters">
-      <datalist id="lklist"></datalist>
-      <button type="submit" id="lkgo">Analyse</button>
-    </form>
-    <div id="lkout" aria-live="polite"><p class="lkmsg" id="lkhint">The agents analyse every stock after each close. Pick one to see its trend direction, trade levels and why.</p></div>
-  </section>
+    <main class="main" id="main">
+      <section class="regime" id="regime" aria-label="Market regime"></section>
 
-  <section class="lookup" id="wlpanel" aria-labelledby="wlh" hidden>
-    <div class="lkhead"><h2 id="wlh">Manage watchlist</h2><small id="wlmeta">US stocks only (any NYSE / Nasdaq ticker)</small></div>
-    <div class="wlitems" id="wlitems"></div>
-    <form class="lkform" id="wlform" autocomplete="off">
-      <input id="wlt" placeholder="Ticker, e.g. PLTR" spellcheck="false" autocapitalize="characters" style="flex:0 1 160px" aria-label="Ticker">
-      <input id="wln" placeholder="Name (optional)" aria-label="Company name">
-      <button type="submit">Add</button>
-    </form>
-    <p class="wlmsg" id="wlmsg"></p>
-    <details class="wltok"><summary id="wltoks">Add and remove straight from this page (connect GitHub once)</summary>
-      <ol>
-        <li>On GitHub open <b>Settings → Developer settings → Personal access tokens → Fine-grained tokens → Generate new token</b>.</li>
-        <li>Repository access: <b>Only select repositories</b> → this repository. Permissions: <b>Contents: Read and write</b> and <b>Actions: Read and write</b>.</li>
-        <li>Paste the token here. It is kept only in this browser and sent only to GitHub.</li>
-      </ol>
-      <form class="lkform" id="wltokform" autocomplete="off">
-        <input id="wltok" type="password" placeholder="github_pat_…" aria-label="GitHub token">
-        <button type="submit">Connect</button><button type="button" class="btn2" id="wlforget">Forget token</button>
-      </form>
-    </details>
-  </section>
+      <section class="view" data-view="analysis" aria-labelledby="lkh">
+        <div class="lookup">
+          <div class="lkhead"><h2 id="lkh">Analysis of Stock</h2><small id="lkmeta">Type any ticker or company name</small></div>
+          <form class="lkform" id="lkform" autocomplete="off">
+            <label class="label" for="lkq" hidden>Ticker or name</label>
+            <input id="lkq" list="lklist" placeholder="e.g. AAPL or Apple" spellcheck="false" autocapitalize="characters">
+            <datalist id="lklist"></datalist>
+            <button type="submit" id="lkgo">Analyse</button>
+          </form>
+          <div class="browse" id="browse">
+            <div class="brfilters">
+              <span class="label">Or browse</span>
+              <select id="br-idx" aria-label="Index"><option value="">All indices</option><option>S&amp;P 500</option><option>Nasdaq-100</option><option>Dow 30</option></select>
+              <select id="br-dir" aria-label="Trend"><option value="">Any trend</option><option value="up">Uptrend (Stage 2)</option><option value="down">Downtrend (Stage 3–4)</option><option value="neutral">Basing (Stage 1)</option></select>
+              <label class="brchk"><input type="checkbox" id="br-valid"> Valid setups only</label>
+              <small id="br-n"></small>
+            </div>
+            <div class="brlist" id="brlist"></div>
+          </div>
+        </div>
+        <div id="lkout" aria-live="polite"><p class="lkmsg" id="lkhint">The agents analyse every stock after each close. Pick one to see its trend direction, trade levels and why.</p></div>
+      </section>
 
-  <div class="cols">
-    <section class="col" aria-labelledby="uph">
-      <div class="colhead up"><h2 id="uph">Uptrend · Stage 2 buys</h2><small id="upmeta"></small></div>
-      <div id="up" class="col"></div>
-      <div class="earlyhead"><h3>Early alerts · turning into Stage 2</h3><small id="upEmeta"></small></div>
-      <p class="earlynote">Valid contraction setups while the 150-day MA is still turning up (Stage 1 → 2), with price above the 50 and 150 MAs and big up-volume since the low. Earlier entry, less confirmation.</p>
-      <div id="upE" class="col"></div>
+      <section class="view col" data-view="up" aria-labelledby="uph" hidden>
+        <div class="colhead up"><h2 id="uph">Uptrend Stocks · top 5 Stage 2 buys</h2><small id="upmeta"></small></div>
+        <div id="up" class="cards"></div>
+        <div class="earlyhead"><h3>Early alerts · turning into Stage 2</h3><small id="upEmeta"></small></div>
+        <p class="earlynote">Valid contraction setups while the 150-day MA is still turning up (Stage 1 → 2), with price above the 50 and 150 MAs and big up-volume since the low. Earlier entry, less confirmation.</p>
+        <div id="upE" class="cards"></div>
+      </section>
+
+      <section class="view col down" data-view="down" aria-labelledby="dnh" hidden>
+        <div class="colhead down"><h2 id="dnh">Downtrend Stocks · top 5 Stage 4 shorts</h2><small id="dnmeta"></small></div>
+        <div id="down" class="cards"></div>
+        <div class="earlyhead"><h3>Early alerts · turning into Stage 4</h3><small id="dnEmeta"></small></div>
+        <p class="earlynote">Valid rally setups while the 150-day MA is still turning down (Stage 3 → 4), with price below the 50 and 150 MAs and big down-volume since the high.</p>
+        <div id="downE" class="cards"></div>
+      </section>
+
+      <section class="view scorecard" data-view="scorecard" id="scorecard" aria-labelledby="sch" hidden>
+        <div class="schead"><h2 id="sch">Live Scorecard</h2><small id="scmeta"></small></div>
+        <p class="scnote">Every pick shown on this page is recorded on the day it appears and followed with the prices that come afterwards: the buy-stop (or sell-stop) order stays for 15 trading days, then stop loss = −1 R, target 1:2 = +2 R, and the stop moves to entry once price reaches 1:1.5. R = one unit of risk (entry to stop). This is the platform's real track record, not a backtest.</p>
+        <div id="scbody"></div>
+      </section>
+
+      <section class="view lookup" data-view="watchlist" id="wlpanel" aria-labelledby="wlh" hidden>
+        <div class="lkhead"><h2 id="wlh">Manage watchlist</h2><small id="wlmeta">US stocks only (any NYSE / Nasdaq ticker)</small></div>
+        <div class="wlitems" id="wlitems"></div>
+        <form class="lkform" id="wlform" autocomplete="off">
+          <input id="wlt" placeholder="Ticker, e.g. PLTR" spellcheck="false" autocapitalize="characters" style="flex:0 1 160px" aria-label="Ticker">
+          <input id="wln" placeholder="Name (optional)" aria-label="Company name">
+          <button type="submit">Add</button>
+        </form>
+        <p class="wlmsg" id="wlmsg"></p>
+        <details class="wltok"><summary id="wltoks">Add and remove straight from this page (connect GitHub once)</summary>
+          <ol>
+            <li>On GitHub open <b>Settings → Developer settings → Personal access tokens → Fine-grained tokens → Generate new token</b>.</li>
+            <li>Repository access: <b>Only select repositories</b> → this repository. Permissions: <b>Contents: Read and write</b> and <b>Actions: Read and write</b>.</li>
+            <li>Paste the token here. It is kept only in this browser and sent only to GitHub.</li>
+          </ol>
+          <form class="lkform" id="wltokform" autocomplete="off">
+            <input id="wltok" type="password" placeholder="github_pat_…" aria-label="GitHub token">
+            <button type="submit">Connect</button><button type="button" class="btn2" id="wlforget">Forget token</button>
+          </form>
+        </details>
+      </section>
+
+    <section class="view rules" data-view="rules" aria-labelledby="rh" hidden>
+      <h2 id="rh">How the agents decide</h2>
+      <div><h3>1 · Stage agent</h3><ul>
+        <li>Daily chart, 150-day moving average only.</li>
+        <li>Stage 2: 150 MA rising, price above it. Further above = stronger.</li>
+        <li>A buy also needs price above all three MAs with the 150 above the 200 (mirrored for shorts).</li>
+        <li>Stage 4: 150 MA falling, price below it — the shorting stage.</li>
+        <li>Stage 1 / 3: 150 MA flat (base / top).</li>
+        <li>Early alert: Stage 1 turning up (150 MA slope improving, price above a rising 50 MA, 3+ big up-volume days since the low) with a valid contraction setup. Mirrored for Stage 3 → 4.</li></ul><div class="src">Course ch.1 · Stage 1–4</div></div>
+      <div><h3>2 · Contraction agent</h3><ul>
+        <li>Starts counting only after the 50, 150 and 200 MAs line up (50 on top, 200 at the bottom).</li>
+        <li>A pullback counts as a contraction (C) only with 3+ down or indecision candles in a row after its high.</li>
+        <li>C1 must dip to the 50 MA or below. Each later C is shallower, each low higher.</li>
+        <li>Buy point in C2–C6, and the buying contraction must be under 10%.</li>
+        <li>Only the 1st to 3rd base of a trend is traded.</li>
+        <li>Breakout zone inside C1: Pivot, Cheat or Low Cheat third.</li></ul><div class="src">2026 portal · Contraction, Base, Breakout zone</div></div>
+      <div><h3>3 · Volume agent</h3><ul>
+        <li>Up-candle volume must outweigh down-candle volume since C1 (reversed for shorts).</li>
+        <li>Counts valid candles (body bigger than both wicks) whose volume beats the 50-day volume average.</li>
+        <li>More big up-days than big down-days favours a long; the reverse favours a short.</li>
+        <li id="liqrule">50-day average volume × price must exceed US$1M a day.</li></ul><div class="src">Course ch.3 · Volume</div></div>
+      <div><h3>4 · Risk agent</h3><ul>
+        <li>Entry: contraction high + 1% buffer (short: low − 1%).</li>
+        <li>Stop: contraction low − 1% (short: high + 1%).</li>
+        <li>Target 1:2. Move the stop to entry at 1:1.5. Trail the 50 MA ∓ 1% for passive profit.</li>
+        <li>First position 6.25% of capital; step up to 12.5% then 25% after wins.</li></ul><div class="src">Course ch.4–6 · Buffer, Stop loss, Breakeven, Amount</div></div>
+      <div><h3>5 · Ranking agent</h3><ul>
+        <li>MMS score v3 (0–100), rebuilt for each market from a 5-year backtest of every Stage 2 signal. Only traits that worked the same way in both halves of 2022–2026 count, so the bars on each card differ by market (US stocks, Bursa, China, crypto).</li>
+        <li>Only valid setups that have not run more than 5% past entry are ranked as picks.</li>
+        <li>If fewer than 5 qualify, the best remaining names fill the list, marked <em>Watch</em> with the reason they fail.</li></ul></div>
     </section>
-    <section class="col down" aria-labelledby="dnh">
-      <div class="colhead down"><h2 id="dnh">Downtrend · Stage 4 shorts</h2><small id="dnmeta"></small></div>
-      <div id="down" class="col"></div>
-      <div class="earlyhead"><h3>Early alerts · turning into Stage 4</h3><small id="dnEmeta"></small></div>
-      <p class="earlynote">Valid rally setups while the 150-day MA is still turning down (Stage 3 → 4), with price below the 50 and 150 MAs and big down-volume since the high.</p>
-      <div id="downE" class="col"></div>
-    </section>
-  </div>
-
-  <section class="scorecard" id="scorecard" aria-labelledby="sch">
-    <div class="schead"><h2 id="sch">Live scorecard</h2><small id="scmeta"></small></div>
-    <p class="scnote">Every pick shown on this page is recorded on the day it appears and followed with the prices that come afterwards: the buy-stop (or sell-stop) order stays for 15 trading days, then stop loss = −1 R, target 1:2 = +2 R, and the stop moves to entry once price reaches 1:1.5. R = one unit of risk (entry to stop). This is the platform's real track record, not a backtest.</p>
-    <div id="scbody"></div>
-  </section>
-
-  <section class="rules" aria-labelledby="rh">
-    <h2 id="rh">How the agents decide</h2>
-    <div><h3>1 · Stage agent</h3><ul>
-      <li>Daily chart, 150-day moving average only.</li>
-      <li>Stage 2: 150 MA rising, price above it. Further above = stronger.</li>
-      <li>A buy also needs price above all three MAs with the 150 above the 200 (mirrored for shorts).</li>
-      <li>Stage 4: 150 MA falling, price below it — the shorting stage.</li>
-      <li>Stage 1 / 3: 150 MA flat (base / top).</li>
-      <li>Early alert: Stage 1 turning up (150 MA slope improving, price above a rising 50 MA, 3+ big up-volume days since the low) with a valid contraction setup. Mirrored for Stage 3 → 4.</li></ul><div class="src">Course ch.1 · Stage 1–4</div></div>
-    <div><h3>2 · Contraction agent</h3><ul>
-      <li>Starts counting only after the 50, 150 and 200 MAs line up (50 on top, 200 at the bottom).</li>
-      <li>A pullback counts as a contraction (C) only with 3+ down or indecision candles in a row after its high.</li>
-      <li>C1 must dip to the 50 MA or below. Each later C is shallower, each low higher.</li>
-      <li>Buy point in C2–C6, and the buying contraction must be under 10%.</li>
-      <li>Only the 1st to 3rd base of a trend is traded.</li>
-      <li>Breakout zone inside C1: Pivot, Cheat or Low Cheat third.</li></ul><div class="src">2026 portal · Contraction, Base, Breakout zone</div></div>
-    <div><h3>3 · Volume agent</h3><ul>
-      <li>Up-candle volume must outweigh down-candle volume since C1 (reversed for shorts).</li>
-      <li>Counts valid candles (body bigger than both wicks) whose volume beats the 50-day volume average.</li>
-      <li>More big up-days than big down-days favours a long; the reverse favours a short.</li>
-      <li id="liqrule">50-day average volume × price must exceed US$1M a day.</li></ul><div class="src">Course ch.3 · Volume</div></div>
-    <div><h3>4 · Risk agent</h3><ul>
-      <li>Entry: contraction high + 1% buffer (short: low − 1%).</li>
-      <li>Stop: contraction low − 1% (short: high + 1%).</li>
-      <li>Target 1:2. Move the stop to entry at 1:1.5. Trail the 50 MA ∓ 1% for passive profit.</li>
-      <li>First position 6.25% of capital; step up to 12.5% then 25% after wins.</li></ul><div class="src">Course ch.4–6 · Buffer, Stop loss, Breakeven, Amount</div></div>
-    <div><h3>5 · Ranking agent</h3><ul>
-      <li>MMS score v3 (0–100), rebuilt for each market from a 5-year backtest of every Stage 2 signal. Only traits that worked the same way in both halves of 2022–2026 count, so the bars on each card differ by market (US stocks, Bursa, China, crypto).</li>
-      <li>Only valid setups that have not run more than 5% past entry are ranked as picks.</li>
-      <li>If fewer than 5 qualify, the best remaining names fill the list, marked <em>Watch</em> with the reason they fail.</li></ul></div>
-  </section>
 
   <p class="foot">Educational screening tool that applies the MMS course rules mechanically. It is not financial advice and does not know about earnings dates, news or your account. Short setups mirror the long rules onto Stage 4 (the course says to short in Stage 4 but teaches the entry mechanics on longs). Check every chart yourself before placing an order. <span id="prov"></span></p>
+    </main>
+  </div>
 </div>
 
 <script>
@@ -324,6 +398,7 @@ function scoreParts(sc){
   if(sc.v===2)return [['Near 50-day MA',sc.near50,20],['Near 150-day MA',sc.near150,20],['Calm month',sc.calm,20],['Below 52-wk high',sc.belowHigh,20],['Room for stop',sc.stopRoom,20]];
   return [['Stage',sc.stage,25],['Contraction',sc.vcp,30],['Trigger',sc.trigger,20],['Volume',sc.volume,15],['Rel. strength',sc.rs,10]];
 }
+function ixChips(ix){return ix&&ix.length?` <span class="ixchips">${ix.map(x=>`<span class="chip ix">${esc(x)}</span>`).join('')}</span>`:''}
 function card(p,i,side){
   const el=document.createElement('article');
   el.className='pick'+(p.tier==='watch'?' watch':p.tier==='early'?' early':'');
@@ -335,7 +410,7 @@ function card(p,i,side){
   el.innerHTML=`
     <div class="phead"><span class="rank">${i+1}</span><span class="tk">${esc(p.ticker)}</span>
       <div class="score"><span class="n">${sc.total.toFixed(0)}</span><span class="label">score</span></div>
-      <span></span><span class="nm">${esc(p.name||'')} · ${esc(p.sector||'')}</span></div>
+      <span></span><span class="nm">${esc(p.name||'')} · ${esc(p.sector||'')}${ixChips(p.idx)}</span></div>
     <div class="chips">
       <span class="chip ${p.tier==='watch'?'watch':'setup'}">${p.tier==='watch'?'Watch':p.tier==='early'?'Early alert · Stage '+p.stage+'→'+(side==='long'?2:4):'Valid setup'}</span>
       <span class="chip ${trig?'trig':''}">${STATUS[p.status]||p.status}${p.risk&&p.status==='SETUP'?' · '+pct(Math.abs(side==='long'?p.risk.entry/p.close-1:1-p.risk.entry/p.close))+' away':''}</span>
@@ -364,7 +439,7 @@ function card(p,i,side){
 
 
 const MK={
-  stocks:{dir:'',title:'MMS Daily Screener',h1:'Screener',idx:'S&P 500',scan:'the S&P 500',reg:'S&amp;P 500 (SPY) stage',eg:'e.g. AAPL or Apple',ccy:'US$'},
+  stocks:{dir:'',title:'MMS US Stocks Screener',h1:'US Stocks Screener',idx:'US stock list (S&P 500, Nasdaq-100 and Dow 30)',scan:'every stock in the S&P 500, Nasdaq-100 and Dow Jones 30 (each counted once)',reg:'S&amp;P 500 (SPY) stage',eg:'e.g. AAPL or Apple',ccy:'US$'},
   nasdaq:{dir:'nasdaq/',title:'MMS Nasdaq Screener',h1:'Nasdaq-100 Screener',idx:'Nasdaq-100',scan:'the Nasdaq-100',reg:'Nasdaq-100 (QQQ) stage',eg:'e.g. NVDA or Nvidia',ccy:'US$'},
   dow:{dir:'dow/',title:'MMS Dow Jones Screener',h1:'Dow Jones Screener',idx:'Dow Jones 30',scan:'the 30 Dow Jones Industrial Average stocks',reg:'Dow Jones (DIA) stage',eg:'e.g. JPM or JPMorgan',ccy:'US$'},
   bursa:{dir:'bursa/',title:'MMS Bursa Screener',h1:'Bursa Malaysia Screener',idx:'FBM KLCI 30',scan:'the 30 FBM KLCI stocks on Bursa Malaysia',reg:'FBM KLCI index stage',eg:'e.g. MAYBANK, 1155 or Tenaga',ccy:'RM',close:'Bursa close (prices in RM)'},
@@ -372,14 +447,20 @@ const MK={
   watch:{dir:'watch/',title:'MMS Watchlist',h1:'Watchlist',idx:'watchlist',scan:'the US stocks on your watchlist (watchlist.txt in the repo)',reg:'S&amp;P 500 (SPY) stage',eg:'e.g. TEM or Tempus',ccy:'US$',note:' To add or remove a stock, edit watchlist.txt on GitHub — one ticker per line.'},
   crypto:{dir:'crypto/',title:'MMS Crypto Screener',h1:'Crypto Screener',idx:'top 100 coins',scan:'the top 100 coins by market cap (stablecoins and wrapped tokens removed)',reg:'Bitcoin (BTC) stage',eg:'e.g. SOL or Solana',ccy:'US$',close:'Daily close (UTC)'}};
 const mk=d=>MK[d.market]||MK.stocks;
-const NAV_BASE=document.getElementById('embedded-data')?null:(/\/(crypto|nasdaq|dow|bursa|china|watch)\//.test(location.pathname)?'../':'./');
+const NAV_BASE=document.getElementById('embedded-data')?null:(/\/(crypto|bursa|china|watch)\//.test(location.pathname)?'../':'./');
 function site(d){
   const c=d.market==='crypto',M=mk(d);
   document.title=M.title;
   $('#h1b').textContent=M.h1;
   $('#intro').textContent=`Every ${c?'day after the 00:00 UTC candle close':'trading day'} the agents scan ${M.scan} on the daily chart and pick the 5 strongest Stage 2 buy setups and the 5 strongest Stage 4 short setups, using the course rules for stage, contraction, volume and buy/sell triggers.${M.note||''}`;
   $('#asoflabel').textContent=M.close||'Market close';
-  $('#lkh').textContent=c?'Analyse a coin':'Analyse a stock';
+  $('#lkh').textContent=c?'Analysis of Coin':'Analysis of Stock';
+  document.querySelector('[data-v=analysis] .mt').textContent=c?'Analysis of Coin':'Analysis of Stock';
+  document.querySelector('[data-v=up] .mt').textContent=c?'Uptrend Coins':'Uptrend Stocks';
+  document.querySelector('[data-v=down] .mt').textContent=c?'Downtrend Coins':'Downtrend Stocks';
+  $('#uph').textContent=`${c?'Uptrend Coins':'Uptrend Stocks'} · top 5 Stage 2 buys`;
+  $('#dnh').textContent=`${c?'Downtrend Coins':'Downtrend Stocks'} · top 5 Stage 4 shorts`;
+  $('#br-idx').hidden=d.market!=='stocks';
   $('#lkmeta').textContent=c?'Type any top-100 coin symbol or name':`Type any ${M.idx} ticker or company name`;
   $('#lkq').placeholder=M.eg;
   $('#lkhint').textContent=c?'The agents analyse every coin after each daily close. Pick one to see its trend direction, trade levels and why.':'The agents analyse every stock after each close. Pick one to see its trend direction, trade levels and why.';
@@ -389,7 +470,7 @@ function site(d){
     h.querySelectorAll('.lkpick').forEach(b=>b.addEventListener('click',()=>{$('#lkq').value=b.dataset.t;analyse(b.dataset.t)}));}).catch(()=>{});
   const nav=$('#nav');
   if(!NAV_BASE){nav.hidden=true;}else{
-    const dl=$('#desklink');if(dl)dl.href=NAV_BASE+'agents/'+(d.market==='crypto'?'#m=crypto':'#m=us');nav.querySelectorAll('a[data-m]').forEach(a=>{const m=a.dataset.m;a.href=NAV_BASE+MK[m].dir;if(m===(MK[d.market]?d.market:'stocks'))a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');});
+    const dl=$('#desklink');if(dl)dl.href=NAV_BASE+'agents/'+(d.market==='crypto'?'#m=crypto':'#m=us');nav.querySelectorAll('a[data-m]').forEach(a=>{const m=a.dataset.m;a.href=NAV_BASE+MK[m].dir;if(m===(['nasdaq','dow'].includes(d.market)||!MK[d.market]?'stocks':d.market))a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');});
   }
 }
 const SCSTAT={waiting:'Waiting for entry',open:'Open',target:'Target hit',stop:'Stopped out',breakeven:'Breakeven',expired:'Not triggered',timeout:'Closed after 40 days'};
@@ -472,8 +553,8 @@ async function wlRun(){
 }
 function wlInit(d){
   const p=$('#wlpanel');if(!p)return;
-  if(d.market!=='watch'||!NAV_BASE||!GH){p.hidden=true;return}
-  p.hidden=false;if(p.dataset.ready)return;p.dataset.ready=1;
+  if(d.market!=='watch'||!NAV_BASE||!GH){$('#menu-wl').hidden=true;return}
+  $('#menu-wl').hidden=false;if(p.dataset.ready)return;p.dataset.ready=1;
   $('#wlform').addEventListener('submit',e=>{e.preventDefault();wlChange('add',$('#wlt').value,$('#wln').value.trim()).then(()=>{$('#wlt').value='';$('#wln').value=''})});
   $('#wltokform').addEventListener('submit',e=>{e.preventDefault();const v=$('#wltok').value.trim();if(!v)return;tokSet(v);$('#wltok').value='';wlLoad().then(()=>wlMsg('Connected to GitHub.','ok')).catch(err=>{tokSet('');wlRender();wlMsg('Could not connect: '+esc(err.message)+'.','err')})});
   $('#wlforget').addEventListener('click',()=>{tokSet('');wlRender();wlMsg('Token removed from this browser.')});
@@ -510,6 +591,11 @@ function render(d){
       earr.forEach((p,i)=>ebox.appendChild(card(p,i,side)));
       $(key==='up'?'#upEmeta':'#dnEmeta').textContent=en>earr.length?`top ${earr.length} of ${en}`:`${earr.length} found`;}
   }
+  const vu=(d.up||[]).filter(p=>p.tier==='setup').length,vd=(d.down||[]).filter(p=>p.tier==='setup').length;
+  $('#cnt-up').textContent=vu?vu+' valid':(d.up||[]).length?'watch':'—';$('#cnt-up').className='cnt'+(vu?' up':'');
+  $('#cnt-down').textContent=vd?vd+' valid':(d.down||[]).length?'watch':'—';$('#cnt-down').className='cnt'+(vd?' down':'');
+  const scs=d.scorecard&&d.scorecard.summary;$('#cnt-sc').textContent=scs&&scs.signals?scs.open+' open':'';
+  $('#sidefoot').innerHTML=`<span>Prices as of <b>${esc(d.asOf)}</b></span><span>${d.scanned} ${d.market==='crypto'?'coins':'stocks'} scanned</span>`;
   const SRC={massive:'Massive (Polygon.io)',yahoo:'Yahoo Finance',binance:'Binance',okx:'OKX',eastmoney:'Eastmoney',tencent:'Tencent'};
   const hs=d.dataHealth&&d.dataHealth.sources?Object.entries(d.dataHealth.sources).filter(([,x])=>x.ok).map(([k,x])=>`${SRC[k]||k} ${x.ok}`).join(', '):'';
   $('#prov').textContent=`Data: ${hs||({massive:'Massive (Polygon.io)','yahoo+coingecko':'Yahoo Finance, coin list from CoinGecko'}[d.provider]||'Yahoo Finance')} daily bars${d.dataHealth&&d.dataHealth.coverage?` · ${d.dataHealth.coverage.fresh} of ${d.dataHealth.coverage.total} symbols up to date`:''} · generated ${d.generatedAt.slice(0,16).replace('T',' ')} UTC.`;
@@ -521,7 +607,7 @@ async function loadLookup(){
   if(LK)return LK;
   if(!LKP)LKP=(async()=>{const e=document.getElementById('embedded-all');
     const d=e?JSON.parse(e.textContent):await (await fetch('data/all.json',{cache:'no-store'})).json();
-    LK=d;$('#lklist').innerHTML=d.rows.map(r=>`<option value="${esc(r.t)}">${esc(r.n||'')}</option>`).join('');return d;})();
+    LK=d;$('#lklist').innerHTML=d.rows.map(r=>`<option value="${esc(r.t)}">${esc(r.n||'')}</option>`).join('');renderBrowse();return d;})();
   return LKP;
 }
 function lineSVG(r){
@@ -539,6 +625,16 @@ function lineSVG(r){
   s+=`<circle cx="${x(n-1)}" cy="${y(ch.c[n-1])}" r="3.5" fill="var(--ink)"/></svg>`;
   return s.replace(/var\((--[\w-]+)\)/g,(m,v)=>css(v));
 }
+// browse list under the search box: every scanned name, filtered by index, trend and setup
+function renderBrowse(){
+  const box=$('#brlist');if(!box||!LK)return;
+  const ix=$('#br-idx').hidden?'':$('#br-idx').value,dir=$('#br-dir').value,val=$('#br-valid').checked;
+  const rows=LK.rows.filter(r=>!r.skip&&(!ix||(r.ix||[]).includes(ix))&&(!dir||r.dir===dir)&&(!val||(r.valid&&!['EXTENDED','BROKEN'].includes(r.status)))).sort((a,b)=>a.t<b.t?-1:1);
+  $('#br-n').textContent=`${rows.length} ${CUR&&CUR.market==='crypto'?'coins':'stocks'}`;
+  box.innerHTML=rows.length?rows.map(r=>`<button class="lkpick" type="button" data-t="${esc(r.t)}" title="${esc((r.n||'')+' · '+r.head)}"><i class="${r.dir}"></i><b>${esc(r.t)}</b></button>`).join(''):'<span class="lkmsg">Nothing matches these filters today.</span>';
+}
+['#br-idx','#br-dir','#br-valid'].forEach(s=>$(s).addEventListener('change',renderBrowse));
+$('#brlist').addEventListener('click',e=>{const b=e.target.closest('.lkpick');if(b){$('#lkq').value=b.dataset.t;analyse(b.dataset.t);$('#lkout').scrollIntoView({behavior:'smooth',block:'start'})}});
 let LKCUR=null;
 function showRecord(r){
   LKCUR=r;const out=$('#lkout');
@@ -550,7 +646,7 @@ function showRecord(r){
   out.innerHTML=`<article class="pick lk">
     <div class="phead"><span class="rank"></span><span class="tk">${esc(r.t)}</span>
       <div class="score">${sc?`<span class="n">${sc.total.toFixed(0)}</span><span class="label">score</span>`:''}</div>
-      <span></span><span class="nm">${esc(r.n||'')} · ${esc(r.sec||'')} · close ${px(r.close)} on ${esc(r.asOf)}</span></div>
+      <span></span><span class="nm">${esc(r.n||'')} · ${esc(r.sec||'')} · close ${px(r.close)} on ${esc(r.asOf)}${ixChips(r.ix)}</span></div>
     <div class="lkres">
       <div>${lineSVG(r)}<div class="readout">Close line with 50/150/200-day MAs · boxes are the contractions the agents counted</div></div>
       <div class="lkside">
@@ -583,6 +679,7 @@ function howTo(r){
 }
 async function analyse(q){
   q=(q||'').trim();if(!q)return;
+  if(VIEW!=='analysis')setView('analysis',false);
   const out=$('#lkout');out.innerHTML='<p class="lkmsg">Loading the agents\' results…</p>';
   let d;try{d=await loadLookup()}catch(e){out.innerHTML='<p class="lkmsg">The per-stock results are not available yet. They are created by the next scheduled scan.</p>';return;}
   const Q=q.toUpperCase(),rows=d.rows;
@@ -598,6 +695,25 @@ $('#lkform').addEventListener('submit',e=>{e.preventDefault();analyse($('#lkq').
 $('#lkq').addEventListener('focus',()=>{loadLookup().catch(()=>{})},{once:true});
 $('#lkq').addEventListener('change',e=>{const v=e.target.value;if(LK&&LK.rows.some(r=>r.t===v))analyse(v)});
 
+// ---------- left menu: one view at a time; #up #down #scorecard #rules #watchlist, or #TICKER for an analysis ----------
+const VIEWS=['analysis','up','down','scorecard','watchlist','rules'];
+let VIEW='analysis';
+function setView(v,push=true){
+  if(!VIEWS.includes(v)||(v==='watchlist'&&$('#menu-wl').hidden))v='analysis';
+  VIEW=v;
+  document.querySelectorAll('.view').forEach(x=>x.hidden=x.dataset.view!==v);
+  document.querySelectorAll('#menu button').forEach(b=>{if(b.dataset.v===v)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current')});
+  $('#regime').hidden=!['analysis','up','down'].includes(v);
+  const cur=document.querySelector(`#menu button[data-v="${v}"]`);if(cur&&cur.scrollIntoView&&matchMedia('(max-width:900px)').matches)cur.scrollIntoView({block:'nearest',inline:'center'});
+  if(push){const h=v==='analysis'?(LKCUR&&!LKCUR.skip?'#'+LKCUR.t:location.pathname+location.search):'#'+v;try{history.pushState(null,'',h)}catch(e){}}
+  const m=$('#main');if(m.getBoundingClientRect().top<0)m.scrollIntoView({block:'start'});
+}
+$('#menu').addEventListener('click',e=>{const b=e.target.closest('button[data-v]');if(b)setView(b.dataset.v)});
+function fromHash(){const h=decodeURIComponent(location.hash.slice(1));
+  if(!h){setView('analysis',false);return}
+  if(VIEWS.includes(h)){setView(h,false);return}
+  setView('analysis',false);$('#lkq').value=h;analyse(h);}
+window.addEventListener('popstate',fromHash);
 const rerender=()=>{if(CUR)render(CUR);if(LKCUR)showRecord(LKCUR)};
 try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',rerender)}catch(e){}
 new MutationObserver(rerender).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
@@ -609,9 +725,9 @@ async function boot(){
     const idx=await (await fetch('data/index.json',{cache:'no-store'})).json();
     if(idx.length>1){const sel=$('#hist');sel.innerHTML=idx.map(t=>`<option value="${t}">${t}</option>`).join('');$('#histwrap').hidden=false;
       sel.addEventListener('change',async()=>render(await (await fetch('data/archive/'+sel.value+'.json')).json()));}
-  }catch(e){$('#up').innerHTML='<div class="empty">No scan data yet. Run the “Daily MMS scan” workflow once from the Actions tab.</div>';}
+  }catch(e){$('#up').innerHTML='<div class="empty">No scan data yet. Run the “Daily MMS scan” workflow once from the Actions tab.</div>';$('#brlist').innerHTML='<span class="lkmsg">No scan data yet.</span>';}
 }
-boot().then(()=>{const h=decodeURIComponent(location.hash.slice(1));if(h){$('#lkq').value=h;analyse(h)}});
+boot().then(()=>{fromHash();loadLookup().catch(()=>{})});
 })();
 </script>
 </body></html>

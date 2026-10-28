@@ -12,7 +12,7 @@ const [title, rest] = [body.slice(0, body.indexOf('</title>') + 8), body.slice(b
 const styleEnd = rest.indexOf('</style>') + 8;
 const page = `${head}${title}${rest.slice(0, styleEnd)}</head><body>${rest.slice(styleEnd)}</body></html>\n`;
 // [folder, page title, snapshot file]
-const MARKETS = [['', 'MMS Daily Screener', 'dashboard'], ['nasdaq', 'MMS Nasdaq Screener', 'nasdaq'], ['dow', 'MMS Dow Jones Screener', 'dow'],
+const MARKETS = [['', 'MMS US Stocks Screener', 'dashboard'],
   ['bursa', 'MMS Bursa Screener', 'bursa'], ['china', 'MMS China Screener', 'china'], ['watch', 'MMS Watchlist', 'watch'], ['crypto', 'MMS Crypto Screener', 'crypto']];
 const retitle = (html, t) => html.replace('<title>MMS Daily Screener</title>', `<title>${t}</title>`);
 for (const [dir, t, snap] of MARKETS) {
@@ -27,6 +27,11 @@ for (const [dir, t, snap] of MARKETS) {
   const allFile = path.join(out, 'data/all.json');
   const all = fs.existsSync(allFile) ? `<script type="application/json" id="embedded-all">${esc(allFile)}</script>\n` : '';
   fs.writeFileSync(path.join(root, `dist/${snap}-snapshot.html`), b.slice(0, b.indexOf('<script>')) + `<script type="application/json" id="embedded-data">${esc(latest)}</script>\n` + all + b.slice(b.indexOf('<script>')));
+}
+// The Nasdaq-100 and Dow pages are now part of US Stocks: old links forward there (a ticker in the link is kept)
+for (const dir of ['nasdaq', 'dow']) {
+  fs.mkdirSync(path.join(root, 'docs', dir), { recursive: true });
+  fs.writeFileSync(path.join(root, 'docs', dir, 'index.html'), `${head}<title>MMS US Stocks Screener</title><meta http-equiv="refresh" content="0; url=../"><link rel="canonical" href="../"><script>location.replace('../'+location.hash)</script></head><body><p>This page is now part of <a href="../">US Stocks</a>.</p></body></html>\n`);
 }
 // Agent Desk page (docs/agents/) + a single-file snapshot with both markets embedded
 {
@@ -43,4 +48,4 @@ for (const [dir, t, snap] of MARKETS) {
     fs.writeFileSync(path.join(root, 'dist/agents-snapshot.html'), deskBody.slice(0, deskBody.indexOf('<script>')) + emb + deskBody.slice(deskBody.indexOf('<script>')));
   }
 }
-console.log('built docs/{,nasdaq/,dow/,bursa/,china/,watch/,crypto/,agents/}index.html and snapshots');
+console.log('built docs/{,bursa/,china/,watch/,crypto/,agents/}index.html, nasdaq/ and dow/ redirects, and snapshots');

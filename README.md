@@ -1,12 +1,10 @@
 # MMS Daily Screener
 
-A multi-agent screener that applies the **Market Maker Strategy (MMS) 2026** course rules every day to five markets, each with its own page (tabs at the top of every page):
+A multi-agent screener that applies the **Market Maker Strategy (MMS) 2026** course rules every day to five markets, each with its own page (tabs at the top of every page). Each page has a menu on the left: **Analysis of Stock** (look up or browse any name), **Uptrend Stocks** (top 5 Stage 2 buys + early alerts), **Downtrend Stocks** (top 5 Stage 4 shorts + early alerts), **Live Scorecard**, and **How the agents decide**. The old `/nasdaq/` and `/dow/` links forward to US Stocks.
 
 | Page | Universe | Market regime | Runs |
 |---|---|---|---|
-| `/` | S&P 500 | SPY | 22:30 UTC Mon–Fri (6:30 am MYT) |
-| `/nasdaq/` | Nasdaq-100 | QQQ | same US run |
-| `/dow/` | Dow Jones 30 | DIA | same US run |
+| `/` | **US Stocks**: S&P 500 + Nasdaq-100 + Dow Jones 30 in one list (each stock once, tagged with its indices) | SPY | 22:30 UTC Mon–Fri (6:30 am MYT) |
 | `/bursa/` | FBM KLCI 30 (Bursa Malaysia) | KLCI index | 10:15 UTC Mon–Fri (6:15 pm MYT) |
 | `/china/` | CSI 300 (China A-shares, Shanghai + Shenzhen) | CSI 300 index | 08:15 UTC Mon–Fri (4:15 pm MYT) |
 | `/crypto/` | Top 100 coins | Bitcoin | 02:30 UTC daily (10:30 am MYT) |
@@ -149,6 +147,9 @@ Crypto pullbacks are often deeper than the course's 10% buying-contraction limit
 A second page, linked as **Agent Desk →** from every screener page, runs a multi-agent
 pipeline modelled on the TradingAgents framework (analysts → bull/bear debate → trader →
 risk debate → portfolio manager), but with rule-based, testable agents:
+
+The page has a menu on the left: **Analysis of Stock** (all six agents' reports for one name, plus the AI debate), **Uptrend calls**, **Downtrend calls** (each with the model's test results), **Screener** (filter and sort every name; the model's inputs are listed below the table) and **Ask the agents** (AI chat with your own Anthropic key). Clicking a name anywhere opens it in Analysis of Stock.
+
 
 | # | Agent | What it does |
 |---|---|---|
