@@ -64,9 +64,11 @@ export function summarize(entries) {
 export function updateScorecard(dataDir, report, history, { recentN = 40 } = {}) {
   const file = path.join(dataDir, 'scorecard.json');
   const book = fs.existsSync(file) ? JSON.parse(fs.readFileSync(file, 'utf8')) : { market: report.market, entries: [] };
-  const picks = [...(report.up || []).map(p => [p, 'long']), ...(report.down || []).map(p => [p, 'short']),
+  // confirmed picks first, so a stock that is both confirmed and a watchlist pick is recorded as confirmed
+  const picks = [...(report.confirmedUp || []).map(p => [p, 'long']), ...(report.confirmedDown || []).map(p => [p, 'short']),
+    ...(report.up || []).map(p => [p, 'long']), ...(report.down || []).map(p => [p, 'short']),
     ...(report.earlyUp || []).map(p => [p, 'long']), ...(report.earlyDown || []).map(p => [p, 'short'])]
-    .filter(([p]) => (p.tier === 'setup' || p.tier === 'early') && p.risk);
+    .filter(([p]) => ['setup', 'early', 'confirmed'].includes(p.tier) && p.risk);
   for (const [p, side] of picks) {
     const busy = book.entries.some(e => e.t === p.ticker && e.side === side && (OPEN.has(e.status) || e.d === p.asOf));
     if (busy) continue;
@@ -80,7 +82,7 @@ export function updateScorecard(dataDir, report, history, { recentN = 40 } = {})
   fs.writeFileSync(file, JSON.stringify(book));
   const byTier = t => summarize(book.entries.filter(e => e.tier === t));
   return {
-    summary: summarize(book.entries), setup: byTier('setup'), early: byTier('early'), rules: SC_RULES,
+    summary: summarize(book.entries), setup: byTier('setup'), early: byTier('early'), confirmed: byTier('confirmed'), rules: SC_RULES,
     recent: [...book.entries].sort((a, b) => (a.d < b.d ? 1 : a.d > b.d ? -1 : 0)).slice(0, recentN)
       .map(({ id, ...e }) => e),
   };

@@ -7,8 +7,9 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { analyzeTicker, rankAll, explain, stageAgent, computeIndicators, lookupTable, CONFIG, PROFILE_OF } from './engine.js';
+import { analyzeTicker, rankAll, explain, stageAgent, computeIndicators, lookupTable, scoreSide, CONFIG, PROFILE_OF } from './engine.js';
 import { updateScorecard } from './scorecard.js';
+import { confirmMatches, CONFIRM_RULES } from './confirm.js';
 import { coverage, makeHealth } from './sources.js';
 import { loadUniverse, loadNasdaq100, loadDow30, loadWatchlist, cachedList, yahooHistory, massiveHistory } from './data.js';
 
@@ -17,7 +18,7 @@ const log = (...a) => console.log(new Date().toISOString().slice(11, 19), ...a);
 
 export const MARKET_LABELS = { stocks: 'US Stocks (S&P 500 + Nasdaq-100 + Dow 30)', nasdaq: 'Nasdaq-100', dow: 'Dow Jones 30', bursa: 'FBM KLCI 30', china: 'CSI 300', watch: 'My watchlist', crypto: 'Top 100 coins' };
 
-export function buildReport(universe, history, provider, { cfg = CONFIG, regimeTicker = 'SPY', market = 'stocks' } = {}) {
+export function buildReport(universe, history, provider, { cfg = CONFIG, regimeTicker = 'SPY', market = 'stocks', confirmed = undefined } = {}) {
   cfg = { ...cfg, scoreProfile: PROFILE_OF[market] || 'stocks' }; // which score v3 profile ranks this market
   const analyses = universe.map(u => analyzeTicker(u, history[u.ticker], cfg));
   const ranked = rankAll(analyses, 5);
@@ -37,8 +38,22 @@ export function buildReport(universe, history, provider, { cfg = CONFIG, regimeT
       risk: S.risk, volume: S.vol, notes: explain(a, side, S), chart: a.chart, ...(a.early ? { early: { from: a.early.from, favour: a.early.favour, against: a.early.against } } : {}),
     };
   };
+  // watchlist page: stocks confirmed by both the MMS screener and the Agent Desk (see confirm.js)
+  const conf = { up: [], down: [] }, extra = [];
+  if (confirmed) {
+    const have = new Map(analyses.map(a => [a.ticker, a]));
+    for (const [side, mside] of [['up', 'long'], ['down', 'short']]) {
+      for (const c of confirmed[side]) {
+        let a = have.get(c.t);
+        if (!a) { a = analyzeTicker(confirmed.meta?.[c.t] || { ticker: c.t }, history[c.t], cfg); extra.push(a); have.set(c.t, a); }
+        const S = mside === 'long' ? a.long : a.short;
+        if (a.skip || !S || !S.setup.valid) continue; // re-check: must still be a valid setup on these prices
+        conf[side].push({ ...pack({ a, s: scoreSide(a, mside, 0.5), tier: 'confirmed' }, mside), desk: c.desk });
+      }
+    }
+  }
   const asOf = analyses.filter(a => !a.skip).map(a => a.asOf).sort().pop();
-  const lookup = { asOf, market, generatedAt: new Date().toISOString(), rows: lookupTable(analyses) };
+  const lookup = { asOf, market, generatedAt: new Date().toISOString(), rows: lookupTable([...analyses, ...extra]) };
   return { lookup, report: {
     generatedAt: new Date().toISOString(), asOf, provider, market,
     universe: MARKET_LABELS[market] || market, universeSize: universe.length, scanned: ranked.scanned,
@@ -48,6 +63,7 @@ export function buildReport(universe, history, provider, { cfg = CONFIG, regimeT
     down: ranked.down.top.map(x => pack(x, 'short')), downPassed: ranked.down.passedCount, downCandidates: ranked.down.total,
     earlyUp: ranked.up.early.map(x => pack(x, 'long')), earlyUpCount: ranked.up.earlyCount,
     earlyDown: ranked.down.early.map(x => pack(x, 'short')), earlyDownCount: ranked.down.earlyCount,
+    ...(confirmed !== undefined ? { confirmedUp: conf.up, confirmedDown: conf.down, confirmCheck: confirmed ? confirmed.checked : null, confirmRules: CONFIRM_RULES } : {}),
     config: cfg,
   } };
 }
@@ -92,26 +108,38 @@ async function main() {
   const us = combineUS(universe, lists.nasdaq, lists.dow);
   log(`  US Stocks: ${us.length} tickers (S&P 500 ${universe.length}, Nasdaq-100 ${lists.nasdaq.length}, Dow 30 ${lists.dow.length})`);
   mergeLegacyScorecards(path.join(root, 'docs/data'), [['docs/nasdaq/data', 'Nasdaq-100'], ['docs/dow/data', 'Dow Jones 30']].map(([d, l]) => [path.join(root, d), l]), log);
-  const pages = [['US Stocks', us, 'docs/data', { regimeTicker: 'SPY', market: 'stocks' }]];
-  if (lists.watch.length) pages.push(['My watchlist', lists.watch, 'docs/watch/data', { regimeTicker: 'SPY', market: 'watch' }]);
-  for (const [label, uni, dir, opts] of pages) {
+  const page = (label, uni, dir, opts) => {
     const check = enoughData(label, uni, history, path.join(root, dir), health, log, opts.market === 'watch' ? 0.3 : 0.6);
-    if (!check.ok) continue;
+    if (!check.ok) return null;
     const { report, lookup } = buildReport(uni, history, provider, opts);
     log(`${label} — ranking agent: ${report.upPassed} valid long setups, ${report.downPassed} valid short setups (as of ${report.asOf})`);
     writeOutputs(path.join(root, dir), report, lookup, history, check);
     for (const [side, arr] of [['UP', report.up], ['DOWN', report.down]]) {
       log(`  Top ${side}: ` + arr.map(p => `${p.ticker}(${p.score.total}${p.tier === 'watch' ? ',watch' : ''})`).join(' '));
     }
-  }
+    return { report, lookup };
+  };
+  const usOut = page('US Stocks', us, 'docs/data', { regimeTicker: 'SPY', market: 'stocks' });
 
   // Agent Desk: filter -> SEC report decoder -> 2-week technical call -> bull/bear -> risk -> portfolio manager.
-  // Runs after the MMS pages so it can show each name's MMS stage; a failure here never blocks the screener.
+  // Runs after the US page so it can show each name's MMS stage; a failure here never blocks the screener.
+  let deskOut = null;
   try {
     const { runDesk } = await import('./desk/run-desk.js');
     const deskUni = [...new Map([...us, ...lists.watch].map(u => [u.ticker, u])).values()];
-    await runDesk({ market: 'us', universe: deskUni, history, benchTicker: 'SPY', log });
+    deskOut = await runDesk({ market: 'us', universe: deskUni, history, benchTicker: 'SPY', log });
   } catch (e) { log('Agent Desk failed: ' + (e.stack || e.message)); }
+
+  // Cross-check agent: valid MMS setups that the Agent Desk also rates strongly go onto the watchlist page
+  let confirmed = null;
+  if (usOut && deskOut) {
+    confirmed = confirmMatches(usOut.lookup.rows, deskOut.rows);
+    const meta = new Map(us.map(u => [u.ticker, u]));
+    confirmed.meta = Object.fromEntries([...confirmed.up, ...confirmed.down].map(x => [x.t, meta.get(x.t) || { ticker: x.t }]));
+    log(`Cross-check: ${confirmed.up.length} confirmed uptrend (${confirmed.up.map(x => x.t).join(' ') || 'none'}) of ${confirmed.checked.up.length} valid MMS buys; ${confirmed.down.length} confirmed downtrend (${confirmed.down.map(x => x.t).join(' ') || 'none'}) of ${confirmed.checked.down.length} valid MMS shorts`);
+  } else log('Cross-check skipped: ' + (!usOut ? 'no US Stocks results today' : 'no Agent Desk results today'));
+
+  if (lists.watch.length) page('My watchlist', lists.watch, 'docs/watch/data', { regimeTicker: 'SPY', market: 'watch', confirmed });
 }
 
 // One US list: S&P 500 names first (they carry the GICS sector), then Nasdaq-100 and Dow 30 names not

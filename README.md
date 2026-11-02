@@ -8,7 +8,7 @@ A multi-agent screener that applies the **Market Maker Strategy (MMS) 2026** cou
 | `/bursa/` | FBM KLCI 30 (Bursa Malaysia) | KLCI index | 10:15 UTC Mon–Fri (6:15 pm MYT) |
 | `/china/` | CSI 300 (China A-shares, Shanghai + Shenzhen) | CSI 300 index | 08:15 UTC Mon–Fri (4:15 pm MYT) |
 | `/crypto/` | Top 100 coins | Bitcoin | 02:30 UTC daily (10:30 am MYT) |
-| `/watch/` | Your own US tickers (`watchlist.txt`) | SPY | same US run |
+| `/watch/` | Your own US tickers (`watchlist.txt`) **plus stocks confirmed by both MMS and the Agent Desk** (see below) | SPY | same US run |
 
 For each market it picks:
 
@@ -141,6 +141,17 @@ Every daily run analyses every name and saves the results in each page's `data/a
 - **Schedule:** `.github/workflows/crypto-scan.yml` runs every day at 02:30 UTC (10:30 am Malaysia time). No secret needed.
 
 Crypto pullbacks are often deeper than the course's 10% buying-contraction limit, so on many days few coins pass every rule; the rest of the list is then filled with liquid "Watch" names showing why they fail.
+
+## Confirmed by MMS + Agent Desk (on the My watchlist page)
+
+After each US scan the cross-check agent (`src/confirm.js`) compares every **valid** US Stocks setup (not extended, not broken) with the Agent Desk:
+
+| Panel | MMS screener | Agent Desk |
+|---|---|---|
+| Uptrend Stocks | valid Stage 2 buy setup | rating **Buy**, fundamentals **A or B**, **Low** risk |
+| Downtrend Stocks | valid Stage 4 short setup | rating **Underweight or Sell**, fundamentals **C, D or F** |
+
+Matches appear automatically at the top of the watchlist page's Uptrend / Downtrend Stocks panels (they are not written into `watchlist.txt`) and are tracked on that page's Live Scorecard as *Confirmed*. When nothing matches, the panel lists the setups it checked and which condition each one missed. Change the conditions in `CONFIRM_RULES`.
 
 ## Agent Desk (`docs/agents/`) — six agents and a 2-week call
 

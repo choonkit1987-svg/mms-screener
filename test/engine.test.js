@@ -213,4 +213,27 @@ mergeLegacyScorecards(sd, [[nd, 'Nasdaq-100']], () => {});
 const merged = JSON.parse(fs.readFileSync(nodePath.join(sd, 'scorecard.json'), 'utf8')).entries;
 assert.deepEqual(merged.map(e => e.t), ['AAPL', 'FAST']); assert.equal(merged[1].from, 'Nasdaq-100');
 assert.ok(fs.existsSync(nodePath.join(nd, 'scorecard.merged.json')) && !fs.existsSync(nodePath.join(nd, 'scorecard.json')));
+// 14) cross-check: valid MMS setups the Agent Desk also rates strongly appear on the watchlist page
+import { confirmMatches } from '../src/confirm.js';
+import { buildReport } from '../src/run.js';
+const mrow = (t, st, side, valid = true, status = 'SETUP') => ({ t, n: t + ' Inc', st, side, valid, status });
+const drow = (t, rating, grade, level) => ({ t, pm: { rating }, fund: grade ? { ok: true, grade } : { ok: false }, risk: { level }, tech: { p: 0.6, call: 'Uptrend' } });
+const cm = confirmMatches(
+  [mrow('AAA', 2, 'long'), mrow('BBB', 2, 'long'), mrow('CCC', 2, 'long', true, 'EXTENDED'), mrow('DDD', 4, 'short'), mrow('EEE', 4, 'short'), mrow('FFF', 2, 'long', false)],
+  [drow('AAA', 'Buy', 'A', 'Low'), drow('BBB', 'Buy', 'B', 'Medium'), drow('CCC', 'Buy', 'A', 'Low'), drow('DDD', 'Sell', 'D', 'High'), drow('EEE', 'Underweight', 'B', 'Low'), drow('FFF', 'Buy', 'A', 'Low')]);
+assert.deepEqual(cm.up.map(x => x.t), ['AAA'], 'Buy + A/B + Low risk + valid live MMS buy');
+assert.deepEqual(cm.down.map(x => x.t), ['DDD'], 'Underweight/Sell + grade C or below + valid MMS short');
+assert.deepEqual(cm.checked.up.map(x => x.t), ['AAA', 'BBB'], 'extended / invalid setups are not checked');
+assert.match(cm.checked.up[1].miss.join(), /Medium risk/); assert.match(cm.checked.down[1].miss.join(), /fundamentals B/);
+assert.equal(confirmMatches([mrow('ZZZ', 2, 'long')], []).checked.up[0].miss[0], 'not analysed by the Agent Desk');
+// watchlist report carries the confirmed cards (re-checked on the same prices) and the scorecard records them
+const conf = { up: [{ t: 'VCP', desk: { rating: 'Buy', grade: 'A', risk: 'Low', p: 0.6 } }], down: [], checked: { up: [{ t: 'VCP', ok: true, miss: [] }], down: [] }, meta: { VCP: { ticker: 'VCP', name: 'Test VCP' } } };
+const wr = buildReport([{ ticker: 'FLAT' }], { FLAT: flat, VCP: up }, 'test', { market: 'watch', confirmed: conf }).report;
+assert.equal(wr.confirmedUp.length, 1); assert.equal(wr.confirmedUp[0].tier, 'confirmed'); assert.equal(wr.confirmedUp[0].desk.rating, 'Buy');
+assert.ok(wr.confirmedUp[0].risk && wr.confirmedUp[0].chart, 'full card data');
+assert.deepEqual(wr.confirmedDown, []); assert.ok(wr.confirmRules.up.ratings.includes('Buy'));
+const wtmp = fs.mkdtempSync(os.tmpdir() + '/wl-');
+const wsc = updateScorecard(wtmp, wr, { VCP: up, FLAT: flat });
+assert.equal(wsc.confirmed.signals, 1); assert.equal(wsc.recent[0].tier, 'confirmed');
+assert.equal(buildReport([{ ticker: 'FLAT' }], { FLAT: flat }, 'test', { market: 'stocks' }).report.confirmedUp, undefined, 'only the watchlist page shows the block');
 console.log('ALL TESTS PASSED');
