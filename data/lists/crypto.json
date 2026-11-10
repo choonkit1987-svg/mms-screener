@@ -4,7 +4,7 @@
   "name": "Bitcoin",
   "sector": "Crypto",
   "yahoo": "BTC-USD",
-  "cgPrice": 74215,
+  "cgPrice": 74350,
   "cgId": "bitcoin",
   "rank": 1
  },
@@ -13,7 +13,7 @@
   "name": "Ethereum",
   "sector": "Crypto",
   "yahoo": "ETH-USD",
-  "cgPrice": 2106.85,
+  "cgPrice": 2098.28,
   "cgId": "ethereum",
   "rank": 2
  },
@@ -22,7 +22,7 @@
   "name": "BNB",
   "sector": "Crypto",
   "yahoo": "BNB-USD",
-  "cgPrice": 680.53,
+  "cgPrice": 689.02,
   "cgId": "binancecoin",
   "rank": 4
  },
@@ -31,7 +31,7 @@
   "name": "XRP",
   "sector": "Crypto",
   "yahoo": "XRP-USD",
-  "cgPrice": 1.089,
+  "cgPrice": 1.083,
   "cgId": "ripple",
   "rank": 6
  },
@@ -40,7 +40,7 @@
   "name": "Solana",
   "sector": "Crypto",
   "yahoo": "SOL-USD",
-  "cgPrice": 86.37,
+  "cgPrice": 85.3,
   "cgId": "solana",
   "rank": 7
  },
@@ -49,7 +49,7 @@
   "name": "TRON",
   "sector": "Crypto",
   "yahoo": "TRX-USD",
-  "cgPrice": 0.317648,
+  "cgPrice": 0.318933,
   "cgId": "tron",
   "rank": 8
  },
@@ -58,7 +58,7 @@
   "name": "Zcash",
   "sector": "Crypto",
   "yahoo": "ZEC-USD",
-  "cgPrice": 1216.13,
+  "cgPrice": 1136.56,
   "cgId": "zcash",
   "rank": 10
  },
@@ -67,44 +67,44 @@
   "name": "Hyperliquid",
   "sector": "Crypto",
   "yahoo": "HYPE-USD",
-  "cgPrice": 73.18,
+  "cgPrice": 74.14,
   "cgId": "hyperliquid",
   "rank": 11
- },
- {
-  "ticker": "XMR",
-  "name": "Monero",
-  "sector": "Crypto",
-  "yahoo": "XMR-USD",
-  "cgPrice": 597.66,
-  "cgId": "monero",
-  "rank": 12
  },
  {
   "ticker": "DOGE",
   "name": "Dogecoin",
   "sector": "Crypto",
   "yahoo": "DOGE-USD",
-  "cgPrice": 0.069096,
+  "cgPrice": 0.069543,
   "cgId": "dogecoin",
-  "rank": 13
+  "rank": 12
  },
  {
-  "ticker": "WBT",
-  "name": "WhiteBIT Coin",
+  "ticker": "XMR",
+  "name": "Monero",
   "sector": "Crypto",
-  "yahoo": "WBT-USD",
-  "cgPrice": 71.62,
-  "cgId": "whitebit",
-  "rank": 15
+  "yahoo": "XMR-USD",
+  "cgPrice": 546.82,
+  "cgId": "monero",
+  "rank": 13
  },
  {
   "ticker": "LEO",
   "name": "LEO Token",
   "sector": "Crypto",
   "yahoo": "LEO-USD",
-  "cgPrice": 9.24,
+  "cgPrice": 9.28,
   "cgId": "leo-token",
+  "rank": 15
+ },
+ {
+  "ticker": "WBT",
+  "name": "WhiteBIT Coin",
+  "sector": "Crypto",
+  "yahoo": "WBT-USD",
+  "cgPrice": 71.61,
+  "cgId": "whitebit",
   "rank": 16
  },
  {
@@ -112,7 +112,7 @@
   "name": "Chainlink",
   "sector": "Crypto",
   "yahoo": "LINK-USD",
-  "cgPrice": 10.42,
+  "cgPrice": 10.49,
   "cgId": "chainlink",
   "rank": 17
  },
@@ -121,7 +121,7 @@
   "name": "Cardano",
   "sector": "Crypto",
   "yahoo": "ADA-USD",
-  "cgPrice": 0.175527,
+  "cgPrice": 0.177661,
   "cgId": "cardano",
   "rank": 18
  },
@@ -130,7 +130,7 @@
   "name": "Stellar",
   "sector": "Crypto",
   "yahoo": "XLM-USD",
-  "cgPrice": 0.146258,
+  "cgPrice": 0.147116,
   "cgId": "stellar",
   "rank": 19
  },
@@ -139,7 +139,7 @@
   "name": "Bitcoin Cash",
   "sector": "Crypto",
   "yahoo": "BCH-USD",
-  "cgPrice": 240.04,
+  "cgPrice": 236.88,
   "cgId": "bitcoin-cash",
   "rank": 21
  },
@@ -148,7 +148,7 @@
   "name": "NEAR Protocol",
   "sector": "Crypto",
   "yahoo": "NEAR-USD",
-  "cgPrice": 3.52,
+  "cgPrice": 3.6,
   "cgId": "near",
   "rank": 22
  },
@@ -157,7 +157,7 @@
   "name": "Uniswap",
   "sector": "Crypto",
   "yahoo": "UNI-USD",
-  "cgPrice": 6.76,
+  "cgPrice": 6.98,
   "cgId": "uniswap",
   "rank": 24
  },
@@ -166,7 +166,7 @@
   "name": "Litecoin",
   "sector": "Crypto",
   "yahoo": "LTC-USD",
-  "cgPrice": 50.99,
+  "cgPrice": 51.32,
   "cgId": "litecoin",
   "rank": 25
  },
@@ -175,7 +175,7 @@
   "name": "Avalanche",
   "sector": "Crypto",
   "yahoo": "AVAX-USD",
-  "cgPrice": 8,
+  "cgPrice": 8.36,
   "cgId": "avalanche-2",
   "rank": 26
  },
@@ -184,7 +184,7 @@
   "name": "Canton",
   "sector": "Crypto",
   "yahoo": "CC-USD",
-  "cgPrice": 0.088687,
+  "cgPrice": 0.091537,
   "cgId": "canton-network",
   "rank": 27
  },
@@ -193,7 +193,7 @@
   "name": "Sui",
   "sector": "Crypto",
   "yahoo": "SUI-USD",
-  "cgPrice": 0.822744,
+  "cgPrice": 0.837768,
   "cgId": "sui",
   "rank": 28
  },
@@ -202,43 +202,43 @@
   "name": "Rain",
   "sector": "Crypto",
   "yahoo": "RAIN-USD",
-  "cgPrice": 0.00461058,
+  "cgPrice": 0.00446368,
   "cgId": "rain",
   "rank": 31
- },
- {
-  "ticker": "HBAR",
-  "name": "Hedera",
-  "sector": "Crypto",
-  "yahoo": "HBAR-USD",
-  "cgPrice": 0.066799,
-  "cgId": "hedera-hashgraph",
-  "rank": 32
- },
- {
-  "ticker": "QNT",
-  "name": "Quant",
-  "sector": "Crypto",
-  "yahoo": "QNT-USD",
-  "cgPrice": 200.05,
-  "cgId": "quant-network",
-  "rank": 33
  },
  {
   "ticker": "GRAM",
   "name": "Gram (prev. Toncoin)",
   "sector": "Crypto",
   "yahoo": "GRAM-USD",
-  "cgPrice": 1.018,
+  "cgPrice": 1.083,
   "cgId": "the-open-network",
-  "rank": 34
+  "rank": 32
+ },
+ {
+  "ticker": "HBAR",
+  "name": "Hedera",
+  "sector": "Crypto",
+  "yahoo": "HBAR-USD",
+  "cgPrice": 0.066651,
+  "cgId": "hedera-hashgraph",
+  "rank": 33
+ },
+ {
+  "ticker": "QNT",
+  "name": "Quant",
+  "sector": "Crypto",
+  "yahoo": "QNT-USD",
+  "cgPrice": 188.15,
+  "cgId": "quant-network",
+  "rank": 35
  },
  {
   "ticker": "SHIB",
   "name": "Shiba Inu",
   "sector": "Crypto",
   "yahoo": "SHIB-USD",
-  "cgPrice": 0.00000439,
+  "cgPrice": 0.00000445,
   "cgId": "shiba-inu",
   "rank": 38
  },
@@ -247,7 +247,7 @@
   "name": "Bittensor",
   "sector": "Crypto",
   "yahoo": "TAO-USD",
-  "cgPrice": 216.05,
+  "cgPrice": 220.9,
   "cgId": "bittensor",
   "rank": 39
  },
@@ -256,7 +256,7 @@
   "name": "Cronos",
   "sector": "Crypto",
   "yahoo": "CRO-USD",
-  "cgPrice": 0.04819466,
+  "cgPrice": 0.04753583,
   "cgId": "crypto-com-chain",
   "rank": 40
  },
@@ -265,26 +265,26 @@
   "name": "Pepe",
   "sector": "Crypto",
   "yahoo": "PEPE-USD",
-  "cgPrice": 0.00000511,
+  "cgPrice": 0.00000529,
   "cgId": "pepe",
   "rank": 42
- },
- {
-  "ticker": "OKB",
-  "name": "OKB",
-  "sector": "Crypto",
-  "yahoo": "OKB-USD",
-  "cgPrice": 96.82,
-  "cgId": "okb",
-  "rank": 44
  },
  {
   "ticker": "ENA",
   "name": "Ethena",
   "sector": "Crypto",
   "yahoo": "ENA-USD",
-  "cgPrice": 0.150154,
+  "cgPrice": 0.152709,
   "cgId": "ethena",
+  "rank": 44
+ },
+ {
+  "ticker": "OKB",
+  "name": "OKB",
+  "sector": "Crypto",
+  "yahoo": "OKB-USD",
+  "cgPrice": 96.96,
+  "cgId": "okb",
   "rank": 45
  },
  {
@@ -292,26 +292,35 @@
   "name": "Aave",
   "sector": "Crypto",
   "yahoo": "AAVE-USD",
-  "cgPrice": 130.62,
+  "cgPrice": 124.76,
   "cgId": "aave",
-  "rank": 46
- },
- {
-  "ticker": "M",
-  "name": "MemeCore",
-  "sector": "Crypto",
-  "yahoo": "M-USD",
-  "cgPrice": 0.775667,
-  "cgId": "memecore",
-  "rank": 50
+  "rank": 47
  },
  {
   "ticker": "ONDO",
   "name": "Ondo",
   "sector": "Crypto",
   "yahoo": "ONDO-USD",
-  "cgPrice": 0.351279,
+  "cgPrice": 0.371856,
   "cgId": "ondo-finance",
+  "rank": 50
+ },
+ {
+  "ticker": "M",
+  "name": "MemeCore",
+  "sector": "Crypto",
+  "yahoo": "M-USD",
+  "cgPrice": 0.747961,
+  "cgId": "memecore",
+  "rank": 51
+ },
+ {
+  "ticker": "ASTER",
+  "name": "Aster",
+  "sector": "Crypto",
+  "yahoo": "ASTER-USD",
+  "cgPrice": 0.651323,
+  "cgId": "aster-2",
   "rank": 52
  },
  {
@@ -319,71 +328,62 @@
   "name": "Pump.fun",
   "sector": "Crypto",
   "yahoo": "PUMP-USD",
-  "cgPrice": 0.00356759,
+  "cgPrice": 0.00353303,
   "cgId": "pump-fun",
-  "rank": 53
- },
- {
-  "ticker": "ASTER",
-  "name": "Aster",
-  "sector": "Crypto",
-  "yahoo": "ASTER-USD",
-  "cgPrice": 0.629629,
-  "cgId": "aster-2",
   "rank": 54
- },
- {
-  "ticker": "BTW",
-  "name": "Bitway",
-  "sector": "Crypto",
-  "yahoo": "BTW-USD",
-  "cgPrice": 1.057,
-  "cgId": "bitway",
-  "rank": 56
- },
- {
-  "ticker": "DOT",
-  "name": "Polkadot",
-  "sector": "Crypto",
-  "yahoo": "DOT-USD",
-  "cgPrice": 0.864572,
-  "cgId": "polkadot",
-  "rank": 58
- },
- {
-  "ticker": "MNT",
-  "name": "Mantle",
-  "sector": "Crypto",
-  "yahoo": "MNT-USD",
-  "cgPrice": 0.447759,
-  "cgId": "mantle",
-  "rank": 59
  },
  {
   "ticker": "WLFI",
   "name": "World Liberty Financial",
   "sector": "Crypto",
   "yahoo": "WLFI-USD",
-  "cgPrice": 0.04632185,
+  "cgPrice": 0.04797207,
   "cgId": "world-liberty-financial",
-  "rank": 60
+  "rank": 56
  },
  {
-  "ticker": "SKY",
-  "name": "Sky",
+  "ticker": "BTW",
+  "name": "Bitway",
   "sector": "Crypto",
-  "yahoo": "SKY-USD",
-  "cgPrice": 0.061869,
-  "cgId": "sky",
-  "rank": 61
+  "yahoo": "BTW-USD",
+  "cgPrice": 0.994828,
+  "cgId": "bitway",
+  "rank": 57
+ },
+ {
+  "ticker": "MNT",
+  "name": "Mantle",
+  "sector": "Crypto",
+  "yahoo": "MNT-USD",
+  "cgPrice": 0.446247,
+  "cgId": "mantle",
+  "rank": 59
+ },
+ {
+  "ticker": "DOT",
+  "name": "Polkadot",
+  "sector": "Crypto",
+  "yahoo": "DOT-USD",
+  "cgPrice": 0.850283,
+  "cgId": "polkadot",
+  "rank": 60
  },
  {
   "ticker": "MORPHO",
   "name": "Morpho",
   "sector": "Crypto",
   "yahoo": "MORPHO-USD",
-  "cgPrice": 2.04,
+  "cgPrice": 2.02,
   "cgId": "morpho",
+  "rank": 61
+ },
+ {
+  "ticker": "SKY",
+  "name": "Sky",
+  "sector": "Crypto",
+  "yahoo": "SKY-USD",
+  "cgPrice": 0.060343,
+  "cgId": "sky",
   "rank": 62
  },
  {
@@ -391,7 +391,7 @@
   "name": "HTX DAO",
   "sector": "Crypto",
   "yahoo": "HTX-USD",
-  "cgPrice": 0.00000153,
+  "cgPrice": 0.00000154,
   "cgId": "htx-dao",
   "rank": 63
  },
@@ -400,44 +400,44 @@
   "name": "Internet Computer",
   "sector": "Crypto",
   "yahoo": "ICP-USD",
-  "cgPrice": 2.36,
+  "cgPrice": 2.42,
   "cgId": "internet-computer",
   "rank": 64
- },
- {
-  "ticker": "ARB",
-  "name": "Arbitrum",
-  "sector": "Crypto",
-  "yahoo": "ARB-USD",
-  "cgPrice": 0.175843,
-  "cgId": "arbitrum",
-  "rank": 66
  },
  {
   "ticker": "BGB",
   "name": "Bitget Token",
   "sector": "Crypto",
   "yahoo": "BGB-USD",
-  "cgPrice": 1.72,
+  "cgPrice": 1.73,
   "cgId": "bitget-token",
-  "rank": 67
+  "rank": 66
  },
  {
   "ticker": "WLD",
   "name": "Worldcoin",
   "sector": "Crypto",
   "yahoo": "WLD-USD",
-  "cgPrice": 0.315697,
+  "cgPrice": 0.316004,
   "cgId": "worldcoin-wld",
-  "rank": 68
+  "rank": 67
  },
  {
   "ticker": "JST",
   "name": "JUST",
   "sector": "Crypto",
   "yahoo": "JST-USD",
-  "cgPrice": 0.143201,
+  "cgPrice": 0.144204,
   "cgId": "just",
+  "rank": 68
+ },
+ {
+  "ticker": "ARB",
+  "name": "Arbitrum",
+  "sector": "Crypto",
+  "yahoo": "ARB-USD",
+  "cgPrice": 0.166917,
+  "cgId": "arbitrum",
   "rank": 69
  },
  {
@@ -445,26 +445,26 @@
   "name": "Ethereum Classic",
   "sector": "Crypto",
   "yahoo": "ETC-USD",
-  "cgPrice": 6.7,
+  "cgPrice": 6.82,
   "cgId": "ethereum-classic",
   "rank": 71
- },
- {
-  "ticker": "GT",
-  "name": "Gate",
-  "sector": "Crypto",
-  "yahoo": "GT-USD",
-  "cgPrice": 9.77,
-  "cgId": "gatechain-token",
-  "rank": 72
  },
  {
   "ticker": "VVV",
   "name": "Venice Token",
   "sector": "Crypto",
   "yahoo": "VVV-USD",
-  "cgPrice": 20.21,
+  "cgPrice": 21.34,
   "cgId": "venice-token",
+  "rank": 72
+ },
+ {
+  "ticker": "GT",
+  "name": "Gate",
+  "sector": "Crypto",
+  "yahoo": "GT-USD",
+  "cgPrice": 9.68,
+  "cgId": "gatechain-token",
   "rank": 73
  },
  {
@@ -472,7 +472,7 @@
   "name": "KuCoin",
   "sector": "Crypto",
   "yahoo": "KCS-USD",
-  "cgPrice": 6.86,
+  "cgPrice": 6.81,
   "cgId": "kucoin-shares",
   "rank": 74
  },
@@ -481,7 +481,7 @@
   "name": "POL (ex-MATIC)",
   "sector": "Crypto",
   "yahoo": "POL-USD",
-  "cgPrice": 0.088439,
+  "cgPrice": 0.087507,
   "cgId": "polygon-ecosystem-token",
   "rank": 75
  },
@@ -490,53 +490,53 @@
   "name": "Render",
   "sector": "Crypto",
   "yahoo": "RENDER-USD",
-  "cgPrice": 1.61,
+  "cgPrice": 1.59,
   "cgId": "render-token",
   "rank": 77
- },
- {
-  "ticker": "ALGO",
-  "name": "Algorand",
-  "sector": "Crypto",
-  "yahoo": "ALGO-USD",
-  "cgPrice": 0.090915,
-  "cgId": "algorand",
-  "rank": 78
- },
- {
-  "ticker": "KAS",
-  "name": "Kaspa",
-  "sector": "Crypto",
-  "yahoo": "KAS-USD",
-  "cgPrice": 0.0289212,
-  "cgId": "kaspa",
-  "rank": 79
- },
- {
-  "ticker": "INJ",
-  "name": "Injective",
-  "sector": "Crypto",
-  "yahoo": "INJ-USD",
-  "cgPrice": 7.91,
-  "cgId": "injective-protocol",
-  "rank": 80
  },
  {
   "ticker": "JUP",
   "name": "Jupiter",
   "sector": "Crypto",
   "yahoo": "JUP-USD",
-  "cgPrice": 0.234399,
+  "cgPrice": 0.251954,
   "cgId": "jupiter-exchange-solana",
-  "rank": 81
+  "rank": 78
+ },
+ {
+  "ticker": "ALGO",
+  "name": "Algorand",
+  "sector": "Crypto",
+  "yahoo": "ALGO-USD",
+  "cgPrice": 0.091805,
+  "cgId": "algorand",
+  "rank": 79
+ },
+ {
+  "ticker": "KAS",
+  "name": "Kaspa",
+  "sector": "Crypto",
+  "yahoo": "KAS-USD",
+  "cgPrice": 0.02990443,
+  "cgId": "kaspa",
+  "rank": 80
  },
  {
   "ticker": "LIT",
   "name": "Lighter",
   "sector": "Crypto",
   "yahoo": "LIT-USD",
-  "cgPrice": 3.1,
+  "cgPrice": 3.23,
   "cgId": "lighter",
+  "rank": 81
+ },
+ {
+  "ticker": "INJ",
+  "name": "Injective",
+  "sector": "Crypto",
+  "yahoo": "INJ-USD",
+  "cgPrice": 7.96,
+  "cgId": "injective-protocol",
   "rank": 82
  },
  {
@@ -544,7 +544,7 @@
   "name": "Pi Network",
   "sector": "Crypto",
   "yahoo": "PI-USD",
-  "cgPrice": 0.06477,
+  "cgPrice": 0.070072,
   "cgId": "pi-network",
   "rank": 83
  },
@@ -553,7 +553,7 @@
   "name": "Cosmos Hub",
   "sector": "Crypto",
   "yahoo": "ATOM-USD",
-  "cgPrice": 1.33,
+  "cgPrice": 1.38,
   "cgId": "cosmos",
   "rank": 84
  },
@@ -562,9 +562,72 @@
   "name": "NEXO",
   "sector": "Crypto",
   "yahoo": "NEXO-USD",
-  "cgPrice": 0.711311,
+  "cgPrice": 0.714001,
   "cgId": "nexo",
   "rank": 85
+ },
+ {
+  "ticker": "NIGHT",
+  "name": "Midnight",
+  "sector": "Crypto",
+  "yahoo": "NIGHT-USD",
+  "cgPrice": 0.04276964,
+  "cgId": "midnight-3",
+  "rank": 86
+ },
+ {
+  "ticker": "FIL",
+  "name": "Filecoin",
+  "sector": "Crypto",
+  "yahoo": "FIL-USD",
+  "cgPrice": 0.765461,
+  "cgId": "filecoin",
+  "rank": 89
+ },
+ {
+  "ticker": "ETHFI",
+  "name": "Ether.fi",
+  "sector": "Crypto",
+  "yahoo": "ETHFI-USD",
+  "cgPrice": 0.637768,
+  "cgId": "ether-fi",
+  "rank": 90
+ },
+ {
+  "ticker": "XDC",
+  "name": "XDC Network",
+  "sector": "Crypto",
+  "yahoo": "XDC-USD",
+  "cgPrice": 0.03136678,
+  "cgId": "xdce-crowd-sale",
+  "rank": 91
+ },
+ {
+  "ticker": "PEARL",
+  "name": "Pearl",
+  "sector": "Crypto",
+  "yahoo": "PEARL-USD",
+  "cgPrice": 1.65,
+  "cgId": "pearl-2",
+  "rank": 92
+ },
+ {
+  "ticker": "ZRO",
+  "name": "LayerZero",
+  "sector": "Crypto",
+  "yahoo": "ZRO-USD",
+  "cgPrice": 1.51,
+  "cgId": "layerzero",
+  "rank": 93
+ },
+ {
+  "ticker": "DASH",
+  "name": "Dash",
+  "sector": "Crypto",
+  "yahoo": "DASH-USD",
+  "cgPrice": 45.85,
+  "cgId": "dash",
+  "rank": 94
  },
  {
   "ticker": "CAKE",
@@ -573,105 +636,60 @@
   "yahoo": "CAKE-USD",
   "cgPrice": 1.85,
   "cgId": "pancakeswap-token",
-  "rank": 87
- },
- {
-  "ticker": "NIGHT",
-  "name": "Midnight",
-  "sector": "Crypto",
-  "yahoo": "NIGHT-USD",
-  "cgPrice": 0.03973405,
-  "cgId": "midnight-3",
-  "rank": 88
- },
- {
-  "ticker": "FIL",
-  "name": "Filecoin",
-  "sector": "Crypto",
-  "yahoo": "FIL-USD",
-  "cgPrice": 0.755547,
-  "cgId": "filecoin",
-  "rank": 90
- },
- {
-  "ticker": "PEARL",
-  "name": "Pearl",
-  "sector": "Crypto",
-  "yahoo": "PEARL-USD",
-  "cgPrice": 1.63,
-  "cgId": "pearl-2",
-  "rank": 91
- },
- {
-  "ticker": "DASH",
-  "name": "Dash",
-  "sector": "Crypto",
-  "yahoo": "DASH-USD",
-  "cgPrice": 47.1,
-  "cgId": "dash",
-  "rank": 92
- },
- {
-  "ticker": "ZRO",
-  "name": "LayerZero",
-  "sector": "Crypto",
-  "yahoo": "ZRO-USD",
-  "cgPrice": 1.5,
-  "cgId": "layerzero",
-  "rank": 93
+  "rank": 95
  },
  {
   "ticker": "STX",
   "name": "Stacks",
   "sector": "Crypto",
   "yahoo": "STX-USD",
-  "cgPrice": 0.31534,
+  "cgPrice": 0.309138,
   "cgId": "blockstack",
-  "rank": 94
- },
- {
-  "ticker": "ETHFI",
-  "name": "Ether.fi",
-  "sector": "Crypto",
-  "yahoo": "ETHFI-USD",
-  "cgPrice": 0.591906,
-  "cgId": "ether-fi",
-  "rank": 95
- },
- {
-  "ticker": "XDC",
-  "name": "XDC Network",
-  "sector": "Crypto",
-  "yahoo": "XDC-USD",
-  "cgPrice": 0.02961797,
-  "cgId": "xdce-crowd-sale",
   "rank": 96
+ },
+ {
+  "ticker": "PIEVERSE",
+  "name": "Pieverse",
+  "sector": "Crypto",
+  "yahoo": "PIEVERSE-USD",
+  "cgPrice": 2.09,
+  "cgId": "pieverse",
+  "rank": 98
  },
  {
   "ticker": "BDX",
   "name": "Beldex",
   "sector": "Crypto",
   "yahoo": "BDX-USD",
-  "cgPrice": 0.071711,
+  "cgPrice": 0.072248,
   "cgId": "beldex",
-  "rank": 98
+  "rank": 99
  },
  {
-  "ticker": "APT",
-  "name": "Aptos",
+  "ticker": "STABLE",
+  "name": "​​Stable",
   "sector": "Crypto",
-  "yahoo": "APT-USD",
-  "cgPrice": 0.575447,
-  "cgId": "aptos",
-  "rank": 101
+  "yahoo": "STABLE-USD",
+  "cgPrice": 0.02997264,
+  "cgId": "stable-2",
+  "rank": 100
  },
  {
   "ticker": "PYTH",
   "name": "Pyth Network",
   "sector": "Crypto",
   "yahoo": "PYTH-USD",
-  "cgPrice": 0.061353,
+  "cgPrice": 0.065521,
   "cgId": "pyth-network",
+  "rank": 103
+ },
+ {
+  "ticker": "APT",
+  "name": "Aptos",
+  "sector": "Crypto",
+  "yahoo": "APT-USD",
+  "cgPrice": 0.580629,
+  "cgId": "aptos",
   "rank": 104
  },
  {
@@ -679,25 +697,16 @@
   "name": "Flare",
   "sector": "Crypto",
   "yahoo": "FLR-USD",
-  "cgPrice": 0.0054631,
+  "cgPrice": 0.00541815,
   "cgId": "flare-networks",
-  "rank": 105
- },
- {
-  "ticker": "STABLE",
-  "name": "​​Stable",
-  "sector": "Crypto",
-  "yahoo": "STABLE-USD",
-  "cgPrice": 0.02630636,
-  "cgId": "stable-2",
-  "rank": 107
+  "rank": 108
  },
  {
   "ticker": "RAY",
   "name": "Raydium",
   "sector": "Crypto",
   "yahoo": "RAY-USD",
-  "cgPrice": 1.71,
+  "cgPrice": 1.69,
   "cgId": "raydium",
   "rank": 110
  },
@@ -706,17 +715,17 @@
   "name": "VeChain",
   "sector": "Crypto",
   "yahoo": "VET-USD",
-  "cgPrice": 0.00517921,
+  "cgPrice": 0.00525298,
   "cgId": "vechain",
   "rank": 111
  },
  {
-  "ticker": "PIEVERSE",
-  "name": "Pieverse",
+  "ticker": "HASH",
+  "name": "Provenance Blockchain",
   "sector": "Crypto",
-  "yahoo": "PIEVERSE-USD",
-  "cgPrice": 1.61,
-  "cgId": "pieverse",
+  "yahoo": "HASH-USD",
+  "cgPrice": 0.00741625,
+  "cgId": "hash-2",
   "rank": 112
  },
  {
@@ -724,7 +733,7 @@
   "name": "Celestia",
   "sector": "Crypto",
   "yahoo": "TIA-USD",
-  "cgPrice": 0.420142,
+  "cgPrice": 0.431789,
   "cgId": "celestia",
   "rank": 113
  },
@@ -733,7 +742,7 @@
   "name": "Curve DAO",
   "sector": "Crypto",
   "yahoo": "CRV-USD",
-  "cgPrice": 0.26114,
+  "cgPrice": 0.258188,
   "cgId": "curve-dao-token",
   "rank": 114
  },
@@ -742,7 +751,7 @@
   "name": "Pudgy Penguins",
   "sector": "Crypto",
   "yahoo": "PENGU-USD",
-  "cgPrice": 0.0062042,
+  "cgPrice": 0.00629185,
   "cgId": "pudgy-penguins",
   "rank": 115
  },
@@ -751,7 +760,7 @@
   "name": "Aero",
   "sector": "Crypto",
   "yahoo": "AERO-USD",
-  "cgPrice": 0.561275,
+  "cgPrice": 0.558797,
   "cgId": "aero",
   "rank": 116
  },
@@ -765,12 +774,12 @@
   "rank": 117
  },
  {
-  "ticker": "HASH",
-  "name": "Provenance Blockchain",
+  "ticker": "GRASS",
+  "name": "Grass",
   "sector": "Crypto",
-  "yahoo": "HASH-USD",
-  "cgPrice": 0.00596682,
-  "cgId": "hash-2",
+  "yahoo": "GRASS-USD",
+  "cgPrice": 0.494847,
+  "cgId": "grass",
   "rank": 119
  },
  {
@@ -778,80 +787,80 @@
   "name": "Virtuals Protocol",
   "sector": "Crypto",
   "yahoo": "VIRTUAL-USD",
-  "cgPrice": 0.535583,
+  "cgPrice": 0.541006,
   "cgId": "virtual-protocol",
   "rank": 120
- },
- {
-  "ticker": "GRASS",
-  "name": "Grass",
-  "sector": "Crypto",
-  "yahoo": "GRASS-USD",
-  "cgPrice": 0.478488,
-  "cgId": "grass",
-  "rank": 121
  },
  {
   "ticker": "BTT",
   "name": "BitTorrent",
   "sector": "Crypto",
   "yahoo": "BTT-USD",
-  "cgPrice": 3.5771e-7,
+  "cgPrice": 3.58997e-7,
   "cgId": "bittorrent",
-  "rank": 122
- },
- {
-  "ticker": "BSV",
-  "name": "Bitcoin SV",
-  "sector": "Crypto",
-  "yahoo": "BSV-USD",
-  "cgPrice": 16.37,
-  "cgId": "bitcoin-cash-sv",
-  "rank": 123
+  "rank": 121
  },
  {
   "ticker": "FET",
   "name": "Artificial Superintelligence Alliance",
   "sector": "Crypto",
   "yahoo": "FET-USD",
-  "cgPrice": 0.141105,
+  "cgPrice": 0.145299,
   "cgId": "fetch-ai",
-  "rank": 124
- },
- {
-  "ticker": "TRUMP",
-  "name": "Official Trump",
-  "sector": "Crypto",
-  "yahoo": "TRUMP-USD",
-  "cgPrice": 1.14,
-  "cgId": "official-trump",
-  "rank": 125
- },
- {
-  "ticker": "DRV",
-  "name": "Derive",
-  "sector": "Crypto",
-  "yahoo": "DRV-USD",
-  "cgPrice": 0.295991,
-  "cgId": "derive",
-  "rank": 128
+  "rank": 122
  },
  {
   "ticker": "SPX",
   "name": "SPX6900",
   "sector": "Crypto",
   "yahoo": "SPX-USD",
-  "cgPrice": 0.337314,
+  "cgPrice": 0.359951,
   "cgId": "spx6900",
-  "rank": 129
+  "rank": 123
+ },
+ {
+  "ticker": "DRV",
+  "name": "Derive",
+  "sector": "Crypto",
+  "yahoo": "DRV-USD",
+  "cgPrice": 0.315169,
+  "cgId": "derive",
+  "rank": 124
+ },
+ {
+  "ticker": "BSV",
+  "name": "Bitcoin SV",
+  "sector": "Crypto",
+  "yahoo": "BSV-USD",
+  "cgPrice": 16.24,
+  "cgId": "bitcoin-cash-sv",
+  "rank": 125
+ },
+ {
+  "ticker": "TRUMP",
+  "name": "Official Trump",
+  "sector": "Crypto",
+  "yahoo": "TRUMP-USD",
+  "cgPrice": 1.12,
+  "cgId": "official-trump",
+  "rank": 128
  },
  {
   "ticker": "FF",
   "name": "Falcon Finance",
   "sector": "Crypto",
   "yahoo": "FF-USD",
-  "cgPrice": 0.085905,
+  "cgPrice": 0.086952,
   "cgId": "falcon-finance-ff",
+  "rank": 129
+ },
+ {
+  "ticker": "SEI",
+  "name": "Sei",
+  "sector": "Crypto",
+  "yahoo": "SEI-USD",
+  "cgPrice": 0.04423827,
+  "cgId": "sei-network",
   "rank": 130
  },
  {
@@ -859,7 +868,7 @@
   "name": "Starknet",
   "sector": "Crypto",
   "yahoo": "STRK-USD",
-  "cgPrice": 0.03852245,
+  "cgPrice": 0.03857426,
   "cgId": "starknet",
   "rank": 132
  },
@@ -868,35 +877,26 @@
   "name": "Sun Token",
   "sector": "Crypto",
   "yahoo": "SUN-USD",
-  "cgPrice": 0.01530485,
+  "cgPrice": 0.01535363,
   "cgId": "sun-token",
   "rank": 133
- },
- {
-  "ticker": "SEI",
-  "name": "Sei",
-  "sector": "Crypto",
-  "yahoo": "SEI-USD",
-  "cgPrice": 0.04343378,
-  "cgId": "sei-network",
-  "rank": 134
  },
  {
   "ticker": "GNO",
   "name": "Gnosis",
   "sector": "Crypto",
   "yahoo": "GNO-USD",
-  "cgPrice": 105.4,
+  "cgPrice": 107.96,
   "cgId": "gnosis",
-  "rank": 136
+  "rank": 134
  },
  {
-  "ticker": "XTZ",
-  "name": "Tezos",
+  "ticker": "KITE",
+  "name": "Kite",
   "sector": "Crypto",
-  "yahoo": "XTZ-USD",
-  "cgPrice": 0.252281,
-  "cgId": "tezos",
-  "rank": 137
+  "yahoo": "KITE-USD",
+  "cgPrice": 0.116059,
+  "cgId": "kite-2",
+  "rank": 136
  }
 ]
