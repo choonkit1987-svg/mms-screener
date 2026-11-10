@@ -1,17 +1,23 @@
 {
- "at": "2026-11-09T18:43:32.397Z",
+ "at": "2026-11-10T16:24:32.848Z",
  "ok": true,
- "asOf": "2026-11-09",
+ "asOf": "2026-11-10",
  "message": "",
  "coverage": {
   "share": 0.9866666666666667,
   "fresh": 296,
   "total": 300,
-  "newest": "2026-11-09"
+  "newest": "2026-11-10"
  },
  "sources": {
   "eastmoney": {
-   "ok": 301,
+   "ok": 271,
+   "fail": 30,
+   "off": false,
+   "lastError": "fetch failed"
+  },
+  "tencent": {
+   "ok": 30,
    "fail": 0,
    "off": false,
    "lastError": ""
