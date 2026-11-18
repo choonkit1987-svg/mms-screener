@@ -1,13 +1,13 @@
 {
- "at": "2026-11-17T17:36:07.039Z",
+ "at": "2026-11-18T17:13:02.160Z",
  "ok": true,
- "asOf": "2026-11-17",
+ "asOf": "2026-11-18",
  "message": "",
  "coverage": {
   "share": 0.99,
   "fresh": 297,
   "total": 300,
-  "newest": "2026-11-17"
+  "newest": "2026-11-18"
  },
  "sources": {
   "eastmoney": {
