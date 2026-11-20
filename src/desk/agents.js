@@ -9,9 +9,10 @@
 // checked against history. The optional AI chat on the dashboard reads these outputs.
 import { indicatorSet } from './indicators.js';
 import { featureRow, predict, contributions } from './forecast.js';
+import { US_INDEXES } from './regime.js';
 
 export const DESK = {
-  us: { unit: 'stock', h: 10, minPrice: 5, minDollarVol: 20e6, minBars: 260, risk: { aggressive: 0.02, neutral: 0.01, conservative: 0.005 }, cap: { aggressive: 0.25, neutral: 0.15, conservative: 0.08 }, stopAtr: 1.5, rr: 2, annual: 252, bench: 'S&P 500 (SPY)' },
+  us: { unit: 'stock', h: 10, minPrice: 5, minDollarVol: 20e6, minBars: 260, risk: { aggressive: 0.02, neutral: 0.01, conservative: 0.005 }, cap: { aggressive: 0.25, neutral: 0.15, conservative: 0.08 }, stopAtr: 1.5, rr: 2, annual: 252, bench: 'S&P 500 (SPY)', indexes: US_INDEXES },
   crypto: { unit: 'coin', h: 14, volumeInQuote: true, minPrice: 0, minDollarVol: 10e6, minBars: 260, risk: { aggressive: 0.015, neutral: 0.0075, conservative: 0.004 }, cap: { aggressive: 0.15, neutral: 0.08, conservative: 0.04 }, stopAtr: 1.5, rr: 2, annual: 365, bench: 'Bitcoin' },
 };
 
@@ -163,7 +164,11 @@ export function researchTeam(tech, fund, risk, mms, ind, i) {
 }
 
 // ---------- Portfolio manager ----------
-export function portfolioManager(tech, fund, risk, research, reliability = 1) {
+// regime: marketRegime() output (S&P 500, Nasdaq-100, Dow Jones) or null. A falling market pulls every
+// long call down (more for high-beta names) and caps the rating; a rising market softens bearish calls.
+export const REGIME_RULES = { weight: 1.0, caps: { Bearish: { maxLong: 'Hold' }, Caution: { maxLong: 'Overweight' }, Bullish: { maxShort: 'Underweight' } } };
+const LADDER = ['Sell', 'Underweight', 'Hold', 'Overweight', 'Buy'];
+export function portfolioManager(tech, fund, risk, research, reliability = 1, regime = null) {
   if (!tech) return { rating: 'Hold', score: 0, why: 'Not enough data for a call.' };
   let s = (tech.p - 0.5) / Math.max(0.02, tech.margin); // 1.0 = at the confidence margin
   s = Math.max(-2.5, Math.min(2.5, s));
@@ -174,20 +179,48 @@ export function portfolioManager(tech, fund, risk, research, reliability = 1) {
   s *= Math.max(0.3, reliability);   // a model that failed its own tests gets little say
   if (risk?.level === 'High') s *= 0.6;
   if (risk?.eventRisk) s *= 0.8;
-  let rating = s >= 1.6 ? 'Buy' : s >= 0.8 ? 'Overweight' : s <= -1.6 ? 'Sell' : s <= -0.8 ? 'Underweight' : 'Hold';
-  if (risk?.level === 'High') rating = rating === 'Buy' ? 'Overweight' : rating === 'Sell' ? 'Underweight' : rating; // never full conviction on a high-risk name
+  const rate = x => {
+    const r = x >= 1.6 ? 'Buy' : x >= 0.8 ? 'Overweight' : x <= -1.6 ? 'Sell' : x <= -0.8 ? 'Underweight' : 'Hold';
+    return risk?.level === 'High' ? (r === 'Buy' ? 'Overweight' : r === 'Sell' ? 'Underweight' : r) : r; // never full conviction on a high-risk name
+  };
+  const alone = rate(s); // the stock's own rating, before the market is considered
+  // Market regime agent: most stocks move with the indexes, so a stock that "beats the average" can still
+  // fall when the whole market falls. Beta scales the effect (0.5x to 1.8x).
+  let mkt = null;
+  if (regime && Number.isFinite(regime.score)) {
+    const beta = Math.max(0.5, Math.min(1.8, risk?.beta ?? 1));
+    const pull = regime.score * REGIME_RULES.weight * beta, s0 = s;
+    if (regime.score < 0) s += pull;                       // falling market: every long call loses conviction
+    else if (s < 0) s = Math.min(0, s + pull);             // rising market: bearish calls are softened, never flipped
+    mkt = { label: regime.label, score: regime.score, beta: f2(beta), adj: f2(s - s0) };
+  }
+  let rating = rate(s);
+  const cap = mkt && REGIME_RULES.caps[mkt.label];
+  if (cap?.maxLong && LADDER.indexOf(rating) > LADDER.indexOf(cap.maxLong)) rating = cap.maxLong;
+  if (cap?.maxShort && LADDER.indexOf(rating) < LADDER.indexOf(cap.maxShort)) rating = cap.maxShort;
+  if (mkt) { mkt.changed = rating !== alone; mkt.alone = alone; }
   const parts = [`Technical agent: ${tech.call.toLowerCase()} (${(tech.p * 100).toFixed(0)}% chance to beat the average ${tech.unit}${tech.pAbs != null ? `, ${(tech.pAbs * 100).toFixed(0)}% chance of a higher price` : ''} in 2 weeks).`];
   if (fund?.ok) parts.push(`Fundamentals ${fund.grade} (${fund.score}/100).`);
   else if (fund) parts.push('No usable financial reports — judged on price action only.');
   parts.push(`${research.verdict}.`, `Risk ${risk.level.toLowerCase()} (${risk.score}/100)${risk.eventRisk ? ', earnings inside the window' : ''}.`);
   if (reliability < 0.5) parts.push(`Conviction cut: the ${tech.unit} model held up in only ${Math.round(reliability * 100)}% of its test periods.`);
-  const action = { Buy: 'Enter long on the plan below, sized by your risk profile.', Overweight: 'Lean long: smaller size or wait for the entry trigger.', Hold: 'No edge either way: wait for a clearer signal.', Underweight: 'Lean bearish: reduce or avoid longs; shorts only for aggressive accounts.', Sell: 'Exit or avoid longs; short only with the stop below.' }[rating];
-  return { rating, score: f2(s), why: parts.join(' '), action };
+  if (mkt) {
+    const idx = regime.indexes?.map(x => `${x.name} ${x.r21 >= 0 ? '+' : ''}${(x.r21 * 100).toFixed(1)}%`).join(', ');
+    let t = `Market ${mkt.label.toLowerCase()} (${mkt.score >= 0 ? '+' : ''}${mkt.score.toFixed(2)}${idx ? `; 1 month: ${idx}` : ''})`;
+    if (mkt.adj) t += `, ${mkt.adj < 0 ? 'cutting' : 'easing'} the score by ${Math.abs(mkt.adj).toFixed(2)} (beta ${mkt.beta.toFixed(2)})`;
+    if (mkt.changed) t += `; on its own the stock would rate ${alone}, ${LADDER.indexOf(rating) < LADDER.indexOf(alone) ? 'lowered' : 'raised'} to ${rating} because of the market`;
+    parts.push(t + '.');
+  }
+  let action = { Buy: 'Enter long on the plan below, sized by your risk profile.', Overweight: 'Lean long: smaller size or wait for the entry trigger.', Hold: 'No edge either way: wait for a clearer signal.', Underweight: 'Lean bearish: reduce or avoid longs; shorts only for aggressive accounts.', Sell: 'Exit or avoid longs; short only with the stop below.' }[rating];
+  if (mkt?.changed && LADDER.indexOf(alone) > 2 && rating === 'Hold') action = 'Strong stock in a falling market: wait for the S&P 500, Nasdaq and Dow to turn back up before buying.';
+  else if (mkt?.changed && LADDER.indexOf(alone) > LADDER.indexOf(rating) && rating === 'Overweight') action = 'Lean long only with a smaller size or wait for the entry trigger: the indexes are weakening.';
+  else if (mkt?.changed && LADDER.indexOf(alone) < LADDER.indexOf(rating)) action = (rating === 'Hold' ? 'Weak stock in a rising market: avoid new longs, but do not short against the indexes.' : 'Lean bearish, but avoid shorting while the indexes are rising.');
+  return { rating, score: f2(s), why: parts.join(' '), action, market: mkt };
 }
 
 // ---------- run the whole desk for one ticker ----------
 export function analyzeDesk(meta, bars, ctx) {
-  const { cfg, models, bench, benchBars, fund, mms, lastDate, reliability = 1 } = ctx;
+  const { cfg, models, bench, benchBars, fund, mms, lastDate, reliability = 1, regime = null } = ctx;
   if (!bars || bars.length < 210) return { t: meta.ticker, n: meta.name, skip: `only ${bars?.length || 0} days of price history` };
   const ind = indicatorSet(bars), i = bars.length - 1;
   const filter = filterAgent(bars, ind, cfg, lastDate);
@@ -197,7 +230,7 @@ export function analyzeDesk(meta, bars, ctx) {
   const risk = riskAgent(bars, ind, tech, fund, benchBars, cfg, mms);
   risk.dollarVol = filter.dollarVol;
   const research = researchTeam(tech, fund, risk, mms, ind, i);
-  const pm = portfolioManager(tech, fund, risk, research, reliability);
+  const pm = portfolioManager(tech, fund, risk, research, reliability, regime);
   return {
     t: meta.ticker, n: meta.name, sec: meta.sector, asOf: bars[i].t, close: bars[i].c,
     chg5: f2(bars[i].c / bars[i - 5].c - 1), chg21: f2(bars[i].c / bars[i - 21].c - 1),

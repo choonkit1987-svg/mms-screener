@@ -63,7 +63,7 @@ export function buildReport(universe, history, provider, { cfg = CONFIG, regimeT
     down: ranked.down.top.map(x => pack(x, 'short')), downPassed: ranked.down.passedCount, downCandidates: ranked.down.total,
     earlyUp: ranked.up.early.map(x => pack(x, 'long')), earlyUpCount: ranked.up.earlyCount,
     earlyDown: ranked.down.early.map(x => pack(x, 'short')), earlyDownCount: ranked.down.earlyCount,
-    ...(confirmed !== undefined ? { confirmedUp: conf.up, confirmedDown: conf.down, confirmCheck: confirmed ? confirmed.checked : null, confirmRules: CONFIRM_RULES } : {}),
+    ...(confirmed !== undefined ? { confirmedUp: conf.up, confirmedDown: conf.down, confirmCheck: confirmed ? confirmed.checked : null, confirmRules: CONFIRM_RULES, confirmMarket: confirmed?.market || null } : {}),
     config: cfg,
   } };
 }
@@ -133,7 +133,7 @@ async function main() {
   // Cross-check agent: valid MMS setups that the Agent Desk also rates strongly go onto the watchlist page
   let confirmed = null;
   if (usOut && deskOut) {
-    confirmed = confirmMatches(usOut.lookup.rows, deskOut.rows);
+    confirmed = confirmMatches(usOut.lookup.rows, deskOut.rows, undefined, deskOut.regime?.info ? null : deskOut.regime);
     const meta = new Map(us.map(u => [u.ticker, u]));
     confirmed.meta = Object.fromEntries([...confirmed.up, ...confirmed.down].map(x => [x.t, meta.get(x.t) || { ticker: x.t }]));
     log(`Cross-check: ${confirmed.up.length} confirmed uptrend (${confirmed.up.map(x => x.t).join(' ') || 'none'}) of ${confirmed.checked.up.length} valid MMS buys; ${confirmed.down.length} confirmed downtrend (${confirmed.down.map(x => x.t).join(' ') || 'none'}) of ${confirmed.checked.down.length} valid MMS shorts`);

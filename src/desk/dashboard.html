@@ -33,6 +33,9 @@ a{color:var(--accent)}
 .tiles>div{border:1px solid var(--rule);border-radius:8px;padding:10px 14px;display:flex;flex-direction:column;gap:3px;background:var(--bg)}
 .tiles .v{font-family:var(--mono);font-size:20px}
 .note{font-size:13px;color:var(--muted);margin:0}
+.rg-Bullish{color:var(--up)}.rg-Neutral{color:var(--ink)}.rg-Caution{color:var(--warn)}.rg-Bearish{color:var(--down)}
+#regime.rgb-Caution{border-color:var(--warn)}#regime.rgb-Bearish{border-color:var(--down)}
+.rgtable{border-collapse:collapse;font-size:13px;width:100%}.rgtable td,.rgtable th{padding:4px 8px;border-bottom:1px solid var(--rule);text-align:right}.rgtable td:first-child,.rgtable th:first-child{text-align:left}
 .warnbox{border:1px solid var(--warn);background:var(--warn-soft);border-radius:8px;padding:10px 14px;font-size:13.5px}
 .cols{display:grid;grid-template-columns:1fr 1fr;gap:22px;align-items:start}
 @media (max-width:980px){.cols{grid-template-columns:1fr}}
@@ -66,6 +69,7 @@ button:disabled{opacity:.55;cursor:default}
 .dhead .nm{color:var(--muted)}
 .verdict{border-radius:8px;padding:12px 14px;border-left:4px solid var(--warn);background:var(--warn-soft);display:flex;flex-direction:column;gap:4px}
 .verdict.up{border-color:var(--up);background:var(--up-soft)}.verdict.down{border-color:var(--down);background:var(--down-soft)}
+.verdict .rgc{align-self:flex-start;background:var(--surface);color:var(--ink);border:1px solid var(--rule)}
 .verdict .big{font-family:var(--display);font-size:26px;font-weight:700;line-height:1.1}
 .verdict p{margin:0;font-size:14px}
 .agents{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:12px}
@@ -170,6 +174,13 @@ textarea{font:inherit;font-size:15px;width:100%;min-height:76px;padding:9px 12px
 
     <main class="main" id="main">
       <div id="status" class="warnbox" hidden></div>
+
+      <section class="panel" id="regime" hidden>
+        <div class="phead"><h2>Market regime: <span id="rglabel"></span></h2><small id="rgsub"></small></div>
+        <p id="rgmeaning" style="margin:0"></p>
+        <div class="tiles" id="rgtiles"></div>
+        <p class="note" id="rgnote" style="margin:0"></p>
+      </section>
 
       <section class="panel" id="trust" hidden>
         <div class="phead"><h2>How often was the 2-week call right?</h2><small id="trustsub"></small></div>
@@ -276,7 +287,7 @@ async function show(m){
   $('#status').hidden=true;
   $('#asof').textContent=d.asOf;
   $('#sub').textContent=`Six agents read ${d.rank.total} ${m==='us'?'US stocks (S&P 500, Nasdaq-100, Dow 30 and your watchlist)':'top coins'} and make a 2-week call (${d.horizonLabel}): which are likely to trend up (beat the average ${unit()}) or down (lag it)?`;
-  trust(d);lists(d);fillLookup(d);screen(d);weights(d);prompts(d);
+  trust(d);regime(d);lists(d);fillLookup(d);screen(d);weights(d);prompts(d);
   const c=m==='crypto';
   $('#mt-analysis').textContent=$('#lkh').textContent=c?'Analysis of Coin':'Analysis of Stock';
   $('#cnt-up').textContent=d.rank.calls.up;$('#cnt-up').className='cnt up';
@@ -287,6 +298,17 @@ async function show(m){
   setView(S.view,false);
 }
 
+function regime(d){
+  const g=d.regime,box=$('#regime');
+  if(!g||g.info||!g.label){box.hidden=true;return}
+  box.hidden=false;box.className='panel rgb-'+g.label;
+  $('#rglabel').textContent=g.label;$('#rglabel').className='rg-'+g.label;
+  $('#rgsub').textContent=`score ${g.score>=0?'+':''}${g.score.toFixed(2)} (−1 to +1) · as of ${g.asOf}`;
+  $('#rgmeaning').textContent=g.meaning+' The portfolio manager '+(g.label==='Bearish'?'gives no Buy or Overweight ratings until the indexes recover.':g.label==='Caution'?'cuts every long score (more for high-beta stocks) and gives no full Buy.':g.label==='Bullish'?'softens bearish calls and gives no full Sell.':'leaves ratings to the stocks themselves, with a small cut when the indexes slip below zero.');
+  $('#rgtiles').innerHTML=g.indexes.map(x=>`<div><span class="label">${esc(x.name)} (${esc(x.ticker)})</span><span class="v rg-${x.score>=0.4?'Bullish':x.score>=-0.1?'Neutral':x.score>=-0.5?'Caution':'Bearish'}">${x.score>=0?'+':''}${x.score.toFixed(2)}</span><span class="note">${pct(x.r21)} in a month · Stage ${x.stage} · ${x.above50?'above':'below'} 50-day · ${x.above200?'above':'below'} 200-day${x.dd<-0.03?' · '+pc(-x.dd,1)+' off high':''}</span></div>`).join('');
+  const T=d.model.regimeTest;
+  $('#rgnote').innerHTML=T?`5-year check (${T.h}-day moves of every stock, ${T.indexes.join('/')}):<table class="rgtable"><tr><th>Regime</th><th>Days</th><th>Stocks higher</th><th>Average move</th></tr>${T.rows.map(x=>`<tr><td class="rg-${x.regime}">${x.regime}</td><td>${x.days}</td><td>${x.priceUp==null?'—':pc(x.priceUp,1)}</td><td>${x.avgRet==null?'—':pct(x.avgRet,2)}</td></tr>`).join('')}</table>`:'The 5-year check of how stocks moved in each regime appears after the next weekly model training (Sundays).';
+}
 function trust(d){
   const t=d.model.test||{},F=d.model.folds||[t],A=d.model.abs?.test,prov=d.model.provisional,u=unit();
   const rng=(k,f=x=>pc(x,1))=>{const v=F.map(x=>x[k]).filter(x=>x!=null);return v.length?(v.length>1?`${f(Math.min(...v))} – ${f(Math.max(...v))}`:f(v[0])):'n/a'};
@@ -327,7 +349,7 @@ function detail(t,scroll=true){
   el.innerHTML=`
   <div class="dhead"><div><div class="tk">${esc(r.t)}</div><div class="nm">${esc(r.n||'')}${r.sec?' · '+esc(r.sec):''}</div></div>
     <div class="mono" style="text-align:right"><div style="font-size:24px">${fp(r.close)}</div><div class="note">1 week ${pct(r.chg5)} · 1 month ${pct(r.chg21)} · ${esc(r.asOf)}</div></div></div>
-  <div class="verdict ${dir}"><span class="label">6 · Portfolio manager</span><span class="big">${P.rating}</span><p>${esc(P.why)}</p><p><b>${esc(P.action)}</b></p></div>
+  <div class="verdict ${dir}"><span class="label">6 · Portfolio manager</span><span class="big">${P.rating}</span>${P.market?`<span class="chip rgc">Market ${esc(P.market.label)}${P.market.changed?` · stock alone: ${esc(P.market.alone)}`:''}</span>`:''}<p>${esc(P.why)}</p><p><b>${esc(P.action)}</b></p></div>
   <div class="agents">
     <div class="agent"><h3><i>1</i>Filter</h3>${r.filter.passed?`<p class="up-t">Passed: liquid enough (${money(r.filter.dollarVol)} traded a day) with enough history.</p>`:`<p class="down-t">Did not pass:</p><ul>${r.filter.reasons.map(x=>`<li>${esc(x)}</li>`).join('')}</ul><p class="note">Shown for reference only; it is left out of the top lists.</p>`}</div>
     <div class="agent"><h3><i>2</i>Financial-report decoder</h3>${!F?`<p class="note">Crypto has no financial reports, so this agent is skipped. The other agents judge the coin on price action and risk.</p>`:!F.ok?`<p class="note">${esc(F.note||'No report data.')}</p>`:`

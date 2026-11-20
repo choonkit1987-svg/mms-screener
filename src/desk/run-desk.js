@@ -13,13 +13,14 @@ import { DESK, analyzeDesk, rankDesk } from './agents.js';
 import { FEATURES, buildDataset, trainAndTest, benchContext } from './forecast.js';
 import { refreshFundamentals, scoreMetrics } from './fundamentals.js';
 import { dataQuality } from '../engine.js';
+import { US_INDEXES, marketRegime, regimeByDate, regimeCheck } from './regime.js';
 
 export const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const modelFile = m => path.join(ROOT, `data/desk/model-${m}.json`);
 const fundFile = path.join(ROOT, 'data/desk/fundamentals.json.gz');
 
 const pctS = x => (x == null ? 'n/a' : (x * 100).toFixed(1) + '%');
-export function trainModel(market, histories, benchBars, { testDays = 120, folds = 4, epochs, log = console.log } = {}) {
+export function trainModel(market, histories, benchBars, { testDays = 120, folds = 4, epochs, log = console.log, indexes = null } = {}) {
   const h = DESK[market].h;
   // leave out series the MMS data-quality check flags (re-based prices, wrong token behind a symbol, ...)
   const clean = Object.fromEntries(Object.entries(histories).filter(([, b]) => b?.length && !dataQuality(b)));
@@ -33,6 +34,14 @@ export function trainModel(market, histories, benchBars, { testDays = 120, folds
     out.from = r.from; out.to = r.to;
     out[key] = { w: r.model.w, b: r.model.b, scaler: r.model.scaler, margin: r.margin, test: r.test, folds: r.folds };
     for (const f of r.folds) log(`  ${key} ${f.from}→${f.to}: up calls ${pctS(f.upCallHit)} right (${f.upCalls}), down calls ${pctS(f.downCallHit)} (${f.downCalls}), base ${pctS(f.baseUp)}, top-10% ${pctS(f.topDecileEx)} vs bottom-10% ${pctS(f.bottomDecileEx)} vs average`);
+  }
+  // market regime check: how did stocks do over the next h days when the indexes were bullish / bearish?
+  if (indexes?.length) {
+    const rg = regimeByDate(indexes);
+    if (rg.size) {
+      out.regimeTest = { indexes: indexes.map(x => x.ticker), h, rows: regimeCheck(samples, rg) };
+      for (const x of out.regimeTest.rows) log(`  regime ${x.regime}: ${x.days} days, ${pctS(x.priceUp)} of stocks higher after ${h} days, average ${pctS(x.avgRet)}`);
+    }
   }
   return out;
 }
@@ -85,20 +94,26 @@ export async function runDesk({ market, universe, history, benchTicker, log = co
 
   // grade the cached figures (numbers only in the cache, so wording/score fixes apply to old entries too)
   const graded = t => { const f = funds[t]; if (!f) return undefined; if (!f.ok || !f.metrics) return f; const u = universe.find(x => x.ticker === t); return { ...f, ...scoreMetrics(f.metrics, { sector: u?.sector }) }; };
-  const rows = universe.map(u => analyzeDesk(u, history[u.ticker], { cfg, models, reliability, bench, benchBars, fund: market === 'us' ? graded(u.ticker) : undefined, mms: mms.get(u.ticker), lastDate }));
+  // Market regime agent (stocks): S&P 500 (SPY), Nasdaq-100 (QQQ) and Dow Jones (DIA) trends feed the portfolio manager
+  let regime = null;
+  if (cfg.indexes?.length) {
+    regime = marketRegime(cfg.indexes.map(x => ({ ...x, bars: history[x.ticker] })));
+    if (regime) log(`  desk: ${regime.text}`);
+    else log('  desk: no index history — ratings made without the market regime');
+  } else if (benchBars?.length > 200) {
+    const c = benchBars.map(b => b.c), n = c.length, s200 = c.slice(-200).reduce((a, b) => a + b, 0) / 200;
+    regime = { ticker: benchTicker, close: c[n - 1], above200: c[n - 1] > s200, r21: c[n - 1] / c[n - 22] - 1, info: true };
+  }
+  const pmRegime = regime && !regime.info ? regime : null;
+  const rows = universe.map(u => analyzeDesk(u, history[u.ticker], { cfg, models, reliability, bench, benchBars, fund: market === 'us' ? graded(u.ticker) : undefined, mms: mms.get(u.ticker), lastDate, regime: pmRegime }));
   const rank = rankDesk(rows, 10);
   const asOf = rows.filter(r => !r.skip).map(r => r.asOf).sort().pop();
-  let regime = null;
-  if (benchBars?.length > 200) {
-    const c = benchBars.map(b => b.c), n = c.length, s200 = c.slice(-200).reduce((a, b) => a + b, 0) / 200;
-    regime = { ticker: benchTicker, close: c[n - 1], above200: c[n - 1] > s200, r21: c[n - 1] / c[n - 22] - 1 };
-  }
   const out = {
     market, asOf, generatedAt: new Date().toISOString(), horizon: cfg.h, horizonLabel: market === 'us' ? '10 trading days' : '14 days',
     model: { provisional, reliability, source: model.source || null, trainedAt: model.trainedAt, from: model.from, to: model.to, trainedOn: model.trainedOn,
-      margin: model.rel.margin, test: model.rel.test, folds: model.rel.folds, abs: { margin: model.abs?.margin, test: model.abs?.test, folds: model.abs?.folds },
+      margin: model.rel.margin, test: model.rel.test, folds: model.rel.folds, regimeTest: model.regimeTest || null, abs: { margin: model.abs?.margin, test: model.abs?.test, folds: model.abs?.folds },
       weights: FEATURES.map((f, j) => ({ label: f[1], w: Math.round(model.rel.w[j] * 1e3) / 1e3 })).sort((a, b) => Math.abs(b.w) - Math.abs(a.w)) },
-    regime, rank, config: { ...cfg }, rows,
+    regime, rank, config: { ...cfg, indexes: undefined }, rows,
   };
   const dir = path.join(ROOT, 'docs/agents/data');
   fs.mkdirSync(path.join(dir, 'archive'), { recursive: true });

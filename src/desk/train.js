@@ -9,19 +9,22 @@ import path from 'node:path';
 import { trainModel, saveModel, ROOT } from './run-desk.js';
 import { loadUniverse, cachedList, loadNasdaq100, yahooHistory } from '../data.js';
 import { loadCoinUniverse, cryptoHistory } from '../crypto.js';
+import { US_INDEXES } from './regime.js';
 
 const log = (...a) => console.log(new Date().toISOString().slice(11, 19), ...a);
 
 async function main() {
   const market = process.argv[2] || 'us';
-  let histories, bench;
+  let histories, bench, indexes = null;
   if (market === 'us') {
     const sp = await loadUniverse();
     const nq = await cachedList(path.join(ROOT, 'data/lists/nasdaq100.json'), loadNasdaq100, log).catch(() => []);
     const uni = [...new Map([...sp, ...nq].map(u => [u.ticker, u])).values()];
     log(`training universe: ${uni.length} stocks, 5 years of daily bars`);
-    histories = await yahooHistory([...uni, { ticker: 'SPY' }], { range: '5y', concurrency: 6, log });
+    histories = await yahooHistory([...uni, { ticker: 'SPY' }, { ticker: 'QQQ' }, { ticker: 'DIA' }], { range: '5y', concurrency: 6, log });
     bench = histories.SPY;
+    indexes = US_INDEXES.map(x => ({ ...x, bars: histories[x.ticker] })).filter(x => x.bars?.length);
+    delete histories.QQQ; delete histories.DIA; // index context only (SPY stays in, as before)
   } else {
     const uni = await cachedList(path.join(ROOT, 'data/lists/crypto.json'), () => loadCoinUniverse(100), log);
     log(`training universe: ${uni.length} coins`);
@@ -29,7 +32,7 @@ async function main() {
     bench = histories.BTC;
   }
   if (!bench || bench.length < 400) throw new Error('benchmark history missing — not saving a model');
-  const model = trainModel(market, histories, bench, { testDays: 120, log });
+  const model = trainModel(market, histories, bench, { testDays: 120, log, indexes });
   if (!(model.rel.test.samples > 1000)) throw new Error('too few test samples — not saving a model');
   saveModel(model);
   log(`saved data/desk/model-${market}.json`);

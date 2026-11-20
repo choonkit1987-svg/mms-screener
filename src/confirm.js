@@ -1,18 +1,20 @@
 // Cross-check agent: a stock is "confirmed" when the MMS screener and the Agent Desk agree.
 //   Uptrend:   valid MMS Stage 2 buy setup  AND  Agent Desk rating Buy, fundamentals grade A or B, Low risk
 //   Downtrend: valid MMS Stage 4 short setup AND  Agent Desk rating Underweight or Sell, fundamentals grade C, D or F
+//   Market:    uptrends need the S&P 500 / Nasdaq / Dow regime to be Bullish or Neutral; downtrends need it not Bullish
 // Confirmed stocks are shown automatically on the "My watchlist" page (Uptrend / Downtrend Stocks panels).
 export const CONFIRM_RULES = {
-  up: { ratings: ['Buy'], grades: ['A', 'B'], risk: ['Low'] },
-  down: { ratings: ['Underweight', 'Sell'], grades: ['C', 'D', 'F'], risk: null },
+  up: { ratings: ['Buy'], grades: ['A', 'B'], risk: ['Low'], market: ['Bullish', 'Neutral'] },
+  down: { ratings: ['Underweight', 'Sell'], grades: ['C', 'D', 'F'], risk: null, market: ['Neutral', 'Caution', 'Bearish'] },
 };
 
 const live = r => r && !r.skip && r.valid && !['EXTENDED', 'BROKEN'].includes(r.status);
 
-// mmsRows: US Stocks lookup rows (engine.lookupRecord); deskRows: Agent Desk US rows (desk/agents.js)
-export function confirmMatches(mmsRows = [], deskRows = [], rules = CONFIRM_RULES) {
+// mmsRows: US Stocks lookup rows (engine.lookupRecord); deskRows: Agent Desk US rows (desk/agents.js);
+// regime: Agent Desk market regime (desk/regime.js) or null (then the market check is skipped)
+export function confirmMatches(mmsRows = [], deskRows = [], rules = CONFIRM_RULES, regime = null) {
   const desk = new Map(deskRows.map(r => [r.t, r]));
-  const out = { up: [], down: [], checked: { up: [], down: [] } };
+  const out = { up: [], down: [], checked: { up: [], down: [] }, market: regime?.label ? { label: regime.label, score: regime.score } : null };
   for (const [side, stage, mmsSide] of [['up', 2, 'long'], ['down', 4, 'short']]) {
     const R = rules[side];
     for (const m of mmsRows.filter(r => live(r) && r.st === stage && r.side === mmsSide)) {
@@ -24,6 +26,7 @@ export function confirmMatches(mmsRows = [], deskRows = [], rules = CONFIRM_RULE
         if (!R.ratings.includes(info.rating)) miss.push(`rating ${info.rating || 'n/a'} (needs ${R.ratings.join(' or ')})`);
         if (!R.grades.includes(info.grade)) miss.push(`fundamentals ${info.grade || 'n/a'} (needs ${R.grades.join(', ')})`);
         if (R.risk && !R.risk.includes(info.risk)) miss.push(`${info.risk || 'n/a'} risk (needs ${R.risk.join(' or ')})`);
+        if (R.market && regime?.label && !R.market.includes(regime.label)) miss.push(`market ${regime.label.toLowerCase()} (needs ${R.market.join(', ').toLowerCase()})`);
       }
       out.checked[side].push({ t: m.t, n: m.n || '', desk: info, ok: !miss.length, miss });
       if (!miss.length) out[side].push({ t: m.t, desk: info });

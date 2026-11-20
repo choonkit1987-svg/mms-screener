@@ -350,6 +350,7 @@ details.wltok ol{font-size:13px;margin:6px 0 8px;padding-left:18px}
         <li>After each US scan, every valid US Stocks setup is checked against the Agent Desk.</li>
         <li>Uptrend: valid Stage 2 buy and Agent Desk rating Buy, fundamentals A or B, Low risk.</li>
         <li>Downtrend: valid Stage 4 short and Agent Desk rating Underweight or Sell, fundamentals C or below.</li>
+        <li>Market check: uptrends only while the S&amp;P 500 / Nasdaq / Dow regime is Bullish or Neutral; downtrends only while it is not Bullish.</li>
         <li>Matches appear automatically at the top of the watchlist page's Uptrend / Downtrend Stocks and are tracked on its Live Scorecard as <em>Confirmed</em>.</li></ul></div>
     </section>
 
@@ -425,7 +426,7 @@ function renderConfirm(d,key){
   const box=$('#'+key+'C'),arr=d[key==='up'?'confirmedUp':'confirmedDown'];
   if(!box)return;if(arr===undefined){box.hidden=true;return}
   box.hidden=false;const up=key==='up',side=up?'long':'short',R=d.confirmRules&&d.confirmRules[key],chk=d.confirmCheck&&d.confirmCheck[key];
-  const rule=R?`Valid MMS ${up?'Stage 2 buy':'Stage 4 short'} setup in US Stocks <b>and</b> Agent Desk rating ${R.ratings.join(' or ')}, fundamentals ${up?'grade '+R.grades.join(' or '):'grade C or below'}${R.risk?', '+R.risk.join(' or ')+' risk':''}. Added automatically after each US scan.`:'';
+  const rule=R?`Valid MMS ${up?'Stage 2 buy':'Stage 4 short'} setup in US Stocks <b>and</b> Agent Desk rating ${R.ratings.join(' or ')}, fundamentals ${up?'grade '+R.grades.join(' or '):'grade C or below'}${R.risk?', '+R.risk.join(' or ')+' risk':''}${R.market?`, market regime ${R.market.join(' or ').toLowerCase()}${d.confirmMarket?` (today: <b>${esc(d.confirmMarket.label)}</b>)`:''}`:''}. Added automatically after each US scan.`:'';
   box.innerHTML=`<div class="chead"><h3>Confirmed by MMS + Agent Desk</h3><small class="legend">${arr.length?arr.length+' today':'none today'}</small></div><p class="rule">${rule}</p><div class="cards"></div>`;
   const cards=box.querySelector('.cards');
   if(arr.length)arr.forEach((p,i)=>cards.appendChild(card(p,i,side)));
