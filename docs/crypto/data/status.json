@@ -1,18 +1,18 @@
 {
- "at": "2026-11-25T11:33:44.066Z",
+ "at": "2026-11-26T11:16:36.165Z",
  "ok": true,
- "asOf": "2026-11-24",
+ "asOf": "2026-11-25",
  "message": "",
  "coverage": {
   "share": 0.99,
   "fresh": 99,
   "total": 100,
-  "newest": "2026-11-24"
+  "newest": "2026-11-25"
  },
  "sources": {
   "binance": {
-   "ok": 70,
-   "fail": 30,
+   "ok": 69,
+   "fail": 31,
    "off": false,
    "lastError": "HTTP 400"
   },
@@ -23,7 +23,7 @@
    "lastError": "no data or blocked"
   },
   "okx": {
-   "ok": 8,
+   "ok": 9,
    "fail": 22,
    "off": false,
    "lastError": "Instrument ID, Instrument ID code, or Spread ID doesn't exist."
