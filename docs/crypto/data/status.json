@@ -1,13 +1,13 @@
 {
- "at": "2026-11-27T11:10:11.203Z",
+ "at": "2026-11-28T10:43:12.638Z",
  "ok": true,
- "asOf": "2026-11-26",
+ "asOf": "2026-11-27",
  "message": "",
  "coverage": {
   "share": 0.99,
   "fresh": 99,
   "total": 100,
-  "newest": "2026-11-26"
+  "newest": "2026-11-27"
  },
  "sources": {
   "binance": {
@@ -17,7 +17,7 @@
    "lastError": "HTTP 400"
   },
   "yahoo": {
-   "ok": 24,
+   "ok": 25,
    "fail": 1,
    "off": false,
    "lastError": "no data or blocked"
